@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-Guided Lessons to Build AI Agent on Raspberry Pi</title>
+  <style>
+    :root {
+      --bg: #f7faf9;
+      --ink: #16202a;
+      --muted: #5d6f80;
+      --line: #cbd8d7;
+      --paper: #ffffff;
+      --blue: #dff1ff;
+      --green: #e4f8eb;
+      --yellow: #fff2c8;
+      --pink: #ffe6ee;
+      --purple: #eee8ff;
+      --code: #101827;
+      --code-text: #eaf2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header,
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    header {
+      padding: 30px;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: 24px;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 38px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      color: var(--muted);
+    }
+
+    a {
+      color: #125f8f;
+      font-weight: 700;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    nav a {
+      display: block;
+      padding: 12px;
+      background: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .blue { background: var(--blue); }
+    .green { background: var(--green); }
+    .yellow { background: var(--yellow); }
+    .pink { background: var(--pink); }
+    .purple { background: var(--purple); }
+
+    .lesson {
+      border-left: 8px solid #75aadb;
+    }
+
+    .lesson:nth-of-type(2n) {
+      border-left-color: #7fc58f;
+    }
+
+    .lesson:nth-of-type(3n) {
+      border-left-color: #e5b84a;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--yellow);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      padding: 16px;
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: var(--code-text);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    .checklist li {
+      margin-bottom: 8px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow div {
+      min-height: 86px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--green);
+      font-weight: 700;
+    }
+
+    .callout {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--pink);
+    }
+
+    footer {
+      margin-top: 26px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      nav,
+      .grid,
+      .two,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Self-Guided Lessons to Build AI Agent on Raspberry Pi</h1>
+      <p>Build a tiny AI sidekick that wakes up, listens, thinks, talks back, searches the web, and changes faces on screen.</p>
+      <div class="grid">
+        <div class="card blue">
+          <h3>Big Idea</h3>
+          <p>One agent controls the conversation. Small tools do special jobs like wake word detection, speech-to-text, speech, local LLM answers, and search.</p>
+        </div>
+        <div class="card green">
+          <h3>Starter File</h3>
+          <p>Begin with <code>demo.py</code>. It is safe to run and easy to change.</p>
+        </div>
+        <div class="card yellow">
+          <h3>Final Shape</h3>
+          <p>Move from the demo into the clean skeleton folders: <code>agent/</code>, <code>face/</code>, <code>agent/tools/</code>, and <code>faces/</code>.</p>
+        </div>
+      </div>
+      <nav>
+        <a href="#lesson-1">Lesson 1: Fake Agent Demo</a>
+        <a href="#lesson-2">Lesson 2: Face Controller</a>
+        <a href="#lesson-3">Lesson 3: Wake Word</a>
+        <a href="#lesson-4">Lesson 4: Agent Loop</a>
+        <a href="#lesson-5">Lesson 5: STT</a>
+        <a href="#lesson-6">Lesson 6: TTS</a>
+        <a href="#lesson-7">Lesson 7: LLM</a>
+        <a href="#lesson-8">Lesson 8: Tools / Search</a>
+        <a href="#lesson-9">Lesson 9: Put It Together</a>
+      </nav>
+    </header>
+
+    <section>
+      <h2>Agentic Loop Overview</h2>
+      <p>The agent goes through the same loop again and again. The face changes so people can see what the agent is doing.</p>
+      <div class="flow">
+        <div>Idle<br><small>waiting</small></div>
+        <div>Wake<br><small>start</small></div>
+        <div>Listen<br><small>STT</small></div>
+        <div>Think<br><small>LLM/tools</small></div>
+        <div>Speak<br><small>TTS</small></div>
+        <div>Return<br><small>idle</small></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Before You Start</h2>
+      <div class="two">
+        <div class="card purple">
+          <h3>You Need</h3>
+          <ul>
+            <li>A Raspberry Pi 5 with more than 8 GB memory.</li>
+            <li>Python 3 installed.</li>
+            <li>A mini microphone.</li>
+            <li>A mini speaker.</li>
+            <li>A mini monitor or display.</li>
+            <li>A terminal where you can run commands.</li>
+            <li>Ollama installed for the local LLM lesson. Use the official <a href="https://ollama.com/download">Ollama download and install instructions</a>.</li>
+          </ul>
+        </div>
+        <div class="card pink">
+          <h3>Helpful Rule</h3>
+          <p>Make one small change at a time. Run the program. See what changed. Then make the next change.</p>
+        </div>
+      </div>
+      <pre><code>curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.2:1b
+python3 demo.py</code></pre>
+    </section>
+
+    <section id="lesson-1" class="lesson">
+      <span class="tag">Lesson 1</span>
+      <h2>Demo The Fake Agent</h2>
+      <p>Goal: run a complete fake agent before adding microphones, speakers, real wake word detection, web search, or a local LLM.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>The agent loop: idle, wake, listen, think, speak.</li>
+            <li>Fake tools that have the same shape as real tools.</li>
+            <li>Why a runnable demo helps you learn the system faster.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>demo.py</code></li>
+            <li><code>Agent.run()</code></li>
+            <li><code>FakeWakeWordTool.wait()</code></li>
+            <li><code>FakeSpeechToTextTool.listen_and_transcribe()</code></li>
+            <li><code>FakeLlmTool.answer()</code></li>
+            <li><code>FakeTextToSpeechTool.speak()</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open a terminal in the project folder.</li>
+        <li>Run <code>python3 demo.py</code>.</li>
+        <li>Press Enter when the fake wake word tool asks you to wake the agent.</li>
+        <li>Type <code>hello</code>, <code>what is your name?</code>, or <code>tell me a joke</code>.</li>
+        <li>Find <code>FakeLlmTool.answer()</code> and read how it chooses an answer.</li>
+        <li>Add one new <code>if</code> rule to make the fake agent answer your own question.</li>
+        <li>Run <code>python3 demo.py</code> again and test your new answer.</li>
+      </ol>
+      <pre><code>if "robot" in text:
+    return "Robots are machines that can sense, think, or act."</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>You can run the fake agent from the terminal.</li>
+        <li>You can explain why Lesson 1 is fake on purpose.</li>
+        <li>You added one custom response to <code>FakeLlmTool.answer()</code>.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-2" class="lesson">
+      <span class="tag">Lesson 2</span>
+      <h2>Build The Face State And Face Controller</h2>
+      <p>Goal: show different picture faces from the <code>faces/</code> folders when the agent changes state.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Shared state: the agent writes the current face state.</li>
+            <li>Background thread: the face controller keeps running while the agent waits.</li>
+            <li>Picture frames: each state loads PNG files from its matching folder.</li>
+            <li>Animation frames: one state can have more than one picture.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>demo.py</code>: working face demo.</li>
+            <li><code>face/state.py</code>: <code>FaceState.set()</code> and <code>FaceState.get()</code>.</li>
+            <li><code>face/controller.py</code>: <code>FaceController.run()</code>.</li>
+            <li><code>face/renderer.py</code>: load and draw PNG face pictures.</li>
+            <li><code>faces/</code>: picture folders copied from the original <a href="https://github.com/brenpoly/be-more-agent/tree/main/faces">be-more-agent faces directory</a>.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Image loading option: <code>Pillow</code>.</li>
+        <li>Display option: <code>pygame</code> for a fullscreen Raspberry Pi display.</li>
+        <li>Source reference: <a href="https://github.com/brenpoly/be-more-agent/tree/main/faces">github.com/brenpoly/be-more-agent/tree/main/faces</a>.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>In <code>demo.py</code>, find every line that calls <code>face_state.set(...)</code>.</li>
+        <li>Run the demo and watch the face state change from idle to listening, thinking, speaking, and back to idle.</li>
+        <li>Open the local <code>faces/</code> folder and look at the picture folders: <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code>, <code>error</code>, <code>capturing</code>, and <code>warmup</code>.</li>
+        <li>Open <code>face/renderer.py</code>. Implement <code>load()</code> so it reads PNG files from each folder.</li>
+        <li>Store the loaded pictures in a dictionary where the key is the state name, such as <code>"thinking"</code>.</li>
+        <li>Implement <code>draw(state)</code> so it draws the next picture for the current state.</li>
+        <li>Open <code>face/controller.py</code>. Implement <code>run()</code> so it repeatedly reads <code>face_state.get()</code> and asks the renderer to draw that state.</li>
+        <li>Find <code>Thread(target=face_controller.run, daemon=True).start()</code> in <code>main.py</code>.</li>
+        <li>Discuss why the face controller needs a background thread: the picture face should not freeze while the agent waits for input.</li>
+      </ol>
+      <pre><code>faces/
+  idle/
+    idle 01.png
+  listening/
+    listen 01.png
+    listen 02.png
+  thinking/
+    thinking 01.png
+    thinking 02.png
+    thinking 03.png
+    thinking 04.png</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>You can explain what <code>FaceState.set()</code> does.</li>
+        <li>You can explain why the face controller runs in a thread.</li>
+        <li>You can explain how one face state maps to one picture folder.</li>
+        <li>The renderer can show at least one PNG picture from the <code>faces/</code> folder.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-3" class="lesson">
+      <span class="tag">Lesson 3</span>
+      <h2>Add Wake Word Detection</h2>
+      <p>Goal: replace “press Enter to wake” with a real wake word tool.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Blocking functions: <code>wait()</code> pauses until the wake word is heard.</li>
+            <li>Audio sample rate: wake word tools often expect 16 kHz audio.</li>
+            <li>Tool swapping: the agent still calls <code>wake_word.wait()</code> no matter how the tool works inside.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/tools/wake_word.py</code></li>
+            <li><code>WakeWordTool.wait()</code></li>
+            <li><code>demo.py</code>: <code>FakeWakeWordTool.wait()</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Simple classroom package option: <code>openwakeword</code>.</li>
+        <li>Audio recording package option: <code>sounddevice</code>.</li>
+        <li>Start with a keyboard version first: type <code>wake</code> to simulate a wake word.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Read <code>FakeWakeWordTool.wait()</code> in <code>demo.py</code>.</li>
+        <li>Open <code>agent/tools/wake_word.py</code>.</li>
+        <li>Keep the same method name: <code>wait()</code>.</li>
+        <li>First implement a keyboard wake word: loop until the user types <code>wake</code>.</li>
+        <li>Then explore <code>openwakeword</code>: load a wake word model, read microphone audio, and check the prediction score.</li>
+        <li>Return from <code>wait()</code> only when the wake word is detected.</li>
+      </ol>
+      <pre><code>class WakeWordTool:
+    def wait(self):
+        # TODO: listen until the wake word is detected
+        pass</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The agent starts only after the wake step finishes.</li>
+        <li>The wake word code stays inside <code>WakeWordTool</code>.</li>
+        <li>The rest of the agent does not know whether wake word detection is fake, keyboard-based, or microphone-based.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-4" class="lesson">
+      <span class="tag">Lesson 4</span>
+      <h2>Implement The Main Agent Loop</h2>
+      <p>Goal: move the working loop idea from <code>demo.py</code> into the clean skeleton file.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Orchestration: the agent decides what happens next.</li>
+            <li>Dependency injection: tools are passed into the agent instead of created inside every method.</li>
+            <li>State changes: the agent updates <code>FaceState</code> before slow work starts.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/agent.py</code></li>
+            <li><code>Agent.run()</code></li>
+            <li><code>Agent.respond(user_text)</code></li>
+            <li><code>main.py</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open <code>demo.py</code> and find <code>Agent.run()</code>.</li>
+        <li>Open <code>agent/agent.py</code> and find the skeleton <code>Agent.run()</code>.</li>
+        <li>Copy the high-level loop idea, not every fake detail.</li>
+        <li>Call <code>self.wake_word.wait()</code> when idle.</li>
+        <li>Set the face to <code>listening</code>, then call <code>self.stt.listen_and_transcribe()</code>.</li>
+        <li>Set the face to <code>thinking</code>, then call <code>self.respond(user_text)</code>.</li>
+        <li>Set the face to <code>speaking</code>, then call <code>self.tts.speak(response)</code>.</li>
+        <li>Set the face back to <code>idle</code>.</li>
+      </ol>
+      <pre><code>self.face_state.set("listening")
+user_text = self.stt.listen_and_transcribe()
+
+self.face_state.set("thinking")
+response = self.respond(user_text)
+
+self.face_state.set("speaking")
+self.tts.speak(response)</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li><code>Agent.run()</code> has the full loop shape.</li>
+        <li>The agent calls tools instead of doing tool work directly.</li>
+        <li>Face states match the part of the loop currently running.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-5" class="lesson">
+      <span class="tag">Lesson 5</span>
+      <h2>STT: Add Speech-To-Text</h2>
+      <p>Goal: replace typed input with microphone-based speech recognition.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Recording audio from a microphone.</li>
+            <li>Saving audio as a short WAV file.</li>
+            <li>Transcribing audio into text.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/tools/stt.py</code></li>
+            <li><code>SpeechToTextTool.listen_and_transcribe()</code></li>
+            <li><code>agent/agent.py</code>: where the agent calls STT.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Recording option: <code>sounddevice</code> plus Python's built-in <code>wave</code> module.</li>
+        <li>Local transcription option: <code>whisper.cpp</code> with a small model such as <code>ggml-base.en.bin</code>.</li>
+        <li>Start simple: record a fixed 3-second clip before trying automatic silence detection.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open <code>agent/tools/stt.py</code>.</li>
+        <li>Keep the method name <code>listen_and_transcribe()</code>.</li>
+        <li>Use <code>sounddevice</code> to record a short microphone clip.</li>
+        <li>Save the clip as <code>input.wav</code>.</li>
+        <li>Run a local transcription command, such as <code>whisper.cpp</code>.</li>
+        <li>Read the transcription result and return it as a string.</li>
+        <li>Print the transcription while debugging so you can see what the agent heard.</li>
+      </ol>
+      <pre><code>def listen_and_transcribe(self) -> str:
+    # TODO: record microphone audio
+    # TODO: save input.wav
+    # TODO: run local speech-to-text
+    # TODO: return the transcribed text
+    return ""</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The microphone records sound.</li>
+        <li>The STT tool returns text.</li>
+        <li>The agent can answer a spoken question.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-6" class="lesson">
+      <span class="tag">Lesson 6</span>
+      <h2>TTS: Add Text-To-Speech</h2>
+      <p>Goal: make the agent speak out loud instead of only printing text.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Turning text into an audio file.</li>
+            <li>Playing audio through the Raspberry Pi speaker.</li>
+            <li>Keeping speech code inside a tool.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/tools/tts.py</code></li>
+            <li><code>TextToSpeechTool.speak(text)</code></li>
+            <li><code>agent/agent.py</code>: where the agent calls TTS.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Local TTS option: Piper.</li>
+        <li>Audio playback option: <code>aplay</code> on Raspberry Pi OS.</li>
+        <li>Fallback option for early testing: keep printing <code>Agent: ...</code>.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open <code>agent/tools/tts.py</code>.</li>
+        <li>Keep the method name <code>speak(text)</code>.</li>
+        <li>Install or prepare a local TTS engine such as Piper.</li>
+        <li>Generate a WAV file from a short sentence.</li>
+        <li>Play the WAV file through the speaker.</li>
+        <li>Call <code>tts.speak(response)</code> from the agent only after the face switches to <code>speaking</code>.</li>
+      </ol>
+      <pre><code>def speak(self, text: str):
+    # TODO: turn text into audio
+    # TODO: play the audio
+    pass</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The tool accepts text as input.</li>
+        <li>The agent can speak one sentence out loud.</li>
+        <li>The face shows <code>speaking</code> while the answer is playing.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-7" class="lesson">
+      <span class="tag">Lesson 7</span>
+      <h2>LLM: Add A Local Ollama Model</h2>
+      <p>Goal: use a small open model running locally through Ollama.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Local LLM: the model runs on your machine instead of a cloud API.</li>
+            <li>Prompt: the text you send to the model.</li>
+            <li>Response: the text the model sends back.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/tools/llm.py</code></li>
+            <li><code>LlmTool.answer(user_text)</code></li>
+            <li><code>LlmTool.answer_with_context(user_text, context)</code></li>
+            <li><code>Agent.respond(user_text)</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Runtime: Ollama.</li>
+        <li>Small model to start: <code>llama3.2:1b</code>.</li>
+        <li>Python HTTP option: <code>requests</code>, or Python's built-in <code>urllib.request</code>.</li>
+        <li>Local endpoint: <code>http://localhost:11434</code>.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Install Ollama on the Raspberry Pi or development computer.</li>
+        <li>Pull the model: <code>ollama pull llama3.2:1b</code>.</li>
+        <li>Test it in the terminal: <code>ollama run llama3.2:1b</code>.</li>
+        <li>Open <code>agent/tools/llm.py</code>.</li>
+        <li>Implement <code>answer(user_text)</code> so it sends the user text to Ollama.</li>
+        <li>Return only the model's answer string.</li>
+        <li>Implement <code>answer_with_context(user_text, context)</code> later for tool results.</li>
+      </ol>
+      <pre><code>class LlmTool:
+    def __init__(self, model_name: str = "llama3.2:1b"):
+        self.model_name = model_name
+        self.base_url = "http://localhost:11434"</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>Ollama runs locally.</li>
+        <li>The LLM tool can answer a simple question.</li>
+        <li>The agent uses <code>LlmTool</code> through <code>Agent.respond()</code>.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-8" class="lesson">
+      <span class="tag">Lesson 8</span>
+      <h2>Tools: Add Web Search</h2>
+      <p>Goal: give the agent a tool it can use when it needs current information from the web.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Tool routing: the agent decides when to call search.</li>
+            <li>Search result shaping: return a short title and snippet, not a giant page.</li>
+            <li>Context: search results become extra information for the LLM.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>agent/tools/search.py</code></li>
+            <li><code>SearchTool.search(query)</code></li>
+            <li><code>agent/agent.py</code>: <code>Agent.respond(user_text)</code></li>
+            <li><code>agent/tools/llm.py</code>: <code>answer_with_context(...)</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Search package: <code>duckduckgo_search</code>.</li>
+        <li>Helper class: <code>DDGS</code>.</li>
+        <li>Install command: <code>pip install duckduckgo-search</code>.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open <code>agent/tools/search.py</code>.</li>
+        <li>Install <code>duckduckgo-search</code> when you are ready.</li>
+        <li>Import <code>DDGS</code>.</li>
+        <li>Use <code>ddgs.text(...)</code> to fetch one or two results.</li>
+        <li>Return a short string containing the title and snippet.</li>
+        <li>Open <code>agent/agent.py</code> and update <code>respond()</code>.</li>
+        <li>If the user asks to “search” or “look up” something, call <code>SearchTool.search()</code>.</li>
+        <li>Send the search context into <code>llm.answer_with_context(...)</code>.</li>
+      </ol>
+      <pre><code>from duckduckgo_search import DDGS
+
+with DDGS() as ddgs:
+    results = list(ddgs.text(query, region="us-en", max_results=1))</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The search tool returns a short useful result.</li>
+        <li>The agent can decide when to use search.</li>
+        <li>The LLM can answer using search context.</li>
+      </ul>
+    </section>
+
+    <section id="lesson-9" class="lesson">
+      <span class="tag">Lesson 9</span>
+      <h2>Put Everything Together</h2>
+      <p>Goal: combine the agent loop, face controller, wake word, STT, TTS, local LLM, search, and display into one Raspberry Pi assistant.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Integration: connect tools that were tested separately.</li>
+            <li>Debugging: find which part of the loop failed.</li>
+            <li>Display assets: use face folders for visible states.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>main.py</code>: wires all parts together.</li>
+            <li><code>agent/agent.py</code>: full agent loop.</li>
+            <li><code>agent/tools/</code>: wake word, STT, TTS, LLM, search.</li>
+            <li><code>face/</code>: state, controller, renderer.</li>
+            <li><code>faces/</code>: images for each face state.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Packages And Tools</h3>
+      <ul>
+        <li>Face rendering option: <code>pygame</code> for a fullscreen Pi display.</li>
+        <li>Face asset option: PNG images inside <code>faces/idle</code>, <code>faces/listening</code>, <code>faces/thinking</code>, and <code>faces/speaking</code>.</li>
+        <li>System check tools: terminal logs and small <code>print()</code> messages.</li>
+      </ul>
+      <h3>Steps</h3>
+      <ol>
+        <li>Run each tool by itself before running the whole agent.</li>
+        <li>Open <code>main.py</code> and check that every tool is created there.</li>
+        <li>Implement <code>FaceController.run()</code> so it reads <code>face_state.get()</code>.</li>
+        <li>Implement <code>FaceRenderer.load()</code> to load image assets from the <code>faces/</code> folders.</li>
+        <li>Implement <code>FaceRenderer.draw(state)</code> to draw the next frame for the current state.</li>
+        <li>Run <code>python3 main.py</code>.</li>
+        <li>Test the full path: wake, speak question, transcribe, think, answer, return to idle.</li>
+        <li>If something breaks, test the tool from that lesson again by itself.</li>
+      </ol>
+      <pre><code>python3 main.py</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The face changes when the agent changes state.</li>
+        <li>The wake word starts the interaction.</li>
+        <li>The agent hears, thinks, speaks, and returns to idle.</li>
+        <li>The search tool works when the user asks for search.</li>
+        <li>You can explain what each folder does.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Debugging Tips</h2>
+      <div class="grid">
+        <div class="card yellow">
+          <h3>Read The Error</h3>
+          <p>The last line often tells you the real problem. Look for file names and line numbers.</p>
+        </div>
+        <div class="card pink">
+          <h3>Print Small Clues</h3>
+          <p>Use <code>print()</code> to show what state, text, audio file, model answer, or search result your code has right now.</p>
+        </div>
+        <div class="card purple">
+          <h3>Test One Tool</h3>
+          <p>If the full agent is confusing, test only one tool at a time, then reconnect it to <code>Agent.run()</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Build small. Test often. Make the agent a little smarter each lesson.
+    </footer>
+  </main>
+</body>
+</html>

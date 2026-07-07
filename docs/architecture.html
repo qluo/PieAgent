@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pi Agent Architecture</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212f;
+      --muted: #607086;
+      --line: #cbd5e1;
+      --agent: #e9f5ff;
+      --face: #eaf8ef;
+      --loop: #fff3df;
+      --tool: #f4f0ff;
+      --bg: #f8fafc;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    section {
+      margin-top: 28px;
+      padding: 24px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: 1.1fr 0.8fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 120px;
+      background: var(--white);
+    }
+
+    .agent {
+      background: var(--agent);
+    }
+
+    .face {
+      background: var(--face);
+    }
+
+    .loop {
+      background: var(--loop);
+    }
+
+    .tool {
+      background: var(--tool);
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 700;
+      min-height: 44px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--loop);
+      min-height: 112px;
+    }
+
+    .code {
+      padding: 16px;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      overflow-x: auto;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+      white-space: pre;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 860px) {
+      .diagram,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        min-height: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pi Agent Architecture</h1>
+    <p>One agent orchestrates tools. A separate face controller thread renders the current visual state. The only shared contract is <strong>FaceState</strong>.</p>
+
+    <section>
+      <h2>1. Agent Design</h2>
+      <div class="diagram">
+        <div class="box agent">
+          <h3>Agent</h3>
+          <p>Owns the assistant loop and decides what happens next.</p>
+          <ul>
+            <li>Waits for wake word</li>
+            <li>Runs speech-to-text</li>
+            <li>Calls LLM and tools</li>
+            <li>Runs text-to-speech</li>
+            <li>Updates FaceState</li>
+          </ul>
+        </div>
+        <div class="arrow">uses</div>
+        <div class="stack">
+          <div class="box tool">Wake Word Tool</div>
+          <div class="box tool">Speech-to-Text Tool</div>
+          <div class="box tool">LLM Tool</div>
+          <div class="box tool">Search Tool<br>duckduckgo_search</div>
+          <div class="box tool">Text-to-Speech Tool</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Face Controller Design</h2>
+      <div class="diagram">
+        <div class="box agent">
+          <h3>Agent Thread</h3>
+          <p>Writes simple semantic states.</p>
+          <div class="code">face_state.set("listening")
+face_state.set("thinking")
+face_state.set("speaking")
+face_state.set("idle")</div>
+        </div>
+        <div class="box face">
+          <h3>Shared FaceState</h3>
+          <p>Thread-safe shared state protected by a lock.</p>
+          <div class="code">state = face_state.get()</div>
+        </div>
+        <div class="box face">
+          <h3>Face Controller Thread</h3>
+          <p>Continuously reads FaceState and asks the renderer to draw the matching animation.</p>
+          <ul>
+            <li>Loads face assets</li>
+            <li>Chooses animation frames</li>
+            <li>Draws to Pi display</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Agentic Loop</h2>
+      <div class="flow">
+        <div class="step">
+          <h3>Idle</h3>
+          <p>Face shows idle while the wake word tool listens.</p>
+        </div>
+        <div class="step">
+          <h3>Wake</h3>
+          <p>Wake word detected. Agent moves into active interaction.</p>
+        </div>
+        <div class="step">
+          <h3>Listen</h3>
+          <p>Face shows listening. STT captures the user request.</p>
+        </div>
+        <div class="step">
+          <h3>Think</h3>
+          <p>Face shows thinking. A local Ollama LLM may call tools such as search.</p>
+        </div>
+        <div class="step">
+          <h3>Speak</h3>
+          <p>Face shows speaking. TTS plays the answer.</p>
+        </div>
+        <div class="step">
+          <h3>Return</h3>
+          <p>Agent returns to idle and waits for the next wake word.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Teaching Path</h2>
+      <div class="flow">
+        <div class="step">
+          <h3>Lesson 1</h3>
+          <p>Demo the fake agent.</p>
+        </div>
+        <div class="step">
+          <h3>Lesson 2</h3>
+          <p>Build face state and face controller.</p>
+        </div>
+        <div class="step">
+          <h3>Lesson 3</h3>
+          <p>Add wake word detection.</p>
+        </div>
+        <div class="step">
+          <h3>Lesson 4</h3>
+          <p>Implement the main agent loop.</p>
+        </div>
+        <div class="step">
+          <h3>Lesson 5</h3>
+          <p>Add STT speech-to-text.</p>
+        </div>
+        <div class="step">
+          <h3>Lesson 6</h3>
+          <p>Add TTS text-to-speech.</p>
+        </div>
+      </div>
+      <p style="margin-top: 16px;">Lessons 7, 8, and 9 add a local Ollama LLM, add DuckDuckGo search, then put the full assistant together. See <code>docs/self_guided_teaching_materials.html</code> for the full guide.</p>
+    </section>
+
+    <section>
+      <h2>Startup Shape</h2>
+      <div class="code">face_state = FaceState()
+
+face_controller = FaceController(face_state)
+Thread(target=face_controller.run, daemon=True).start()
+
+agent = Agent(face_state, wake_word, stt, tts, llm, tools)
+agent.run()</div>
+    </section>
+  </main>
+</body>
+</html>
