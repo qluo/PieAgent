@@ -1,0 +1,15 @@
+# Face images and display
+Pillow
+pygame
+
+# Microphone and wake word
+sounddevice
+# openwakeword currently needs NumPy 1.x; NumPy 2.x can break it.
+numpy<2
+openwakeword
+
+# Local Ollama HTTP calls
+requests
+
+# Web search tool
+duckduckgo-search

@@ -5,7 +5,7 @@ class SearchTool:
     use the `duckduckgo_search` package and its `DDGS` helper.
 
     Setup idea:
-    - Install the package: pip install duckduckgo-search
+    - Install project packages: uv pip install -r requirements.txt
     - Import DDGS: from duckduckgo_search import DDGS
     """
 

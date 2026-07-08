@@ -269,6 +269,7 @@
             <li>A mini speaker.</li>
             <li>A mini monitor or display.</li>
             <li>A terminal where you can run commands.</li>
+            <li><code>uv</code> installed for creating a Python virtual environment. Use the official <a href="https://docs.astral.sh/uv/getting-started/installation/">uv installation instructions</a>.</li>
             <li>Ollama installed for the local LLM lesson. Use the official <a href="https://ollama.com/download">Ollama download and install instructions</a>.</li>
           </ul>
         </div>
@@ -277,7 +278,12 @@
           <p>Make one small change at a time. Run the program. See what changed. Then make the next change.</p>
         </div>
       </div>
-      <pre><code>curl -fsSL https://ollama.com/install.sh | sh
+      <pre><code>curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+
+curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.2:1b
 python3 demo.py</code></pre>
     </section>
@@ -674,7 +680,7 @@ self.tts.speak(response)</code></pre>
       <ul>
         <li>Search package: <code>duckduckgo_search</code>.</li>
         <li>Helper class: <code>DDGS</code>.</li>
-        <li>Install command: <code>pip install duckduckgo-search</code>.</li>
+        <li>Install command: <code>uv pip install -r requirements.txt</code>.</li>
       </ul>
       <h3>Steps</h3>
       <ol>
