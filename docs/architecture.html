@@ -75,6 +75,67 @@
       align-items: stretch;
     }
 
+    .visual {
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .visual text {
+      fill: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .visual .small {
+      fill: var(--muted);
+      font-size: 13px;
+    }
+
+    .visual .label {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .visual .title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .node-agent {
+      fill: var(--agent);
+      stroke: #74a9d8;
+    }
+
+    .node-face {
+      fill: var(--face);
+      stroke: #78b886;
+    }
+
+    .node-loop {
+      fill: var(--loop);
+      stroke: #d5a64a;
+    }
+
+    .node-tool {
+      fill: var(--tool);
+      stroke: #9c8bd5;
+    }
+
+    .arrow-line {
+      stroke: #516174;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    .dashed-line {
+      stroke: #516174;
+      stroke-width: 2.2;
+      stroke-dasharray: 7 6;
+      fill: none;
+    }
+
     .box {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -163,6 +224,44 @@
 
     <section>
       <h2>1. Agent Design</h2>
+      <svg class="visual" viewBox="0 0 1040 430" role="img" aria-label="Agent design diagram showing the agent using tools and writing face state">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#516174"></polygon>
+          </marker>
+        </defs>
+        <rect x="40" y="55" width="250" height="290" rx="8" class="node-agent"></rect>
+        <text x="165" y="95" text-anchor="middle" class="title">Agent</text>
+        <text x="165" y="130" text-anchor="middle" class="small">The boss of the loop</text>
+        <text x="165" y="165" text-anchor="middle" class="small">Calls tools</text>
+        <text x="165" y="192" text-anchor="middle" class="small">Chooses next step</text>
+        <text x="165" y="219" text-anchor="middle" class="small">Updates FaceState</text>
+
+        <rect x="400" y="40" width="230" height="54" rx="8" class="node-tool"></rect>
+        <text x="515" y="73" text-anchor="middle" class="label">Wake Word</text>
+        <rect x="400" y="112" width="230" height="54" rx="8" class="node-tool"></rect>
+        <text x="515" y="145" text-anchor="middle" class="label">STT</text>
+        <rect x="400" y="184" width="230" height="54" rx="8" class="node-tool"></rect>
+        <text x="515" y="217" text-anchor="middle" class="label">Local LLM</text>
+        <rect x="400" y="256" width="230" height="54" rx="8" class="node-tool"></rect>
+        <text x="515" y="289" text-anchor="middle" class="label">Search Tool</text>
+        <rect x="400" y="328" width="230" height="54" rx="8" class="node-tool"></rect>
+        <text x="515" y="361" text-anchor="middle" class="label">TTS</text>
+
+        <rect x="760" y="140" width="230" height="130" rx="8" class="node-face"></rect>
+        <text x="875" y="181" text-anchor="middle" class="title">FaceState</text>
+        <text x="875" y="216" text-anchor="middle" class="small">"idle"</text>
+        <text x="875" y="243" text-anchor="middle" class="small">"thinking"</text>
+
+        <path d="M290 200 C335 120, 352 70, 392 67" class="arrow-line" marker-end="url(#arrowhead)"></path>
+        <path d="M290 200 C340 165, 355 140, 392 139" class="arrow-line" marker-end="url(#arrowhead)"></path>
+        <path d="M290 200 C330 205, 355 211, 392 211" class="arrow-line" marker-end="url(#arrowhead)"></path>
+        <path d="M290 200 C340 255, 355 283, 392 283" class="arrow-line" marker-end="url(#arrowhead)"></path>
+        <path d="M290 200 C335 315, 354 355, 392 355" class="arrow-line" marker-end="url(#arrowhead)"></path>
+        <path d="M290 245 C470 410, 745 365, 842 275" class="dashed-line" marker-end="url(#arrowhead)"></path>
+        <text x="575" y="405" text-anchor="middle" class="small">write current visible state</text>
+      </svg>
+      <p>The agent owns the conversation. Tools do one job each. The face is not a tool call; it is a shared state update that makes the agent's current activity visible.</p>
       <div class="diagram">
         <div class="box agent">
           <h3>Agent</h3>
@@ -188,6 +287,39 @@
 
     <section>
       <h2>2. Face Controller Design</h2>
+      <svg class="visual" viewBox="0 0 1040 400" role="img" aria-label="Face controller diagram showing two threads connected by FaceState">
+        <defs>
+          <marker id="arrowhead-face" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#516174"></polygon>
+          </marker>
+        </defs>
+        <rect x="40" y="70" width="245" height="230" rx="8" class="node-agent"></rect>
+        <text x="162" y="112" text-anchor="middle" class="title">Agent Thread</text>
+        <text x="162" y="151" text-anchor="middle" class="small">wake, listen, think, speak</text>
+        <text x="162" y="188" text-anchor="middle" class="small">face_state.set(...)</text>
+        <text x="162" y="225" text-anchor="middle" class="small">keeps doing agent work</text>
+
+        <rect x="395" y="120" width="250" height="130" rx="8" class="node-face"></rect>
+        <text x="520" y="163" text-anchor="middle" class="title">FaceState</text>
+        <text x="520" y="199" text-anchor="middle" class="small">thread-safe value</text>
+        <text x="520" y="226" text-anchor="middle" class="small">protected by Lock</text>
+
+        <rect x="755" y="70" width="245" height="230" rx="8" class="node-face"></rect>
+        <text x="877" y="112" text-anchor="middle" class="title">Face Controller</text>
+        <text x="877" y="151" text-anchor="middle" class="small">runs in background</text>
+        <text x="877" y="188" text-anchor="middle" class="small">state = face_state.get()</text>
+        <text x="877" y="225" text-anchor="middle" class="small">renderer.draw(state)</text>
+
+        <rect x="755" y="325" width="245" height="45" rx="8" class="node-loop"></rect>
+        <text x="877" y="354" text-anchor="middle" class="label">Pi display / mini monitor</text>
+
+        <path d="M285 185 L387 185" class="arrow-line" marker-end="url(#arrowhead-face)"></path>
+        <path d="M645 185 L747 185" class="arrow-line" marker-end="url(#arrowhead-face)"></path>
+        <path d="M877 300 L877 318" class="arrow-line" marker-end="url(#arrowhead-face)"></path>
+        <text x="336" y="169" text-anchor="middle" class="small">writes</text>
+        <text x="696" y="169" text-anchor="middle" class="small">reads</text>
+      </svg>
+      <p>The face controller does not talk to the LLM, microphone, or speaker. It only watches <strong>FaceState</strong> and draws the matching picture frames.</p>
       <div class="diagram">
         <div class="box agent">
           <h3>Agent Thread</h3>
@@ -216,67 +348,65 @@ face_state.set("idle")</div>
 
     <section>
       <h2>3. Agentic Loop</h2>
-      <div class="flow">
-        <div class="step">
-          <h3>Idle</h3>
-          <p>Face shows idle while the wake word tool listens.</p>
-        </div>
-        <div class="step">
-          <h3>Wake</h3>
-          <p>Wake word detected. Agent moves into active interaction.</p>
-        </div>
-        <div class="step">
-          <h3>Listen</h3>
-          <p>Face shows listening. STT captures the user request.</p>
-        </div>
-        <div class="step">
-          <h3>Think</h3>
-          <p>Face shows thinking. A local Ollama LLM may call tools such as search.</p>
-        </div>
-        <div class="step">
-          <h3>Speak</h3>
-          <p>Face shows speaking. TTS plays the answer.</p>
-        </div>
-        <div class="step">
-          <h3>Return</h3>
-          <p>Agent returns to idle and waits for the next wake word.</p>
-        </div>
-      </div>
+      <svg class="visual" viewBox="0 0 1040 430" role="img" aria-label="Agentic loop diagram from idle to wake, listen, think, speak, and back to idle">
+        <defs>
+          <marker id="arrowhead-loop" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#516174"></polygon>
+          </marker>
+        </defs>
+        <rect x="40" y="110" width="130" height="146" rx="8" class="node-loop"></rect>
+        <text x="105" y="163" text-anchor="middle" class="label">Idle</text>
+        <text x="105" y="192" text-anchor="middle" class="small">Face: idle</text>
+        <text x="105" y="219" text-anchor="middle" class="small">WakeWordTool</text>
+        <text x="105" y="239" text-anchor="middle" class="small">keeps listening</text>
+
+        <rect x="215" y="110" width="130" height="146" rx="8" class="node-loop"></rect>
+        <text x="280" y="163" text-anchor="middle" class="label">Wake</text>
+        <text x="280" y="192" text-anchor="middle" class="small">Wake word</text>
+        <text x="280" y="219" text-anchor="middle" class="small">detected</text>
+        <text x="280" y="239" text-anchor="middle" class="small">wait() returns</text>
+
+        <rect x="390" y="110" width="130" height="146" rx="8" class="node-loop"></rect>
+        <text x="455" y="163" text-anchor="middle" class="label">Listen</text>
+        <text x="455" y="192" text-anchor="middle" class="small">Face: listening</text>
+        <text x="455" y="219" text-anchor="middle" class="small">STT captures</text>
+        <text x="455" y="239" text-anchor="middle" class="small">the question</text>
+
+        <rect x="565" y="110" width="130" height="146" rx="8" class="node-loop"></rect>
+        <text x="630" y="163" text-anchor="middle" class="label">Think</text>
+        <text x="630" y="192" text-anchor="middle" class="small">Face: thinking</text>
+        <text x="630" y="219" text-anchor="middle" class="small">LLM answers</text>
+        <text x="630" y="239" text-anchor="middle" class="small">or uses tools</text>
+
+        <rect x="740" y="110" width="130" height="146" rx="8" class="node-loop"></rect>
+        <text x="805" y="163" text-anchor="middle" class="label">Speak</text>
+        <text x="805" y="192" text-anchor="middle" class="small">Face: speaking</text>
+        <text x="805" y="219" text-anchor="middle" class="small">TTS plays</text>
+        <text x="805" y="239" text-anchor="middle" class="small">the answer</text>
+
+        <rect x="915" y="110" width="90" height="146" rx="8" class="node-loop"></rect>
+        <text x="960" y="163" text-anchor="middle" class="label">Back</text>
+        <text x="960" y="192" text-anchor="middle" class="small">Return</text>
+        <text x="960" y="219" text-anchor="middle" class="small">to idle</text>
+        <text x="960" y="239" text-anchor="middle" class="small">and wait</text>
+
+        <path d="M170 183 L207 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
+        <path d="M345 183 L382 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
+        <path d="M520 183 L557 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
+        <path d="M695 183 L732 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
+        <path d="M870 183 L907 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
+        <path d="M960 110 C925 35, 145 35, 105 102" class="dashed-line" marker-end="url(#arrowhead-loop)"></path>
+
+        <text x="455" y="315" text-anchor="middle" class="small">SpeechToTextTool.listen_and_transcribe()</text>
+        <text x="630" y="342" text-anchor="middle" class="small">LlmTool.answer() or SearchTool.search()</text>
+        <text x="805" y="369" text-anchor="middle" class="small">TextToSpeechTool.speak()</text>
+      </svg>
+      <p>Each stage updates the face before doing slow work, so the display shows what the agent is currently doing.</p>
     </section>
 
     <section>
-      <h2>Teaching Path</h2>
-      <div class="flow">
-        <div class="step">
-          <h3>Lesson 1</h3>
-          <p>Demo the fake agent.</p>
-        </div>
-        <div class="step">
-          <h3>Lesson 2</h3>
-          <p>Build face state and face controller.</p>
-        </div>
-        <div class="step">
-          <h3>Lesson 3</h3>
-          <p>Add wake word detection.</p>
-        </div>
-        <div class="step">
-          <h3>Lesson 4</h3>
-          <p>Implement the main agent loop.</p>
-        </div>
-        <div class="step">
-          <h3>Lesson 5</h3>
-          <p>Add STT speech-to-text.</p>
-        </div>
-        <div class="step">
-          <h3>Lesson 6</h3>
-          <p>Add TTS text-to-speech.</p>
-        </div>
-      </div>
-      <p style="margin-top: 16px;">Lessons 7, 8, and 9 add a local Ollama LLM, add DuckDuckGo search, then put the full assistant together. See <code>docs/self_guided_teaching_materials.html</code> for the full guide.</p>
-    </section>
-
-    <section>
-      <h2>Startup Shape</h2>
+      <h2>Startup Wiring</h2>
+      <p>This snippet shows what happens when <code>main.py</code> starts. It creates one shared <code>FaceState</code>, starts the face controller in a background thread, then starts the main agent loop in the foreground.</p>
       <div class="code">face_state = FaceState()
 
 face_controller = FaceController(face_state)
