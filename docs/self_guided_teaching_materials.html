@@ -168,6 +168,45 @@
       margin-bottom: 8px;
     }
 
+    .step-checklist {
+      padding-left: 0;
+      list-style-position: inside;
+    }
+
+    .step-checklist li {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfefd;
+    }
+
+    .step-checklist label {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .step-checklist input {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      accent-color: #2f8f66;
+      flex: 0 0 auto;
+    }
+
+    .step-checklist li:has(input:checked) {
+      background: var(--green);
+    }
+
+    .step-checklist input:checked + span {
+      color: #314a3f;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+    }
+
     .flow {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -889,5 +928,50 @@ uv run pytest tests</code></pre>
       Build small. Test often. Make the agent a little smarter each lesson.
     </footer>
   </main>
+  <script>
+    const storageKeyPrefix = "pi-agent-lesson-step";
+
+    document.querySelectorAll(".lesson").forEach((lesson) => {
+      const lessonId = lesson.id || "lesson";
+
+      lesson.querySelectorAll("h3").forEach((heading) => {
+        if (heading.textContent.trim() !== "Steps") {
+          return;
+        }
+
+        const list = heading.nextElementSibling;
+        if (!list || list.tagName !== "OL") {
+          return;
+        }
+
+        list.classList.add("step-checklist");
+
+        list.querySelectorAll("li").forEach((item, index) => {
+          const key = `${storageKeyPrefix}:${lessonId}:${index}`;
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = localStorage.getItem(key) === "done";
+
+          const text = document.createElement("span");
+          while (item.firstChild) {
+            text.appendChild(item.firstChild);
+          }
+
+          const label = document.createElement("label");
+          label.appendChild(checkbox);
+          label.appendChild(text);
+          item.appendChild(label);
+
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              localStorage.setItem(key, "done");
+            } else {
+              localStorage.removeItem(key);
+            }
+          });
+        });
+      });
+    });
+  </script>
 </body>
 </html>
