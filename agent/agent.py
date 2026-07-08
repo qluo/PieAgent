@@ -50,14 +50,14 @@ class Agent:
         # Lesson 4: Implement The Main Agent Loop
         #
         # Goal:
-        # Move the loop idea from demo.py into this clean Agent class.
+        # Move the loop idea from demos/lesson1_demo.py into this clean Agent class.
         #
         # Concept to learn:
         # The Agent is the orchestrator. It decides the order of actions,
         # but each tool does its own special job.
         #
         # Small first step:
-        # Copy the high-level shape from demo.py:
+        # Copy the high-level shape from demos/lesson1_demo.py:
         # 1. Set face to "idle".
         # 2. Wait for wake word: self.wake_word.wait().
         # 3. Set face to "listening".

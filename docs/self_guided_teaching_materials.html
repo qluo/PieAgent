@@ -283,7 +283,7 @@
         </div>
         <div class="card green">
           <h3>Starter File</h3>
-          <p>Begin with <code>demo.py</code>. It is safe to run and easy to change.</p>
+          <p>Begin with <code>demos/lesson1_demo.py</code>. It is safe to run and easy to change.</p>
         </div>
         <div class="card yellow">
           <h3>Final Shape</h3>
@@ -344,7 +344,7 @@ uv pip install -r requirements.txt
 
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.2:1b
-python3 demo.py</code></pre>
+uv run python demos/lesson1_demo.py</code></pre>
     </section>
 
     <section>
@@ -374,7 +374,7 @@ python3 demo.py</code></pre>
 
     <section>
       <h2>How To Run Lesson Tests</h2>
-      <p>Run tests from the project folder, the folder that contains <code>demo.py</code>, <code>face/</code>, <code>agent/</code>, and <code>pytest.ini</code>. Each lesson has a matching test folder. Run one small test file at a time while you build. Later lesson tests may fail until you build those parts.</p>
+      <p>Run tests from the project folder, the folder that contains <code>demos/</code>, <code>face/</code>, <code>agent/</code>, and <code>pytest.ini</code>. Each lesson has a matching test folder. Run one small test file at a time while you build. Later lesson tests may fail until you build those parts.</p>
       <div class="two">
         <div class="card blue">
           <h3>Command Pattern</h3>
@@ -411,7 +411,7 @@ uv run pytest tests</code></pre>
         <div class="card green">
           <h3>Files And Functions</h3>
           <ul>
-            <li><code>demo.py</code></li>
+            <li><code>demos/lesson1_demo.py</code></li>
             <li><code>Agent.run()</code></li>
             <li><code>FakeWakeWordTool.wait()</code></li>
             <li><code>FakeSpeechToTextTool.listen_and_transcribe()</code></li>
@@ -423,12 +423,12 @@ uv run pytest tests</code></pre>
       <h3>Steps</h3>
       <ol>
         <li>Open a terminal in the project folder.</li>
-        <li>Run <code>python3 demo.py</code>.</li>
+        <li>Run <code>uv run python demos/lesson1_demo.py</code>.</li>
         <li>Press Enter when the fake wake word tool asks you to wake the agent.</li>
         <li>Type <code>hello</code>, <code>what is your name?</code>, or <code>tell me a joke</code>.</li>
         <li>Find <code>FakeLlmTool.answer()</code> and read how it chooses an answer.</li>
         <li>Add one new <code>if</code> rule to make the fake agent answer your own question.</li>
-        <li>Run <code>python3 demo.py</code> again and test your new answer.</li>
+        <li>Run <code>uv run python demos/lesson1_demo.py</code> again and test your new answer.</li>
       </ol>
       <pre><code>if "robot" in text:
     return "Robots are machines that can sense, think, or act."</code></pre>
@@ -463,7 +463,7 @@ uv run pytest tests/lesson_1</code></pre>
         <div class="card green">
           <h3>Files And Functions</h3>
           <ul>
-            <li><code>demo.py</code>: working face demo.</li>
+            <li><code>demos/lesson1_demo.py</code>: working face demo.</li>
             <li><code>face/state.py</code>: <code>FaceState.set()</code> and <code>FaceState.get()</code>.</li>
             <li><code>face/controller.py</code>: <code>FaceController.run()</code>.</li>
             <li><code>face/renderer.py</code>: load and draw PNG face pictures.</li>
@@ -478,7 +478,7 @@ uv run pytest tests/lesson_1</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>In <code>demo.py</code>, find every line that calls <code>face_state.set(...)</code>.</li>
+        <li>In <code>demos/lesson1_demo.py</code>, find every line that calls <code>face_state.set(...)</code>.</li>
         <li>Run the demo and watch the face state change from idle to listening, thinking, speaking, and back to idle.</li>
         <li>Open the local <code>faces/</code> folder and look at the picture folders: <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code>, <code>error</code>, <code>capturing</code>, and <code>warmup</code>.</li>
         <li>Run the state test first:<pre><code>uv run pytest tests/lesson_2/test_01_face_state.py</code></pre></li>
@@ -547,7 +547,7 @@ uv run pytest tests/lesson_2</code></pre>
           <ul>
             <li><code>agent/tools/wake_word.py</code></li>
             <li><code>WakeWordTool.wait()</code></li>
-            <li><code>demo.py</code>: <code>FakeWakeWordTool.wait()</code></li>
+            <li><code>demos/lesson1_demo.py</code>: <code>FakeWakeWordTool.wait()</code></li>
           </ul>
         </div>
       </div>
@@ -559,11 +559,12 @@ uv run pytest tests/lesson_2</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>Read <code>FakeWakeWordTool.wait()</code> in <code>demo.py</code>.</li>
+        <li>Read <code>FakeWakeWordTool.wait()</code> in <code>demos/lesson1_demo.py</code>.</li>
         <li>Open <code>agent/tools/wake_word.py</code>.</li>
         <li>Keep the same method name: <code>wait()</code>.</li>
         <li>First implement a keyboard wake word: loop until the user types <code>wake</code>.</li>
         <li>Then explore <code>openwakeword</code>: load a wake word model, read microphone audio, and check the prediction score.</li>
+        <li>Run the manual microphone demo:<pre><code>uv run python demos/test_wake_word_audio.py</code></pre></li>
         <li>Return from <code>wait()</code> only when the wake word is detected.</li>
       </ol>
       <pre><code>class WakeWordTool:
@@ -582,12 +583,15 @@ uv run pytest tests/lesson_3/test_02_keyboard_wake_word.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_3</code></pre>
+      <h3>Manual Audio Demo</h3>
+      <pre><code>uv run python demos/test_wake_word_audio.py
+uv run python demos/test_wake_word_audio.py --threshold 0.3</code></pre>
     </section>
 
     <section id="lesson-4" class="lesson">
       <span class="tag">Lesson 4</span>
       <h2>Implement The Main Agent Loop</h2>
-      <p>Goal: move the working loop idea from <code>demo.py</code> into the clean skeleton file.</p>
+      <p>Goal: move the working loop idea from <code>demos/lesson1_demo.py</code> into the clean skeleton file.</p>
       <div class="two">
         <div class="card blue">
           <h3>Concepts To Explore</h3>
@@ -609,7 +613,7 @@ uv run pytest tests/lesson_3</code></pre>
       </div>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>demo.py</code> and find <code>Agent.run()</code>.</li>
+        <li>Open <code>demos/lesson1_demo.py</code> and find <code>Agent.run()</code>.</li>
         <li>Open <code>agent/agent.py</code> and find the skeleton <code>Agent.run()</code>.</li>
         <li>Copy the high-level loop idea, not every fake detail.</li>
         <li>Call <code>self.wake_word.wait()</code> when idle.</li>

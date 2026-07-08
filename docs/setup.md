@@ -21,15 +21,15 @@ Install the Python packages:
 uv pip install -r requirements.txt
 ```
 
-Run the fake working demo:
+Run the fake working Lesson 1 demo:
 
 ```bash
-python3 demo.py
+uv run python demos/lesson1_demo.py
 ```
 
 ## Run Lesson Tests
 
-Run tests from the project folder, the folder that contains `demo.py`, `face/`,
+Run tests from the project folder, the folder that contains `demos/`, `face/`,
 `agent/`, and `pytest.ini`.
 
 Each lesson has its own test folder. Run one small test at a time while you build.
@@ -57,6 +57,21 @@ uv run pytest tests/lesson_9
 ```
 
 It is normal for later lesson tests to fail before you implement those lessons.
+
+## Run The Wake Word Audio Demo
+
+Lesson 3 also has a manual microphone demo. This is not a unit test because it
+needs real hardware:
+
+```bash
+uv run python demos/test_wake_word_audio.py
+```
+
+If detection is too hard, try a lower threshold:
+
+```bash
+uv run python demos/test_wake_word_audio.py --threshold 0.3
+```
 
 ## Ollama Setup
 

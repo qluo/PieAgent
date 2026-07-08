@@ -1,16 +1,16 @@
 from unittest.mock import patch
 
-import demo
+from demos import lesson1_demo
 
 
 def test_demo_agent_can_quit():
-    face_state = demo.FaceState()
-    agent = demo.Agent(
+    face_state = lesson1_demo.FaceState()
+    agent = lesson1_demo.Agent(
         face_state=face_state,
-        wake_word=demo.FakeWakeWordTool(),
-        stt=demo.FakeSpeechToTextTool(),
-        llm=demo.FakeLlmTool(),
-        tts=demo.FakeTextToSpeechTool(),
+        wake_word=lesson1_demo.FakeWakeWordTool(),
+        stt=lesson1_demo.FakeSpeechToTextTool(),
+        llm=lesson1_demo.FakeLlmTool(),
+        tts=lesson1_demo.FakeTextToSpeechTool(),
     )
 
     with patch("builtins.input", side_effect=["", "quit"]):

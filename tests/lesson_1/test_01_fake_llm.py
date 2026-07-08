@@ -1,8 +1,8 @@
-import demo
+from demos import lesson1_demo
 
 
 def test_fake_llm_has_starter_responses():
-    llm = demo.FakeLlmTool()
+    llm = lesson1_demo.FakeLlmTool()
 
     assert "Pi Agent" in llm.answer("what is your name?")
     assert "Hello" in llm.answer("hello")

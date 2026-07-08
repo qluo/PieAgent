@@ -2,7 +2,7 @@
 
 ## Lesson 1: Demo The Fake Agent
 
-Students run `demo.py` and see the full assistant loop working with fake tools.
+Students run `demos/lesson1_demo.py` and see the full assistant loop working with fake tools.
 
 ## Lesson 2: Build The Face State And Face Controller
 
@@ -14,7 +14,7 @@ Students replace the fake wake word tool with real wake word detection.
 
 ## Lesson 4: Implement The Main Agent Loop
 
-Students move the high-level loop from `demo.py` into `agent/agent.py`.
+Students move the high-level loop from `demos/lesson1_demo.py` into `agent/agent.py`.
 
 ## Lesson 5: STT, Speech-To-Text
 
