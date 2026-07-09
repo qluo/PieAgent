@@ -1,3 +1,4 @@
+from face import states
 from face.state import FaceState
 
 
@@ -47,30 +48,18 @@ class Agent:
         - Records/transcribes speech.
         - Speaks the answer.
         """
-        # Lesson 4: Implement The Main Agent Loop
-        #
-        # Goal:
-        # Move the loop idea from demos/lesson1_demo.py into this clean Agent class.
-        #
-        # Concept to learn:
-        # The Agent is the orchestrator. It decides the order of actions,
-        # but each tool does its own special job.
-        #
-        # Small first step:
-        # Copy the high-level shape from demos/lesson1_demo.py:
-        # 1. Set face to "idle".
-        # 2. Wait for wake word: self.wake_word.wait().
-        # 3. Set face to "listening".
-        # 4. Get user text: self.stt.listen_and_transcribe().
-        # 5. Set face to "thinking".
-        # 6. Get response: self.respond(user_text).
-        # 7. Set face to "speaking".
-        # 8. Speak response: self.tts.speak(response).
-        #
-        # Test idea:
-        # Use fake tools first. If the loop works with fake tools, then swap
-        # in one real tool at a time.
-        pass
+        while True:
+            self.face_state.set(states.IDLE)
+            self.wake_word.wait()
+
+            self.face_state.set(states.LISTENING)
+            user_text = self.stt.listen_and_transcribe()
+
+            self.face_state.set(states.THINKING)
+            response = self.respond(user_text)
+
+            self.face_state.set(states.SPEAKING)
+            self.tts.speak(response)
 
     def respond(self, user_text: str) -> str:
         """Produce a response, optionally using tools.
@@ -81,21 +70,4 @@ class Agent:
         Output:
         - A response string that can be sent to self.tts.speak(...).
         """
-        # Lesson 4, then Lessons 7 and 8:
-        #
-        # Goal:
-        # Decide whether the agent should answer directly with the LLM or use
-        # a tool first.
-        #
-        # Small first step:
-        # Return self.llm.answer(user_text).
-        #
-        # Later:
-        # If the user says "search" or "look up", call:
-        #   self.tools["search"].search(user_text)
-        # Then pass the search result into:
-        #   self.llm.answer_with_context(user_text, context)
-        #
-        # Expected return value:
-        # A string that can be sent to self.tts.speak(...).
-        return ""
+        return self.llm.answer(user_text)
