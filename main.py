@@ -28,7 +28,9 @@ def main() -> None:
         face_state=face_state,
         wake_word=WakeWordTool(),
         stt=SpeechToTextTool(),
-        tts=TextToSpeechTool(),
+        tts=TextToSpeechTool(
+            voice_model_path="models/piper/en_US-lessac-low.onnx",
+        ),
         llm=LlmTool(),
         tools={
             "search": SearchTool(),
