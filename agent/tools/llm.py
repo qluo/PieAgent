@@ -48,6 +48,16 @@ class LlmTool:
         data = response.json()
         return data["response"].strip()
 
+    def needs_search(self, user_text: str) -> bool:
+        """Ask the local model if this question needs a web search."""
+        prompt = (
+            "Based on your current knowledge, decide if this user question needs current web search results.\n"
+            "Answer with only SEARCH or NO_SEARCH.\n\n"
+            f"Question: {user_text}"
+        )
+        decision = self.answer(prompt).strip().upper()
+        return decision.startswith("SEARCH")
+
     def answer_with_context(self, user_text: str, context: str) -> str:
         """Answer using tool context and a local Ollama model.
 

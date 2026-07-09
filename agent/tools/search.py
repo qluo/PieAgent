@@ -1,3 +1,6 @@
+from duckduckgo_search import DDGS
+
+
 class SearchTool:
     """Web search tool using DuckDuckGo search.
 
@@ -31,31 +34,24 @@ class SearchTool:
         Output:
         - A short text summary that can be passed into the LLM as context.
         """
-        # Lesson 8: Tools - Web Search
-        #
-        # Goal:
-        # Search the web and return a short piece of text that the LLM can use.
-        #
-        # Suggested package:
-        # - duckduckgo-search: provides the DDGS helper.
-        #
-        # Import after installing requirements:
-        #   from duckduckgo_search import DDGS
-        #
-        # Concept to learn:
-        # Search tools usually return lots of data. Your job is to shape that
-        # data into a small, useful context string.
-        #
-        # Small first step:
-        # Ask for one result with max_results=1.
-        #
-        # Real version idea:
-        # 1. Open DDGS with: with DDGS() as ddgs:
-        # 2. Call ddgs.text(query, region="us-en", max_results=1).
-        # 3. Pull out the title, href, and body/snippet.
-        # 4. Return a short string for the LLM.
-        #
-        # Expected return value:
-        # A short string like:
-        #   "Title: ...\nSummary: ...\nURL: ..."
-        return ""
+        try:
+            with DDGS() as ddgs:
+                results = list(
+                    ddgs.text(
+                        query,
+                        region=self.region,
+                        max_results=self.max_results,
+                    )
+                )
+        except Exception as error:
+            return f"Search failed for {query}: {error}"
+
+        if not results:
+            return f"No search results found for {query}."
+
+        result = results[0]
+        title = result.get("title", "")
+        summary = result.get("body", "")
+        url = result.get("href", "")
+
+        return f"Title: {title}\nSummary: {summary}\nURL: {url}"

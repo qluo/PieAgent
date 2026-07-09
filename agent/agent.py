@@ -70,4 +70,12 @@ class Agent:
         Output:
         - A response string that can be sent to self.tts.speak(...).
         """
+        if (
+            "search" in self.tools
+            and hasattr(self.llm, "needs_search")
+            and self.llm.needs_search(user_text)
+        ):
+            context = self.tools["search"].search(user_text)
+            return self.llm.answer_with_context(user_text, context)
+
         return self.llm.answer(user_text)
