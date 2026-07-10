@@ -13,8 +13,12 @@ class SpeechToTextTool:
 
         Inputs:
         - sample_rate: microphone sample rate for recording.
-        - seconds: starting recording length for the first version.
-        - output_wav: path where recorded audio can be saved.
+        - seconds: maximum listening time.
+        - silence_seconds: how long quiet must last before recording stops.
+        - silence_threshold: loudness needed before a chunk counts as speech.
+        - model_path: whisper.cpp model file path.
+        - whisper_binary: whisper.cpp command path.
+        - mode: "keyboard" for early tests, "microphone" for the Pi version.
 
         Output:
         - None. Stores settings for listen_and_transcribe().
@@ -65,16 +69,59 @@ class SpeechToTextTool:
 
     def listen_until_silence(self) -> bytes:
         """Record when speech starts, then stop after a short silence."""
-        # TODO for students:
-        # 1. Open the microphone with sounddevice.
-        # 2. Start saving audio chunks when loudness() says speech began.
-        # 3. Stop after a short silence.
-        # 4. Return the recorded audio bytes.
-        return b""
+        import queue
+
+        import sounddevice as sd
+
+        chunk_seconds = 0.1
+        chunk_size = int(self.sample_rate * chunk_seconds)
+        quiet_chunks_needed = int(self.silence_seconds / chunk_seconds)
+        max_chunks = int(self.seconds / chunk_seconds)
+        audio_queue: queue.Queue[bytes] = queue.Queue()
+
+        def callback(indata, _frames, _time, _status) -> None:
+            audio_queue.put(bytes(indata))
+
+        recorded_chunks: list[bytes] = []
+        heard_speech = False
+        quiet_chunks = 0
+
+        with sd.RawInputStream(
+            channels=1,
+            samplerate=self.sample_rate,
+            blocksize=chunk_size,
+            dtype="int16",
+            callback=callback,
+        ):
+            for _ in range(max_chunks):
+                chunk = audio_queue.get()
+                is_speech = self.loudness(chunk) > self.silence_threshold
+
+                if is_speech:
+                    heard_speech = True
+                    quiet_chunks = 0
+
+                if heard_speech:
+                    recorded_chunks.append(chunk)
+                    if not is_speech:
+                        quiet_chunks += 1
+                    if quiet_chunks >= quiet_chunks_needed:
+                        break
+
+        return b"".join(recorded_chunks)
 
     def loudness(self, audio_bytes: bytes) -> float:
         """Return a simple average volume for 16-bit microphone audio."""
-        # TODO for students:
-        # 1. Convert audio_bytes into 16-bit samples.
-        # 2. Return the average absolute sample value.
-        return 0.0
+        if not audio_bytes:
+            return 0.0
+
+        total = 0
+        sample_count = 0
+        for index in range(0, len(audio_bytes) - 1, 2):
+            sample = int.from_bytes(audio_bytes[index : index + 2], "little", signed=True)
+            total += abs(sample)
+            sample_count += 1
+
+        if sample_count == 0:
+            return 0.0
+        return total / sample_count

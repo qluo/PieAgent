@@ -91,6 +91,7 @@ class Agent:
         # Return self.llm.answer(user_text).
         #
         # Later:
+        # TODO for Lesson 8:
         # 1. Ask the LLM if search is needed:
         #      self.llm.needs_search(user_text)
         # 2. If the LLM says search is needed, call:

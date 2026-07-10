@@ -723,18 +723,14 @@ uv run python demos/test_wake_word_audio.py --threshold 0.3</code></pre>
         <li>Set the face to <code>thinking</code>, then call <code>self.respond(user_text)</code>.</li>
         <li>Set the face to <code>speaking</code>, then call <code>self.tts.speak(response)</code>.</li>
         <li>Set the face back to <code>idle</code>.</li>
+        <li>Find <code>Agent.respond(user_text)</code>. For now, implement the TODO by returning <code>self.llm.answer(user_text)</code>.</li>
+        <li>Later, Lesson 8 will update <code>respond()</code> so the LLM decides whether search is needed.</li>
       </ol>
-      <pre><code>self.face_state.set("listening")
-user_text = self.stt.listen_and_transcribe()
-
-self.face_state.set("thinking")
-response = self.respond(user_text)
-
-self.face_state.set("speaking")
-self.tts.speak(response)</code></pre>
       <pre><code>try:
+    # Run the agent until the user presses Ctrl+C in the terminal.
     agent.run()
 except KeyboardInterrupt:
+    # Put the face back to idle before the program exits.
     face_state.set(states.IDLE)
     print("\nPiAgent stopped.")</code></pre>
       <h3>Checkpoint</h3>
@@ -770,6 +766,8 @@ uv run pytest tests/lesson_4</code></pre>
           <ul>
             <li><code>agent/tools/stt.py</code></li>
             <li><code>SpeechToTextTool.listen_and_transcribe()</code></li>
+            <li><code>SpeechToTextTool.listen_until_silence()</code>: provided helper that records one spoken phrase.</li>
+            <li><code>SpeechToTextTool.loudness()</code>: provided helper that measures microphone volume.</li>
             <li><code>agent/agent.py</code>: where the agent calls STT.</li>
           </ul>
         </div>
@@ -783,38 +781,20 @@ uv run pytest tests/lesson_4</code></pre>
       <h3>Steps</h3>
       <ol>
         <li>Open <code>agent/tools/stt.py</code>.</li>
-        <li>Read <code>SpeechToTextTool.__init__()</code>. Notice <code>sample_rate</code>, <code>max_seconds</code>, <code>silence_seconds</code>, <code>model_path</code>, and <code>whisper_binary</code>.</li>
+        <li>Read <code>SpeechToTextTool.__init__()</code>. Notice <code>sample_rate</code>, <code>seconds</code>, <code>silence_seconds</code>, <code>model_path</code>, and <code>whisper_binary</code>.</li>
         <li>Keep the method name <code>listen_and_transcribe()</code>.</li>
-        <li>Use <code>sounddevice</code> to listen in short chunks.</li>
-        <li>Start collecting chunks when the sound is loud enough to be speech.</li>
-        <li>Stop collecting chunks after a short silence.</li>
-        <li>Send the captured speech to <code>whisper.cpp</code>.</li>
+        <li>Read the provided <code>listen_until_silence()</code> helper. It uses <code>sounddevice</code> to listen in short chunks.</li>
+        <li>Read the provided <code>loudness()</code> helper. <code>listen_until_silence()</code> uses it to start when speech begins and stop after quiet.</li>
+        <li>Inside <code>listen_and_transcribe()</code>, call <code>self.listen_until_silence()</code> to capture the user's speech.</li>
+        <li>Save the captured speech to a temporary WAV file for <code>whisper.cpp</code>.</li>
+        <li>Send the temporary WAV file to <code>whisper.cpp</code>.</li>
         <li>Return the transcription as a string.</li>
         <li>Print the transcription while debugging so you can see what the agent heard.</li>
       </ol>
-      <pre><code>def __init__(self, sample_rate=16000, max_seconds=10.0, silence_seconds=1.0):
-    self.sample_rate = sample_rate
-    self.max_seconds = max_seconds
-    self.silence_seconds = silence_seconds
-
-def listen_and_transcribe(self) -> str:
-    # TODO: listen until speech ends
-    # TODO: run whisper.cpp
-    # TODO: return the transcribed text
-    return ""
-
-def listen_until_silence(self) -> bytes:
-    # TODO: read microphone chunks with sounddevice
-    # TODO: start saving chunks when loudness is high
-    # TODO: stop after silence_seconds of quiet
-    return b""
-
-def loudness(self, audio: bytes) -> float:
-    # TODO: return average loudness for 16-bit microphone audio
-    return 0.0</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The microphone records sound.</li>
+        <li><code>listen_and_transcribe()</code> uses the provided helper <code>listen_until_silence()</code>.</li>
         <li>The STT tool returns text.</li>
         <li>The agent can answer a spoken question.</li>
       </ul>
