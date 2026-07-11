@@ -17,3 +17,22 @@ def test_agent_respond_returns_llm_answer():
     )
 
     assert agent.respond("hello") == "answer to hello"
+
+
+def test_agent_respond_includes_agents_md_in_llm_prompt():
+    agent = Agent(
+        face_state=None,
+        wake_word=None,
+        stt=None,
+        tts=None,
+        llm=FakeLlm(),
+        tools={},
+    )
+    agent.agents_md = "Answer in one sentence."
+
+    assert agent.respond("hello") == (
+        "answer to Project instructions:\n"
+        "Answer in one sentence.\n\n"
+        "User request:\n"
+        "hello"
+    )

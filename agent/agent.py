@@ -1,8 +1,14 @@
+from pathlib import Path
+
 from face import states
 from face.state import FaceState
 
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
 class Agent:
+
     def __init__(
         self,
         face_state: FaceState,
@@ -32,6 +38,7 @@ class Agent:
         self.tts = tts
         self.llm = llm
         self.tools = tools
+        self.agents_md = self.load_agents_md()
 
     def run(self) -> None:
         """Run the main agentic loop.
@@ -70,12 +77,36 @@ class Agent:
         Output:
         - A response string that can be sent to self.tts.speak(...).
         """
+        prompt = self.build_prompt(user_text)
+
         if (
             "search" in self.tools
             and hasattr(self.llm, "needs_search")
-            and self.llm.needs_search(user_text)
+            and self.llm.needs_search(prompt)
         ):
             context = self.tools["search"].search(user_text)
-            return self.llm.answer_with_context(user_text, context)
+            return self.llm.answer_with_context(prompt, context)
 
-        return self.llm.answer(user_text)
+        return self.llm.answer(prompt)
+
+    def build_prompt(self, user_text: str) -> str:
+        """Combine persistent project instructions with a user request."""
+        if not self.agents_md.strip():
+            return user_text
+        return (
+            "Agent instructions:\n"
+            f"{self.agents_md.strip()}\n\n"
+            "User request:\n"
+            f"{user_text}"
+        )
+
+    @staticmethod
+    def load_agents_md() -> str:
+        """Load repository instructions from the root ``AGENTS.md`` file.
+
+        Returns an empty string when the project does not define that file.
+        """
+        agents_file = PROJECT_ROOT / "AGENTS.md"
+        if not agents_file.is_file():
+            return ""
+        return agents_file.read_text(encoding="utf-8")
