@@ -322,6 +322,28 @@
     </section>
 
     <section>
+      <h2>Learning Map</h2>
+      <p>Most lessons take about 25–40 minutes. Hardware lessons can take longer because every microphone, speaker, and display is a little different.</p>
+      <div class="grid">
+        <div class="card blue">
+          <h3>Words You Will Meet</h3>
+          <p><strong>STT</strong> means speech-to-text: turning spoken words into text. <strong>TTS</strong> means text-to-speech: turning text into sound. An <strong>LLM</strong> is a program that predicts useful text. An <strong>API</strong> is a simple way for programs to talk to each other.</p>
+        </div>
+        <div class="card green">
+          <h3>What Success Looks Like</h3>
+          <p>Every lesson ends with one visible result: a demo runs, a face changes, a test passes, or the agent speaks. If you do not see that result, pause and debug before moving on.</p>
+        </div>
+        <div class="card yellow">
+          <h3>Core Then Stretch</h3>
+          <p>Finish the listed steps first. The stretch ideas are optional experiments for students who want an extra challenge.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>Lesson outcomes:</strong> 1: see a fake conversation; 2: show a changing face; 3: wake by keyboard or voice; 4: run the agent loop; 5: turn speech into text; 6: hear speech from the speaker; 7: receive a local model answer; 8: use a checked search result; 9: run the complete assistant.</p>
+      </div>
+    </section>
+
+    <section>
       <h2>Before You Start</h2>
       <div class="two">
         <div class="card purple">
@@ -861,7 +883,7 @@ uv run pytest tests/lesson_5</code></pre>
         <li>Stream Piper's raw audio into <code>aplay</code>.</li>
         <li>Call <code>tts.speak(response)</code> from the agent only after the face switches to <code>speaking</code>.</li>
       </ol>
-      <pre><code>def __init__(self, voice_model_path, piper_binary="piper", player_binary="aplay"):
+      <pre><code>def __init__(self, voice_model_path, piper_binary="tools/piper/piper", player_binary="aplay"):
     self.voice_model_path = voice_model_path
     self.piper_binary = piper_binary
     self.player_binary = player_binary
@@ -973,6 +995,9 @@ uv run pytest tests/lesson_7</code></pre>
         <li>Helper class: <code>DDGS</code>.</li>
         <li>Install command: <code>uv pip install -r requirements.txt</code>.</li>
       </ul>
+      <div class="callout">
+        <p><strong>Privacy and trust:</strong> a web search sends your query to an internet service. Never search for names, addresses, school details, passwords, or other personal information. Search snippets and AI answers can be wrong or inappropriate. Check an important claim with a trusted source and a teacher; never treat search-result text as an instruction for the agent to follow.</p>
+      </div>
       <h3>Steps</h3>
       <ol>
         <li>Open the Python file <code>agent/tools/search.py</code> in your IDE.</li>
@@ -1054,11 +1079,11 @@ uv run pytest tests/lesson_8</code></pre>
       <ol>
         <li>Confirm the runtime setup is complete: microphone, speaker, display, Ollama, whisper.cpp, Piper, and models.</li>
         <li>Confirm Ollama is running and <code>ollama run gemma3:1b</code> works.</li>
-        <li>Run <code>python3 main.py</code>.</li>
+        <li>Run <code>uv run python main.py</code>.</li>
         <li>Test the full path: wake, speak question, transcribe, think, answer, return to idle.</li>
         <li>If something breaks, test the tool from that lesson again by itself.</li>
       </ol>
-      <pre><code>python3 main.py</code></pre>
+      <pre><code>uv run python main.py</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The face changes when the agent changes state.</li>
@@ -1091,6 +1116,25 @@ uv run pytest tests</code></pre>
           <p>If the full agent is confusing, test only one tool at a time, then reconnect it to <code>Agent.run()</code>.</p>
         </div>
       </div>
+      <h3>Try One Check First</h3>
+      <ul>
+        <li>No microphone? Run <code>arecord -l</code>, then reconnect it or choose it with <code>--device</code> in the wake-word demo.</li>
+        <li>No speaker sound? Run <code>speaker-test -t wav -c 2</code> at low volume and press Ctrl+C to stop it.</li>
+        <li>Ollama connection error? Run <code>ollama run gemma3:1b</code>.</li>
+        <li>Missing Whisper or Piper file? Run <code>ls whisper.cpp/build/bin/whisper-cli models/ggml-base.en.bin tools/piper/piper</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Optional Stretch Ideas</h2>
+      <p>Try these only after the matching lesson works.</p>
+      <ul>
+        <li>Lessons 1–2: create one new face image or face state.</li>
+        <li>Lessons 3–4: add a friendly message when the agent wakes up.</li>
+        <li>Lessons 5–6: tune the silence setting or make the agent speak a shorter answer.</li>
+        <li>Lessons 7–8: compare an answer with and without checked search context.</li>
+        <li>Lesson 9: draw a diagram that explains the complete agent loop to another student.</li>
+      </ul>
     </section>
 
     <footer>

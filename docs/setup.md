@@ -66,7 +66,7 @@ the real implementation is written. For example:
 ```python
 WakeWordTool(model_path="hey_jarvis", threshold=0.5, sample_rate=16000)
 SpeechToTextTool(
-    max_seconds=10.0,
+    seconds=10.0,
     silence_seconds=1.0,
     model_path="models/ggml-base.en.bin",
     whisper_binary="whisper.cpp/build/bin/whisper-cli",
@@ -245,8 +245,9 @@ echo "Hello from Pi Agent" | \
   aplay -r 22050 -f S16_LE -t raw -
 ```
 
-If the Python code uses `piper_binary="piper"`, either change it to
-`piper_binary="tools/piper/piper"` or add `tools/piper` to your `PATH`.
+The default Python setting is `piper_binary="tools/piper/piper"`, which matches
+the extraction location above. If you install Piper elsewhere, pass its path
+when creating `TextToSpeechTool(...)` in `main.py`.
 
 ## Display Setup
 
@@ -307,3 +308,28 @@ uv run pytest tests/lesson_6
 uv run pytest tests/lesson_7
 uv run pytest tests/lesson_8
 ```
+
+## Quick Troubleshooting
+
+Try the smallest check that matches the problem before changing code.
+
+| What you see | First check | Likely next step |
+| --- | --- | --- |
+| `No module named ...` | `uv pip install -r requirements.txt` | Run the command again with `uv run python ...`, not `python3 ...`. |
+| No microphone is listed | `arecord -l` | Reconnect the microphone, then choose the listed device in the wake-word demo with `--device`. |
+| No sound from the speaker | `speaker-test -t wav -c 2` | Start at low volume; check the selected Raspberry Pi audio output. Press Ctrl+C to stop the test. |
+| Ollama connection error | `ollama run gemma3:1b` | Finish the Ollama install and model download; the agent expects `http://localhost:11434`. |
+| `whisper-cli` or a model file is missing | `ls whisper.cpp/build/bin/whisper-cli models/ggml-base.en.bin` | Repeat the whisper.cpp build or model download steps. |
+| Piper cannot be found | `tools/piper/piper --help` | Repeat the Piper extraction step, keeping it inside `tools/piper`. |
+
+## Search, Privacy, And Trust
+
+The search lesson sends the words in a search query to an internet search
+service. Do not search for names, addresses, school details, passwords, or any
+other personal information. Ask a teacher before testing a query you are unsure
+about.
+
+Search snippets and AI answers can be wrong, incomplete, or inappropriate.
+For an important claim, open and check a trusted source with an adult. Treat
+text returned from a search result as information to evaluate, not instructions
+that the agent should follow.

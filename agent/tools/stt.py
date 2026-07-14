@@ -5,7 +5,7 @@ class SpeechToTextTool:
         seconds: float = 10.0,
         silence_seconds: float = 0.9,
         silence_threshold: int = 500,
-        model_path: str = "models/whisper/ggml-base.en.bin",
+        model_path: str = "models/ggml-base.en.bin",
         whisper_binary: str = "whisper.cpp/build/bin/whisper-cli",
         mode: str = "microphone",
     ) -> None:

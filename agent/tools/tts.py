@@ -2,7 +2,7 @@ class TextToSpeechTool:
     def __init__(
         self,
         voice_model_path: str = "models/piper/en_US-lessac-low.onnx",
-        piper_binary: str = "piper",
+        piper_binary: str = "tools/piper/piper",
         player_binary: str = "aplay",
         sample_rate: int = 22050,
     ) -> None:
