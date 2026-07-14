@@ -108,11 +108,16 @@
 
     .two {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 14px;
     }
 
+    .runtime-setup {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .card {
+      min-width: 0;
       padding: 16px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -350,7 +355,7 @@ uv run python demos/lesson1_demo.py</code></pre>
     <section>
       <h2>Raspberry Pi Runtime Setup</h2>
       <p>The Python lessons run with <code>uv</code>, but the full voice assistant also needs a few local programs, model files, and working audio/display hardware on the Raspberry Pi.</p>
-      <div class="two">
+      <div class="two runtime-setup">
         <div class="card blue">
           <h3>Install System Tools</h3>
           <p>Install build tools, audio tools, and display support before testing the full agent. <code>cmake</code> is required for <code>whisper.cpp</code>.</p>
@@ -374,7 +379,7 @@ ollama pull gemma3:1b
 ollama run gemma3:1b</code></pre>
         </div>
       </div>
-      <div class="two">
+      <div class="two runtime-setup">
         <div class="card yellow">
           <h3>Speech To Text</h3>
           <p>The STT tool listens until speech ends, then sends a temporary WAV chunk to <code>whisper.cpp</code>.</p>
@@ -417,8 +422,8 @@ echo "Hello from Pi Agent" | tools/piper/piper --model models/piper/en_US-lessac
           <p>Start with this HTML guide to understand the goal and the big idea.</p>
         </div>
         <div class="card green">
-          <h3>Open The File</h3>
-          <p>Go to the file listed in the lesson, then read the TODO comments inside the function.</p>
+          <h3>Open In Your IDE</h3>
+          <p>Open the Python file listed in the lesson in your IDE, then read the TODO comments inside the function.</p>
         </div>
         <div class="card yellow">
           <h3>Build Small</h3>
@@ -545,7 +550,7 @@ uv run pytest tests/lesson_1</code></pre>
         <li>Open the local <code>faces/</code> folder and look at the picture folders: <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code>, <code>error</code>, <code>capturing</code>, and <code>warmup</code>.</li>
         <li>Run the state test first:<pre><code>uv run pytest tests/lesson_2/test_01_face_state.py</code></pre></li>
         <li>Run the picture folder test:<pre><code>uv run pytest tests/lesson_2/test_02_face_assets.py</code></pre></li>
-        <li>Open <code>face/renderer.py</code>. Find the three student TODO functions: <code>load()</code>, <code>draw(state)</code>, and <code>_draw_with_pygame(frame)</code>.</li>
+        <li>Open the Python file <code>face/renderer.py</code> in your IDE. Find the three student TODO functions: <code>load()</code>, <code>draw(state)</code>, and <code>_draw_with_pygame(frame)</code>.</li>
         <li>Read <code>FaceRenderer.__init__()</code>. Notice that <code>faces_dir</code>, <code>frames</code>, <code>frame_indexes</code>, <code>last_drawn_state</code>, <code>_pygame</code>, and <code>_screen</code> are stored on <code>self</code>.</li>
         <li>Read the provided helper <code>_setup_display()</code>. It starts <code>pygame</code>, creates a fullscreen window, and stores the screen on <code>self</code>.</li>
         <li>Implement <code>load()</code> so it reads PNG files from each folder.</li>
@@ -555,9 +560,10 @@ uv run pytest tests/lesson_1</code></pre>
         <li>Implement <code>_draw_with_pygame(frame)</code>. It should put one loaded image frame on the screen and call <code>pygame.display.flip()</code>.</li>
         <li>Store <code>self.last_drawn_state = state</code> inside <code>draw()</code> so the test can check which state was drawn.</li>
         <li>Run the draw test:<pre><code>uv run pytest tests/lesson_2/test_04_renderer_draw.py</code></pre></li>
-        <li>Open <code>face/controller.py</code>. Implement <code>run_once()</code> so it reads <code>face_state.get()</code> and asks the renderer to draw that state one time.</li>
+        <li>Open the Python file <code>face/controller.py</code> in your IDE. Implement <code>run_once()</code> so it reads <code>face_state.get()</code> and asks the renderer to draw that state one time.</li>
         <li>Run the controller step test:<pre><code>uv run pytest tests/lesson_2/test_05_controller_run_once.py</code></pre></li>
         <li>Implement <code>run(self, sleep_seconds: float = 0.1)</code> so it loads the renderer once, then repeatedly calls <code>run_once()</code> and sleeps for <code>sleep_seconds</code>.</li>
+        <li>Run the controller loop test:<pre><code>uv run pytest tests/lesson_2/test_06_controller_run.py</code></pre></li>
         <li>Find <code>Thread(target=face_controller.run, daemon=True).start()</code> in <code>main.py</code>.</li>
         <li>Discuss why the face controller needs a background thread: the picture face should not freeze while the agent waits for input.</li>
       </ol>
@@ -606,6 +612,7 @@ uv run pytest tests/lesson_2/test_02_face_assets.py
 uv run pytest tests/lesson_2/test_03_renderer_load.py
 uv run pytest tests/lesson_2/test_04_renderer_draw.py
 uv run pytest tests/lesson_2/test_05_controller_run_once.py
+uv run pytest tests/lesson_2/test_06_controller_run.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_2</code></pre>
@@ -643,7 +650,7 @@ uv run pytest tests/lesson_2</code></pre>
       <h3>Steps</h3>
       <ol>
         <li>Read <code>FakeWakeWordTool.wait()</code> in <code>demos/lesson1_demo.py</code>.</li>
-        <li>Open <code>agent/tools/wake_word.py</code>.</li>
+        <li>Open the Python file <code>agent/tools/wake_word.py</code> in your IDE.</li>
         <li>Read <code>WakeWordTool.__init__()</code>. Notice <code>model_path</code>, <code>threshold</code>, <code>sample_rate</code>, and <code>mode</code>.</li>
         <li>Keep the same method name: <code>wait()</code>.</li>
         <li>Use <code>mode="keyboard"</code> for tests and early classroom debugging.</li>
@@ -681,6 +688,7 @@ uv run pytest tests/lesson_2</code></pre>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_3/test_01_wake_word_api.py
 uv run pytest tests/lesson_3/test_02_keyboard_wake_word.py
+uv run pytest tests/lesson_3/test_03_wake_word_mode.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_3</code></pre>
@@ -714,8 +722,8 @@ uv run python demos/test_wake_word_audio.py --threshold 0.3</code></pre>
       </div>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>demos/lesson1_demo.py</code> and find <code>Agent.run()</code>.</li>
-        <li>Open <code>agent/agent.py</code> and find the skeleton <code>Agent.run()</code>.</li>
+        <li>Open the Python file <code>demos/lesson1_demo.py</code> in your IDE and find <code>Agent.run()</code>.</li>
+        <li>Open the Python file <code>agent/agent.py</code> in your IDE and find the skeleton <code>Agent.run()</code>.</li>
         <li>Add <code>from face import states</code> at the top so the agent can use named face states.</li>
         <li>Copy the high-level loop idea, not every fake detail.</li>
         <li>Call <code>self.wake_word.wait()</code> when idle.</li>
@@ -742,6 +750,7 @@ except KeyboardInterrupt:
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_4/test_01_agent_respond.py
 uv run pytest tests/lesson_4/test_02_agent_dependencies.py
+uv run pytest tests/lesson_4/test_03_agent_run.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_4</code></pre>
@@ -780,7 +789,7 @@ uv run pytest tests/lesson_4</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>agent/tools/stt.py</code>.</li>
+        <li>Open the Python file <code>agent/tools/stt.py</code> in your IDE.</li>
         <li>Read <code>SpeechToTextTool.__init__()</code>. Notice <code>sample_rate</code>, <code>seconds</code>, <code>silence_seconds</code>, <code>model_path</code>, and <code>whisper_binary</code>.</li>
         <li>Keep the method name <code>listen_and_transcribe()</code>.</li>
         <li>Read the provided <code>listen_until_silence()</code> helper. It uses <code>sounddevice</code> to listen in short chunks.</li>
@@ -801,6 +810,7 @@ uv run pytest tests/lesson_4</code></pre>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_5/test_01_stt_api.py
 uv run pytest tests/lesson_5/test_02_keyboard_stt.py
+uv run pytest tests/lesson_5/test_03_loudness.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_5</code></pre>
@@ -837,7 +847,7 @@ uv run pytest tests/lesson_5</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>agent/tools/tts.py</code>.</li>
+        <li>Open the Python file <code>agent/tools/tts.py</code> in your IDE.</li>
         <li>Read <code>TextToSpeechTool.__init__()</code>. Notice <code>voice_model_path</code>, <code>piper_binary</code>, and <code>player_binary</code>.</li>
         <li>Keep the method name <code>speak(text)</code>.</li>
         <li>Install or prepare a local TTS engine such as Piper.</li>
@@ -903,7 +913,7 @@ uv run pytest tests/lesson_6</code></pre>
         <li>Install Ollama on the Raspberry Pi or development computer.</li>
         <li>Pull the model: <code>ollama pull gemma3:1b</code>.</li>
         <li>Test it in the terminal: <code>ollama run gemma3:1b</code>.</li>
-        <li>Open <code>agent/tools/llm.py</code>.</li>
+        <li>Open the Python file <code>agent/tools/llm.py</code> in your IDE.</li>
         <li>Implement <code>answer(user_text)</code> so it sends the user text to Ollama.</li>
         <li>Return only the model's answer string.</li>
         <li>Implement <code>answer_with_context(user_text, context)</code> later for tool results.</li>
@@ -921,6 +931,7 @@ uv run pytest tests/lesson_6</code></pre>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_7/test_01_llm_settings.py
 uv run pytest tests/lesson_7/test_02_llm_answer.py
+uv run pytest tests/lesson_7/test_03_llm_context.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_7</code></pre>
@@ -958,13 +969,13 @@ uv run pytest tests/lesson_7</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>agent/tools/search.py</code>.</li>
+        <li>Open the Python file <code>agent/tools/search.py</code> in your IDE.</li>
         <li>Read <code>SearchTool.__init__()</code>. Notice <code>max_results</code> and <code>region</code>.</li>
         <li>Install <code>ddgs</code> when you are ready.</li>
         <li>Import <code>DDGS</code>.</li>
         <li>Use <code>ddgs.text(...)</code> to fetch one or two results.</li>
         <li>Return a short string containing the title and snippet.</li>
-        <li>Open <code>agent/tools/llm.py</code> and add a small decision method such as <code>needs_search(user_text)</code>.</li>
+        <li>Open the Python file <code>agent/tools/llm.py</code> in your IDE and add a small decision method such as <code>needs_search(user_text)</code>.</li>
         <li>Ask the LLM if the question needs current web search results.</li>
         <li>If the LLM says search is needed, call <code>SearchTool.search()</code>.</li>
         <li>Send the search context into <code>llm.answer_with_context(...)</code>.</li>
@@ -992,6 +1003,8 @@ def respond(self, user_text):
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_8/test_01_search_api.py
 uv run pytest tests/lesson_8/test_02_search_returns_text.py
+uv run pytest tests/lesson_8/test_03_agent_search_routing.py
+uv run pytest tests/lesson_8/test_04_llm_needs_search.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_8</code></pre>
@@ -1050,6 +1063,7 @@ uv run pytest tests/lesson_8</code></pre>
       </ul>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_9/test_01_project_wiring.py
+uv run pytest tests/lesson_9/test_02_main_wiring.py
 
 # Run all tests when everything is complete:
 uv run pytest tests</code></pre>

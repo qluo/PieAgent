@@ -2,7 +2,7 @@ from agent.tools.wake_word import WakeWordTool
 
 
 def test_keyboard_wake_word_returns_after_wake(monkeypatch):
-    tool = WakeWordTool()
+    tool = WakeWordTool(mode="keyboard")
     answers = iter(["hello", "wake"])
     typed_words = []
 
