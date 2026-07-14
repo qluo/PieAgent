@@ -551,7 +551,7 @@ uv run pytest tests/lesson_1</code></pre>
         <li>Run the state test first:<pre><code>uv run pytest tests/lesson_2/test_01_face_state.py</code></pre></li>
         <li>Run the picture folder test:<pre><code>uv run pytest tests/lesson_2/test_02_face_assets.py</code></pre></li>
         <li>Open the Python file <code>face/renderer.py</code> in your IDE. Find the three student TODO functions: <code>load()</code>, <code>draw(state)</code>, and <code>_draw_with_pygame(frame)</code>.</li>
-        <li>Read <code>FaceRenderer.__init__()</code>. Notice that <code>faces_dir</code>, <code>frames</code>, <code>frame_indexes</code>, <code>last_drawn_state</code>, <code>_pygame</code>, and <code>_screen</code> are stored on <code>self</code>.</li>
+        <li>Read <code>FaceRenderer.__init__()</code>. <code>faces_dir</code> tells the renderer where to find the state picture folders. Notice that it, <code>frames</code>, <code>frame_indexes</code>, <code>last_drawn_state</code>, <code>_pygame</code>, and <code>_screen</code> are stored on <code>self</code>.</li>
         <li>Read the provided helper <code>_setup_display()</code>. It starts <code>pygame</code>, creates a fullscreen window, and stores the screen on <code>self</code>.</li>
         <li>Implement <code>load()</code> so it reads PNG files from each folder.</li>
         <li>Store the loaded pictures in a dictionary where the key is the state name, such as <code>"thinking"</code>.</li>
@@ -560,7 +560,7 @@ uv run pytest tests/lesson_1</code></pre>
         <li>Implement <code>_draw_with_pygame(frame)</code>. It should put one loaded image frame on the screen and call <code>pygame.display.flip()</code>.</li>
         <li>Store <code>self.last_drawn_state = state</code> inside <code>draw()</code> so the test can check which state was drawn.</li>
         <li>Run the draw test:<pre><code>uv run pytest tests/lesson_2/test_04_renderer_draw.py</code></pre></li>
-        <li>Open the Python file <code>face/controller.py</code> in your IDE. Implement <code>run_once()</code> so it reads <code>face_state.get()</code> and asks the renderer to draw that state one time.</li>
+        <li>Open the Python file <code>face/controller.py</code> in your IDE. Its constructor receives the shared <code>face_state</code> and an optional <code>renderer</code>; tests use a small fake renderer while the real program uses <code>FaceRenderer</code>. Implement <code>run_once()</code> so it reads <code>face_state.get()</code> and asks the renderer to draw that state one time.</li>
         <li>Run the controller step test:<pre><code>uv run pytest tests/lesson_2/test_05_controller_run_once.py</code></pre></li>
         <li>Implement <code>run(self, sleep_seconds: float = 0.1)</code> so it loads the renderer once, then repeatedly calls <code>run_once()</code> and sleeps for <code>sleep_seconds</code>.</li>
         <li>Run the controller loop test:<pre><code>uv run pytest tests/lesson_2/test_06_controller_run.py</code></pre></li>

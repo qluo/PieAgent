@@ -129,7 +129,14 @@ class Agent:
     ) -> None:
         """Create the fake agent.
 
-        Inputs: shared face state and fake tools.
+        Inputs:
+        - face_state: shared state that tells the fake face which expression to
+          show.
+        - wake_word: fake tool that waits for the user to press Enter.
+        - stt: fake speech-to-text tool that returns typed text.
+        - llm: fake language-model tool that returns prepared answers.
+        - tts: fake text-to-speech tool that prints the answer.
+
         Output: none.
         """
         self.face_state = face_state

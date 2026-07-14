@@ -3,11 +3,14 @@ class FaceRenderer:
         """Create the face renderer.
 
         Inputs:
-        - faces_dir: folder that contains one subfolder per face state.
+        - faces_dir: top-level folder that contains one subfolder per face
+          state, such as faces/idle and faces/thinking. Change this only when
+          your face image folders live somewhere other than faces/.
 
         Output:
         - None. Starts with no loaded frames.
         """
+        # This tells load() where to look for the state picture folders.
         self.faces_dir = faces_dir
         self.frames: dict[str, list[object]] = {}
         self.frame_indexes: dict[str, int] = {}

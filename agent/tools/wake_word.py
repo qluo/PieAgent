@@ -16,6 +16,9 @@ class WakeWordTool:
         - model_path: optional path to an openWakeWord model file.
         - threshold: score needed before the wake word counts as detected.
         - sample_rate: microphone sample rate expected by the wake model.
+        - mode: "keyboard" for the classroom/test version or "microphone" for
+          live Raspberry Pi audio. It defaults to "microphone" for the real
+          assistant.
 
         Output:
         - None. Stores settings for wait().

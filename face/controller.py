@@ -7,13 +7,16 @@ class FaceController:
         """Create the face controller.
 
         Inputs:
-        - face_state: shared FaceState object to read the current face state.
-        - renderer: optional FaceRenderer. If None, students can create one
-          inside their implementation.
+        - face_state: shared FaceState object. The agent writes states such as
+          "listening" here, and this controller reads them to choose a face.
+        - renderer: optional FaceRenderer that loads and draws image frames.
+          Tests pass in a small fake renderer; in the real program, create a
+          FaceRenderer when this value is None.
 
         Output:
         - None. The controller stores the inputs for later use.
         """
+        # Keep the shared state and drawing tool together for run_once() and run().
         self.face_state = face_state
         self.renderer = renderer
 
