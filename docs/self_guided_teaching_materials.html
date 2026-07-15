@@ -679,7 +679,7 @@ uv run pytest tests/lesson_2</code></pre>
         <li>Use <code>mode="microphone"</code> for the real Raspberry Pi wake word.</li>
         <li>First implement <code>_wait_for_keyboard_wake()</code>: loop until the user types <code>wake</code>.</li>
         <li>Then implement <code>_wait_for_microphone_wake()</code>: load the default <code>hey_jarvis</code> model, use the microphone callback to put 16 kHz mono audio chunks into a queue, and score each chunk in a simple loop.</li>
-        <li>Run the manual microphone demo:<pre><code>uv run python demos/test_wake_word_audio.py</code></pre></li>
+        <li>Run the manual microphone demo:<pre><code>uv run python -m demos.test_wake_word_audio</code></pre></li>
         <li>Return from <code>wait()</code> only when the wake word is detected.</li>
       </ol>
       <pre><code>class WakeWordTool:
@@ -721,8 +721,8 @@ uv run pytest tests/lesson_3/test_03_wake_word_mode.py
 # Or run the whole lesson:
 uv run pytest tests/lesson_3</code></pre>
       <h3>Manual Audio Demo</h3>
-      <pre><code>uv run python demos/test_wake_word_audio.py
-uv run python demos/test_wake_word_audio.py --threshold 0.3</code></pre>
+      <pre><code>uv run python -m demos.test_wake_word_audio
+uv run python -m demos.test_wake_word_audio --threshold 0.3</code></pre>
     </section>
 
     <section id="lesson-4" class="lesson">

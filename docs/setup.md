@@ -270,13 +270,13 @@ Lesson 3 also has a manual microphone demo. This is not a unit test because it
 needs real hardware:
 
 ```bash
-uv run python demos/test_wake_word_audio.py
+uv run python -m demos.test_wake_word_audio
 ```
 
 If detection is too hard, try a lower threshold:
 
 ```bash
-uv run python demos/test_wake_word_audio.py --threshold 0.3
+uv run python -m demos.test_wake_word_audio --threshold 0.3
 ```
 
 ## Run The Full Agent On Raspberry Pi
@@ -302,7 +302,7 @@ Expected flow:
 If something fails, test one tool at a time:
 
 ```bash
-uv run python demos/test_wake_word_audio.py
+uv run python -m demos.test_wake_word_audio
 uv run pytest tests/lesson_5
 uv run pytest tests/lesson_6
 uv run pytest tests/lesson_7
