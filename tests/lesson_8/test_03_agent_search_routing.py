@@ -4,10 +4,12 @@ from agent.agent import Agent
 class RoutingLlm:
     def __init__(self, should_search):
         self.should_search = should_search
+        self.search_decisions = []
         self.answers = []
         self.context_answers = []
 
-    def needs_search(self, _user_text):
+    def needs_search(self, prompt):
+        self.search_decisions.append(prompt)
         return self.should_search
 
     def answer(self, user_text):
@@ -44,7 +46,8 @@ def test_agent_responds_directly_when_search_is_not_needed():
     search = RecordingSearchTool()
 
     assert make_agent(llm, search).respond("Tell me a joke") == "direct answer"
-    assert llm.answers == ["Tell me a joke"]
+    assert "Tell me a joke" in llm.search_decisions[0]
+    assert "Tell me a joke" in llm.answers[0]
     assert search.queries == []
 
 
@@ -54,4 +57,7 @@ def test_agent_uses_search_context_when_the_llm_requests_it():
 
     assert make_agent(llm, search).respond("What happened today?") == "search answer"
     assert search.queries == ["What happened today?"]
-    assert llm.context_answers == [("What happened today?", "search context")]
+    prompt, context = llm.context_answers[0]
+    assert "What happened today?" in llm.search_decisions[0]
+    assert "What happened today?" in prompt
+    assert context == "search context"

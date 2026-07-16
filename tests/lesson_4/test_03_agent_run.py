@@ -36,19 +36,24 @@ class FakeTts:
 
 
 class FakeLlm:
+    def __init__(self):
+        self.prompts = []
+
     def answer(self, user_text):
+        self.prompts.append(user_text)
         return f"answer to {user_text}"
 
 
 def test_agent_run_completes_one_interaction_then_returns_to_idle():
     face_state = RecordingFaceState()
     tts = FakeTts()
+    llm = FakeLlm()
     agent = Agent(
         face_state=face_state,
         wake_word=OneTurnWakeWord(),
         stt=FakeStt(),
         tts=tts,
-        llm=FakeLlm(),
+        llm=llm,
         tools={},
     )
 
@@ -62,4 +67,5 @@ def test_agent_run_completes_one_interaction_then_returns_to_idle():
         states.SPEAKING,
         states.IDLE,
     ]
-    assert tts.spoken == ["answer to hello"]
+    assert tts.spoken[0].endswith("hello")
+    assert "hello" in llm.prompts[0]
