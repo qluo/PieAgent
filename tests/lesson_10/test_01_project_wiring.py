@@ -31,14 +31,7 @@ class SimpleLlm:
 def test_agent_parts_can_be_wired_together():
     face_state = FaceState()
     tts = RecordingTts()
-    agent = Agent(
-        face_state=face_state,
-        wake_word=OneShotWakeWord(),
-        stt=OneShotStt(),
-        tts=tts,
-        llm=SimpleLlm(),
-        tools={},
-    )
+    agent = Agent(face_state, OneShotWakeWord(), OneShotStt(), tts, SimpleLlm(), {})
 
     assert agent.face_state is face_state
     assert agent.tts is tts

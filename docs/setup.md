@@ -54,6 +54,7 @@ uv run pytest tests/lesson_6
 uv run pytest tests/lesson_7
 uv run pytest tests/lesson_8
 uv run pytest tests/lesson_9
+uv run pytest tests/lesson_10
 ```
 
 It is normal for later lesson tests to fail before you implement those lessons.

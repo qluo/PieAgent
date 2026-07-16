@@ -1,11 +1,7 @@
 from pathlib import Path
-
-from face import states
 from face.state import FaceState
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
 
 class Agent:
 
@@ -120,9 +116,13 @@ class Agent:
         # 4. If search is not needed, call:
         #      self.llm.answer(user_text)
         #
+        # Lesson 9 update:
+        # Start by calling self.build_prompt(user_text). Pass that prompt to
+        # the LLM, but pass the original user_text to the search tool.
+        #
         # Expected return value:
         # A string that can be sent to self.tts.speak(...).
-        
+
         prompt = self.build_prompt(user_text)
 
         if (
@@ -136,7 +136,24 @@ class Agent:
         return self.llm.answer(prompt)
 
     def build_prompt(self, user_text: str) -> str:
-        """Combine persistent project instructions with a user request."""
+        """
+        Combine persistent project instructions with a user request.
+        Inputs:
+        - user_text: the user's question or command.
+
+        Output:
+        - A prompt string for the LLM.
+        """
+        # Lesson 9: Local Agent Instructions
+        #
+        # Goal:
+        # Keep Pi Agent's default behavior in AGENTS.md instead of repeating
+        # it in every user request.
+        #
+        # Small first step:
+        # If self.agents_md is empty, return user_text unchanged.
+        # Otherwise, return a clear prompt containing both the instructions and
+        # the user request.
         if not self.agents_md.strip():
             return user_text
         return (
@@ -148,12 +165,21 @@ class Agent:
 
     @staticmethod
     def load_agents_md() -> str:
-        """Load repository instructions from the root ``AGENTS.md`` file.
+        """Load the project's optional root AGENTS.md file.
 
-        Returns an empty string when the project does not define that file.
+        Output:
+        - The file's text, or an empty string when the file is absent.
         """
+        # Lesson 9: Local Agent Instructions
+        #
+        # Goal:
+        # Read PROJECT_ROOT / "AGENTS.md" once when an Agent is created.
+        #
+        # Small first step:
+        # 1. Build the path with PROJECT_ROOT / "AGENTS.md".
+        # 2. Return "" when it is not a file.
+        # 3. Otherwise return its UTF-8 text.
         agents_file = PROJECT_ROOT / "AGENTS.md"
         if not agents_file.is_file():
             return ""
         return agents_file.read_text(encoding="utf-8")
-

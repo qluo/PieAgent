@@ -304,7 +304,8 @@
         <a href="#lesson-6">Lesson 6: TTS</a>
         <a href="#lesson-7">Lesson 7: LLM</a>
         <a href="#lesson-8">Lesson 8: Tools / Search</a>
-        <a href="#lesson-9">Lesson 9: Put It Together</a>
+        <a href="#lesson-9">Lesson 9: Agent Instructions</a>
+        <a href="#lesson-10">Lesson 10: Put It Together</a>
       </nav>
     </header>
 
@@ -479,7 +480,7 @@ uv run pytest tests/lesson_2/test_03_renderer_load.py
 # Run a whole lesson when you think it is complete.
 uv run pytest tests/lesson_2
 
-# Run everything after Lesson 9.
+# Run everything after Lesson 10.
 uv run pytest tests</code></pre>
     </section>
 
@@ -957,9 +958,15 @@ uv run pytest tests/lesson_6</code></pre>
         <li>Implement <code>answer_with_context(user_text, context)</code> later for tool results.</li>
       </ol>
       <pre><code>class LlmTool:
-    def __init__(self, model_name: str = "gemma3:1b"):
+    def __init__(
+        self,
+        model_name: str = "gemma3:1b",
+        base_url: str = "http://localhost:11434",
+        timeout: float = 60.0,
+    ):
         self.model_name = model_name
-        self.base_url = "http://localhost:11434"</code></pre>
+        self.base_url = base_url
+        self.timeout = timeout</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>Ollama runs locally.</li>
@@ -1047,7 +1054,6 @@ def respond(self, user_text):
       <pre><code>uv run python -m demos.lesson8_search_demo "What happened in space today?"</code></pre>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_8/test_01_search_api.py
-uv run pytest tests/lesson_8/test_02_search_returns_text.py
 uv run pytest tests/lesson_8/test_03_agent_search_routing.py
 uv run pytest tests/lesson_8/test_04_llm_needs_search.py
 
@@ -1057,6 +1063,55 @@ uv run pytest tests/lesson_8</code></pre>
 
     <section id="lesson-9" class="lesson">
       <span class="tag">Lesson 9</span>
+      <h2>Give Pi Agent Default Instructions</h2>
+      <p>Goal: load local <code>AGENTS.md</code> instructions and combine them with every user request before sending it to the LLM.</p>
+      <div class="two">
+        <div class="card blue">
+          <h3>Concepts To Explore</h3>
+          <ul>
+            <li>Persistent instructions: behavior that applies to every conversation.</li>
+            <li>Project files: keep the instructions beside the code that uses them.</li>
+            <li>Prompt building: clearly separate instructions from the user's request.</li>
+          </ul>
+        </div>
+        <div class="card green">
+          <h3>Files And Functions</h3>
+          <ul>
+            <li><code>AGENTS.md</code>: Pi Agent's default persona and safety instructions.</li>
+            <li><code>agent/agent.py</code>: <code>load_agents_md()</code> and <code>build_prompt()</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Steps</h3>
+      <ol>
+        <li>Open the root <code>AGENTS.md</code> file and read the default instructions.</li>
+        <li>In <code>agent/agent.py</code>, implement <code>load_agents_md()</code> to read <code>PROJECT_ROOT / "AGENTS.md"</code> as UTF-8 text.</li>
+        <li>Return an empty string when the file does not exist, so a project can still run without it.</li>
+        <li>Store the result once in <code>self.agents_md</code> when <code>Agent</code> is created.</li>
+        <li>Implement <code>build_prompt(user_text)</code>. When instructions exist, include both the instructions and the user's request in one clear prompt.</li>
+        <li>Update <code>respond()</code> to send that prompt to the LLM. Keep the original user text for a search query.</li>
+      </ol>
+      <pre><code>Agent instructions:
+... contents of AGENTS.md ...
+
+User request:
+What can you do?</code></pre>
+      <h3>Checkpoint</h3>
+      <ul class="checklist">
+        <li>The agent loads <code>AGENTS.md</code> once during setup.</li>
+        <li>A missing <code>AGENTS.md</code> does not crash the agent.</li>
+        <li>LLM prompts include both default instructions and the current request.</li>
+      </ul>
+      <h3>Test</h3>
+      <pre><code>uv run pytest tests/lesson_9/test_01_agents_md.py
+uv run pytest tests/lesson_9/test_02_build_prompt.py
+
+# Or run the whole lesson:
+uv run pytest tests/lesson_9</code></pre>
+    </section>
+
+    <section id="lesson-10" class="lesson">
+      <span class="tag">Lesson 10</span>
       <h2>Put Everything Together</h2>
       <p>Goal: combine the agent loop, face controller, wake word, STT, TTS, local LLM, search, and display into one Raspberry Pi assistant.</p>
       <div class="two">
@@ -1107,8 +1162,8 @@ uv run pytest tests/lesson_8</code></pre>
         <li>You can explain what each folder does.</li>
       </ul>
       <h3>Test</h3>
-      <pre><code>uv run pytest tests/lesson_9/test_01_project_wiring.py
-uv run pytest tests/lesson_9/test_02_main_wiring.py
+      <pre><code>uv run pytest tests/lesson_10/test_01_project_wiring.py
+uv run pytest tests/lesson_10/test_02_main_wiring.py
 
 # Run all tests when everything is complete:
 uv run pytest tests</code></pre>
@@ -1147,7 +1202,8 @@ uv run pytest tests</code></pre>
         <li>Lessons 3–4: add a friendly message when the agent wakes up.</li>
         <li>Lessons 5–6: tune the silence setting or make the agent speak a shorter answer.</li>
         <li>Lessons 7–8: compare an answer with and without checked search context.</li>
-        <li>Lesson 9: draw a diagram that explains the complete agent loop to another student.</li>
+        <li>Lesson 9: add one new rule to <code>AGENTS.md</code> and see how it changes a response.</li>
+        <li>Lesson 10: draw a diagram that explains the complete agent loop to another student.</li>
       </ul>
     </section>
 

@@ -39,16 +39,17 @@ def main() -> None:
     controller = FaceController(face_state, renderer=FaceRenderer())
     Thread(target=controller.run, daemon=True).start()
 
-    print("Face demo running. Press Ctrl+C to stop.")
+    print("Face demo running.")
     try:
-        while True:
-            for state in DEMO_STATES:
-                print(f"Showing: {state}")
-                face_state.set(state)
-                sleep(args.seconds_per_state)
+        for number, state in enumerate(DEMO_STATES, start=1):
+            print(f"Showing {number}/{len(DEMO_STATES)}: {state}")
+            face_state.set(state)
+            sleep(args.seconds_per_state)
     except KeyboardInterrupt:
-        face_state.set(states.IDLE)
         print("\nStopped.")
+    finally:
+        face_state.set(states.IDLE)
+        print("Face demo complete.")
 
 
 if __name__ == "__main__":

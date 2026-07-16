@@ -16,10 +16,11 @@ class LlmTool:
     - Ollama usually runs locally at: http://localhost:11434.
     """
 
-    def __init__(self, 
+    def __init__(
+        self,
         model_name: str = "gemma3:1b",
-        base_url: str | None = None,
-        timeout: float = 120,
+        base_url: str = "http://localhost:11434",
+        timeout: float = 60.0,
     ) -> None:
         """Create the local LLM tool.
 
@@ -34,9 +35,8 @@ class LlmTool:
         """
         self.model_name = model_name
         self.base_url = (
-            base_url
-            or os.environ.get("PI_AGENT_OLLAMA_URL")
-            or "http://localhost:11434"
+            os.environ.get("PI_AGENT_OLLAMA_URL")
+            or base_url
         ).rstrip("/")
         self.timeout = timeout
 
