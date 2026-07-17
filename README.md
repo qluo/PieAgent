@@ -1,6 +1,6 @@
-# PiAgent
+# Pie Agent
 
-PiAgent is a small Raspberry Pi voice assistant project for students. You will
+Pie Agent is a small Raspberry Pi voice assistant project for students. You will
 build it one lesson at a time: face display, wake word, speech-to-text,
 text-to-speech, local LLM, search, and final wiring.
 
@@ -67,7 +67,7 @@ Good workflow:
 
 ## Final Goal
 
-When all lessons are complete, PiAgent should:
+When all lessons are complete, Pie Agent should:
 
 1. show animated face states,
 2. wake up from voice,

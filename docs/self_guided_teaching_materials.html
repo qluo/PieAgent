@@ -274,9 +274,251 @@
         font-size: 30px;
       }
     }
+
+    /* Kid-friendly app layout and tab navigation */
+    :root {
+      --navy: #1c2b55;
+      --hot-pink: #f26b9c;
+      --sky: #5cc8ff;
+      --mint: #7ee0b8;
+      --sun: #ffd55a;
+      --lavender: #b9a9ff;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 10% 5%, #fff4ba 0 7%, transparent 7.2%),
+        radial-gradient(circle at 89% 14%, #dff5ff 0 9%, transparent 9.2%),
+        #f5f8ff;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      z-index: 10;
+      top: 20px;
+      bottom: 20px;
+      left: 20px;
+      width: 242px;
+      padding: 18px 14px;
+      overflow-y: auto;
+      border: 3px solid var(--navy);
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 8px 8px 0 #c9d9ff;
+    }
+
+    .sidebar-brand {
+      margin: 0 8px 14px;
+      color: var(--navy);
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .sidebar-brand span {
+      display: block;
+      margin-top: 5px;
+      color: #63718e;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .sidebar h2 {
+      margin: 17px 8px 7px;
+      color: #63718e;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .sidebar a {
+      display: block;
+      margin: 5px 0;
+      padding: 9px 10px;
+      border: 2px solid transparent;
+      border-radius: 14px;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      border-color: var(--navy);
+      background: var(--sun);
+    }
+
+    .sidebar .lesson-link:nth-of-type(3n + 1) { background: #e4f8eb; }
+    .sidebar .lesson-link:nth-of-type(3n + 2) { background: #e3f4ff; }
+    .sidebar .lesson-link:nth-of-type(3n) { background: #ffe5ef; }
+
+    .mobile-menu {
+      display: none;
+    }
+
+    main {
+      max-width: 1160px;
+      margin: 0 32px 0 290px;
+      padding: 32px 0 64px;
+    }
+
+    header,
+    section {
+      border: 3px solid var(--navy);
+      border-radius: 26px;
+      box-shadow: 6px 6px 0 #d8e2ff;
+    }
+
+    header {
+      padding: 34px;
+      background: linear-gradient(135deg, #ffffff 0 70%, #e8f8ff 70%);
+    }
+
+    header h1 {
+      max-width: 780px;
+      color: var(--navy);
+      font-size: clamp(34px, 5vw, 54px);
+    }
+
+    header nav {
+      display: none;
+    }
+
+    section {
+      padding: 28px;
+    }
+
+    section h2 {
+      color: var(--navy);
+      font-size: clamp(25px, 3vw, 34px);
+    }
+
+    .card,
+    .flow div,
+    .callout,
+    .step-checklist li {
+      border: 2px solid var(--navy);
+      border-radius: 18px;
+      box-shadow: 3px 3px 0 rgba(28, 43, 85, .12);
+    }
+
+    .lesson {
+      border-left-width: 10px;
+      border-left-color: var(--sky);
+      background: #fff;
+    }
+
+    .lesson:nth-of-type(2n) { border-left-color: var(--mint); }
+    .lesson:nth-of-type(3n) { border-left-color: var(--sun); }
+    .lesson:nth-of-type(5n) { border-left-color: var(--hot-pink); }
+
+    .tag {
+      padding: 6px 11px;
+      border: 2px solid var(--navy);
+      border-radius: 999px;
+      background: var(--sun);
+      box-shadow: 2px 2px 0 var(--navy);
+    }
+
+    .page-section[hidden] {
+      display: none;
+    }
+
+    .tab-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 14px 0 0;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #e8f8ff;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .lesson-tabs {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .lesson-tabs button {
+      padding: 9px 14px;
+      border: 2px solid var(--navy);
+      border-radius: 999px;
+      background: var(--lavender);
+      color: var(--navy);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .lesson-tabs button:hover { background: var(--sun); }
+
+    @media (max-width: 900px) {
+      .mobile-menu {
+        position: fixed;
+        z-index: 20;
+        top: 13px;
+        left: 13px;
+        display: block;
+        padding: 9px 12px;
+        border: 2px solid var(--navy);
+        border-radius: 12px;
+        background: var(--sun);
+        color: var(--navy);
+        font: inherit;
+        font-weight: 800;
+        box-shadow: 2px 2px 0 var(--navy);
+      }
+
+      .sidebar {
+        top: 65px;
+        left: 12px;
+        bottom: 12px;
+        width: min(290px, calc(100vw - 24px));
+        transform: translateX(-120%);
+        transition: transform .2s ease;
+      }
+
+      .sidebar.open { transform: translateX(0); }
+
+      main {
+        margin: 0;
+        padding: 68px 14px 38px;
+      }
+
+      header,
+      section { padding: 20px; }
+    }
   </style>
 </head>
 <body>
+  <button class="mobile-menu" type="button" aria-expanded="false" aria-controls="site-sidebar">Menu</button>
+  <aside class="sidebar" id="site-sidebar">
+    <p class="sidebar-brand">🥧 Pie Agent <span>Learn by building!</span></p>
+    <h2>Start here</h2>
+    <a href="#overview" data-page-link="overview">✨ Overview</a>
+    <a href="#setup" data-page-link="setup">🧰 Setup</a>
+    <a href="#how-to" data-page-link="how-to">🛠️ How to learn</a>
+    <h2>Lessons</h2>
+    <a class="lesson-link" href="#lesson-1" data-page-link="lesson-1">1. Fake Agent</a>
+    <a class="lesson-link" href="#lesson-2" data-page-link="lesson-2">2. Face Controller</a>
+    <a class="lesson-link" href="#lesson-3" data-page-link="lesson-3">3. Wake Word</a>
+    <a class="lesson-link" href="#lesson-4" data-page-link="lesson-4">4. Agent Loop</a>
+    <a class="lesson-link" href="#lesson-5" data-page-link="lesson-5">5. Speech to Text</a>
+    <a class="lesson-link" href="#lesson-6" data-page-link="lesson-6">6. Text to Speech</a>
+    <a class="lesson-link" href="#lesson-7" data-page-link="lesson-7">7. Local LLM</a>
+    <a class="lesson-link" href="#lesson-8" data-page-link="lesson-8">8. Web Search</a>
+    <a class="lesson-link" href="#lesson-9" data-page-link="lesson-9">9. Instructions</a>
+    <a class="lesson-link" href="#lesson-10" data-page-link="lesson-10">10. Put it together</a>
+    <h2>Extra help</h2>
+    <a href="#resources" data-page-link="resources">🧩 Debugging & ideas</a>
+  </aside>
   <main>
     <header>
       <h1>Self-Guided Lessons to Build AI Agent on Raspberry Pi</h1>
@@ -309,7 +551,7 @@
       </nav>
     </header>
 
-    <section>
+    <section id="overview" data-page="overview">
       <h2>Agentic Loop Overview</h2>
       <p>The agent goes through the same loop again and again. The face changes so people can see what the agent is doing.</p>
       <div class="flow">
@@ -322,7 +564,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="learning-map" data-page="overview">
       <h2>Learning Map</h2>
       <p>Most lessons take about 25–40 minutes. Hardware lessons can take longer because every microphone, speaker, and display is a little different.</p>
       <div class="grid">
@@ -344,18 +586,16 @@
       </div>
     </section>
 
-    <section>
+    <section id="setup" data-page="setup">
       <h2>Before You Start</h2>
       <div class="two">
         <div class="card purple">
           <h3>You Need</h3>
           <ul>
-            <li>A Raspberry Pi 5 with more than 8 GB memory.</li>
-            <li>Python 3 installed.</li>
+            <li>A Raspberry Pi 5 with 8 GB or more memory. A <strong>CanaKit Raspberry Pi 5 Starter Kit PRO</strong> is a good starting choice.</li>
             <li>A mini microphone.</li>
             <li>A mini speaker.</li>
-            <li>A mini monitor or display.</li>
-            <li>A terminal where you can run commands.</li>
+            <li>A mini monitor, such as a <strong>7 Inch Touchscreen IPS DSI Display</strong>.</li>
             <li><code>uv</code> installed for creating a Python virtual environment. Use the official <a href="https://docs.astral.sh/uv/getting-started/installation/">uv installation instructions</a>.</li>
             <li>Ollama installed for the local LLM lesson. Use the official <a href="https://ollama.com/download">Ollama download and install instructions</a>.</li>
           </ul>
@@ -375,7 +615,7 @@ ollama pull gemma3:1b
 uv run python demos/lesson1_demo.py</code></pre>
     </section>
 
-    <section>
+    <section id="runtime-setup" data-page="setup">
       <h2>Raspberry Pi Runtime Setup</h2>
       <p>The Python lessons run with <code>uv</code>, but the full voice assistant also needs a few local programs, model files, and working audio/display hardware on the Raspberry Pi.</p>
       <div class="two runtime-setup">
@@ -428,7 +668,7 @@ mkdir -p models/piper
 curl -L https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/low/en_US-lessac-low.onnx -o models/piper/en_US-lessac-low.onnx
 curl -L https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/low/en_US-lessac-low.onnx.json -o models/piper/en_US-lessac-low.onnx.json
 
-echo "Hello from Pi Agent" | tools/piper/piper --model models/piper/en_US-lessac-low.onnx --output-raw | aplay -r 22050 -f S16_LE -t raw -</code></pre>
+echo "Hello from Pie Agent" | tools/piper/piper --model models/piper/en_US-lessac-low.onnx --output-raw | aplay -r 22050 -f S16_LE -t raw -</code></pre>
         </div>
       </div>
       <div class="callout">
@@ -436,7 +676,7 @@ echo "Hello from Pi Agent" | tools/piper/piper --model models/piper/en_US-lessac
       </div>
     </section>
 
-    <section>
+    <section id="how-to" data-page="how-to">
       <h2>How To Use The TODOs</h2>
       <p>The Python files are part of the lesson. Each TODO is written like a mini guide, not just a blank placeholder.</p>
       <div class="grid">
@@ -461,7 +701,7 @@ echo "Hello from Pi Agent" | tools/piper/piper --model models/piper/en_US-lessac
 # - what the function should return</code></pre>
     </section>
 
-    <section>
+    <section id="tests" data-page="how-to">
       <h2>How To Run Lesson Tests</h2>
       <p>Run tests from the project folder, the folder that contains <code>demos/</code>, <code>face/</code>, <code>agent/</code>, and <code>pytest.ini</code>. Each lesson has a matching test folder. Run one small test file at a time while you build. Later lesson tests may fail until you build those parts.</p>
       <div class="two">
@@ -484,7 +724,7 @@ uv run pytest tests/lesson_2
 uv run pytest tests</code></pre>
     </section>
 
-    <section id="lesson-1" class="lesson">
+    <section id="lesson-1" class="lesson" data-page="lesson-1">
       <span class="tag">Lesson 1</span>
       <h2>Demo The Fake Agent</h2>
       <p>Goal: run a complete fake agent before adding microphones, speakers, real wake word detection, web search, or a local LLM.</p>
@@ -535,7 +775,7 @@ uv run pytest tests/lesson_1/test_02_demo_agent_quit.py
 uv run pytest tests/lesson_1</code></pre>
     </section>
 
-    <section id="lesson-2" class="lesson">
+    <section id="lesson-2" class="lesson" data-page="lesson-2">
       <span class="tag">Lesson 2</span>
       <h2>Build The Face State And Face Controller</h2>
       <p>Goal: show different picture faces from the <code>faces/</code> folders when the agent changes state.</p>
@@ -643,7 +883,7 @@ uv run pytest tests/lesson_2/test_06_controller_run.py
 uv run pytest tests/lesson_2</code></pre>
     </section>
 
-    <section id="lesson-3" class="lesson">
+    <section id="lesson-3" class="lesson" data-page="lesson-3">
       <span class="tag">Lesson 3</span>
       <h2>Add Wake Word Detection</h2>
       <p>Goal: replace “press Enter to wake” with a real wake word tool.</p>
@@ -728,7 +968,7 @@ uv run pytest tests/lesson_3</code></pre>
 uv run python -m demos.lesson3_wake_word_demo --threshold 0.3</code></pre>
     </section>
 
-    <section id="lesson-4" class="lesson">
+    <section id="lesson-4" class="lesson" data-page="lesson-4">
       <span class="tag">Lesson 4</span>
       <h2>Implement The Main Agent Loop</h2>
       <p>Goal: move the working loop idea from <code>demos/lesson1_demo.py</code> into the clean skeleton file.</p>
@@ -771,7 +1011,7 @@ uv run python -m demos.lesson3_wake_word_demo --threshold 0.3</code></pre>
 except KeyboardInterrupt:
     # Put the face back to idle before the program exits.
     face_state.set(states.IDLE)
-    print("\nPiAgent stopped.")</code></pre>
+    print("\nPie Agent stopped.")</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li><code>Agent.run()</code> has the full loop shape.</li>
@@ -789,7 +1029,7 @@ uv run pytest tests/lesson_4/test_03_agent_run.py
 uv run pytest tests/lesson_4</code></pre>
     </section>
 
-    <section id="lesson-5" class="lesson">
+    <section id="lesson-5" class="lesson" data-page="lesson-5">
       <span class="tag">Lesson 5</span>
       <h2>STT: Add Speech-To-Text</h2>
       <p>Goal: replace typed input with microphone-based speech recognition.</p>
@@ -853,7 +1093,7 @@ uv run pytest tests/lesson_5/test_03_loudness.py
 uv run pytest tests/lesson_5</code></pre>
     </section>
 
-    <section id="lesson-6" class="lesson">
+    <section id="lesson-6" class="lesson" data-page="lesson-6">
       <span class="tag">Lesson 6</span>
       <h2>TTS: Add Text-To-Speech</h2>
       <p>Goal: make the agent speak out loud instead of only printing text.</p>
@@ -917,7 +1157,7 @@ uv run pytest tests/lesson_6/test_02_tts_speak.py
 uv run pytest tests/lesson_6</code></pre>
     </section>
 
-    <section id="lesson-7" class="lesson">
+    <section id="lesson-7" class="lesson" data-page="lesson-7">
       <span class="tag">Lesson 7</span>
       <h2>LLM: Add A Local Ollama Model</h2>
       <p>Goal: use a small open model running locally through Ollama.</p>
@@ -984,7 +1224,7 @@ uv run pytest tests/lesson_7/test_03_llm_context.py
 uv run pytest tests/lesson_7</code></pre>
     </section>
 
-    <section id="lesson-8" class="lesson">
+    <section id="lesson-8" class="lesson" data-page="lesson-8">
       <span class="tag">Lesson 8</span>
       <h2>Tools: Add Web Search</h2>
       <p>Goal: give the agent a tool it can use when it needs current information from the web.</p>
@@ -1061,9 +1301,9 @@ uv run pytest tests/lesson_8/test_04_llm_needs_search.py
 uv run pytest tests/lesson_8</code></pre>
     </section>
 
-    <section id="lesson-9" class="lesson">
+    <section id="lesson-9" class="lesson" data-page="lesson-9">
       <span class="tag">Lesson 9</span>
-      <h2>Give Pi Agent Default Instructions</h2>
+      <h2>Give Pie Agent Default Instructions</h2>
       <p>Goal: load local <code>AGENTS.md</code> instructions and combine them with every user request before sending it to the LLM.</p>
       <div class="two">
         <div class="card blue">
@@ -1077,7 +1317,7 @@ uv run pytest tests/lesson_8</code></pre>
         <div class="card green">
           <h3>Files And Functions</h3>
           <ul>
-            <li><code>AGENTS.md</code>: Pi Agent's default persona and safety instructions.</li>
+            <li><code>AGENTS.md</code>: Pie Agent's default persona and safety instructions.</li>
             <li><code>agent/agent.py</code>: <code>load_agents_md()</code> and <code>build_prompt()</code>.</li>
           </ul>
         </div>
@@ -1110,7 +1350,7 @@ uv run pytest tests/lesson_9/test_02_build_prompt.py
 uv run pytest tests/lesson_9</code></pre>
     </section>
 
-    <section id="lesson-10" class="lesson">
+    <section id="lesson-10" class="lesson" data-page="lesson-10">
       <span class="tag">Lesson 10</span>
       <h2>Put Everything Together</h2>
       <p>Goal: combine the agent loop, face controller, wake word, STT, TTS, local LLM, search, and display into one Raspberry Pi assistant.</p>
@@ -1169,7 +1409,7 @@ uv run pytest tests/lesson_10/test_02_main_wiring.py
 uv run pytest tests</code></pre>
     </section>
 
-    <section>
+    <section id="resources" data-page="resources">
       <h2>Debugging Tips</h2>
       <div class="grid">
         <div class="card yellow">
@@ -1194,7 +1434,7 @@ uv run pytest tests</code></pre>
       </ul>
     </section>
 
-    <section>
+    <section id="stretch-ideas" data-page="resources">
       <h2>Optional Stretch Ideas</h2>
       <p>Try these only after the matching lesson works.</p>
       <ul>
@@ -1212,7 +1452,7 @@ uv run pytest tests</code></pre>
     </footer>
   </main>
   <script>
-    const storageKeyPrefix = "pi-agent-lesson-step";
+    const storageKeyPrefix = "pie-agent-lesson-step";
 
     document.querySelectorAll("pre").forEach((block, index) => {
       const code = block.querySelector("code");
@@ -1294,6 +1534,76 @@ uv run pytest tests</code></pre>
         });
       });
     });
+
+    const pageSections = [...document.querySelectorAll("main > section")];
+    const pageLinks = [...document.querySelectorAll("[data-page-link]")];
+    const lessonIds = pageSections
+      .filter((section) => section.classList.contains("lesson"))
+      .map((section) => section.id);
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const sidebar = document.querySelector(".sidebar");
+
+    function showPage(pageId, updateHash = true) {
+      const target = document.getElementById(pageId);
+      if (!target) {
+        return;
+      }
+
+      pageSections.forEach((section) => {
+        section.hidden = section.dataset.page !== pageId;
+      });
+
+      pageLinks.forEach((link) => {
+        link.classList.toggle("active", link.dataset.pageLink === pageId);
+      });
+
+      if (updateHash) {
+        history.replaceState(null, "", `#${pageId}`);
+      }
+
+      sidebar.classList.remove("open");
+      mobileMenu.setAttribute("aria-expanded", "false");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    pageLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showPage(link.dataset.pageLink);
+      });
+    });
+
+    mobileMenu.addEventListener("click", () => {
+      const isOpen = sidebar.classList.toggle("open");
+      mobileMenu.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.querySelectorAll(".lesson").forEach((lesson, index) => {
+      const controls = document.createElement("div");
+      controls.className = "lesson-tabs";
+
+      const previous = document.createElement("button");
+      previous.type = "button";
+      previous.textContent = index === 0 ? "← Overview" : "← Previous lesson";
+      previous.addEventListener("click", () => {
+        showPage(index === 0 ? "overview" : lessonIds[index - 1]);
+      });
+
+      const next = document.createElement("button");
+      next.type = "button";
+      next.textContent = index === lessonIds.length - 1 ? "Finish! 🎉" : "Next lesson →";
+      next.addEventListener("click", () => {
+        showPage(index === lessonIds.length - 1 ? "resources" : lessonIds[index + 1]);
+      });
+
+      controls.append(previous, next);
+      lesson.appendChild(controls);
+    });
+
+    const requestedPage = window.location.hash.slice(1);
+    showPage(pageSections.some((section) => section.dataset.page === requestedPage)
+      ? requestedPage
+      : "overview", false);
   </script>
 </body>
 </html>

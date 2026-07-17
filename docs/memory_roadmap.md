@@ -1,4 +1,4 @@
-# Pi Agent Memory Roadmap
+# Pie Agent Memory Roadmap
 
 ## Phase 1: Markdown Memory
 
