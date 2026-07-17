@@ -350,12 +350,10 @@
         <div class="card purple">
           <h3>You Need</h3>
           <ul>
-            <li>A Raspberry Pi 5 with more than 8 GB memory.</li>
-            <li>Python 3 installed.</li>
+            <li>A Raspberry Pi 5 with 8 GB or more memory. A <strong>CanaKit Raspberry Pi 5 Starter Kit PRO</strong> is a good starting choice.</li>
             <li>A mini microphone.</li>
             <li>A mini speaker.</li>
-            <li>A mini monitor or display.</li>
-            <li>A terminal where you can run commands.</li>
+            <li>A mini monitor, such as a <strong>7 Inch Touchscreen IPS DSI Display</strong>.</li>
             <li><code>uv</code> installed for creating a Python virtual environment. Use the official <a href="https://docs.astral.sh/uv/getting-started/installation/">uv installation instructions</a>.</li>
             <li>Ollama installed for the local LLM lesson. Use the official <a href="https://ollama.com/download">Ollama download and install instructions</a>.</li>
           </ul>
@@ -428,7 +426,7 @@ mkdir -p models/piper
 curl -L https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/low/en_US-lessac-low.onnx -o models/piper/en_US-lessac-low.onnx
 curl -L https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/low/en_US-lessac-low.onnx.json -o models/piper/en_US-lessac-low.onnx.json
 
-echo "Hello from Pi Agent" | tools/piper/piper --model models/piper/en_US-lessac-low.onnx --output-raw | aplay -r 22050 -f S16_LE -t raw -</code></pre>
+echo "Hello from Pie Agent" | tools/piper/piper --model models/piper/en_US-lessac-low.onnx --output-raw | aplay -r 22050 -f S16_LE -t raw -</code></pre>
         </div>
       </div>
       <div class="callout">
@@ -771,7 +769,7 @@ uv run python -m demos.lesson3_wake_word_demo --threshold 0.3</code></pre>
 except KeyboardInterrupt:
     # Put the face back to idle before the program exits.
     face_state.set(states.IDLE)
-    print("\nPiAgent stopped.")</code></pre>
+    print("\nPie Agent stopped.")</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li><code>Agent.run()</code> has the full loop shape.</li>
@@ -1063,7 +1061,7 @@ uv run pytest tests/lesson_8</code></pre>
 
     <section id="lesson-9" class="lesson">
       <span class="tag">Lesson 9</span>
-      <h2>Give Pi Agent Default Instructions</h2>
+      <h2>Give Pie Agent Default Instructions</h2>
       <p>Goal: load local <code>AGENTS.md</code> instructions and combine them with every user request before sending it to the LLM.</p>
       <div class="two">
         <div class="card blue">
@@ -1077,7 +1075,7 @@ uv run pytest tests/lesson_8</code></pre>
         <div class="card green">
           <h3>Files And Functions</h3>
           <ul>
-            <li><code>AGENTS.md</code>: Pi Agent's default persona and safety instructions.</li>
+            <li><code>AGENTS.md</code>: Pie Agent's default persona and safety instructions.</li>
             <li><code>agent/agent.py</code>: <code>load_agents_md()</code> and <code>build_prompt()</code>.</li>
           </ul>
         </div>
@@ -1212,7 +1210,7 @@ uv run pytest tests</code></pre>
     </footer>
   </main>
   <script>
-    const storageKeyPrefix = "pi-agent-lesson-step";
+    const storageKeyPrefix = "pie-agent-lesson-step";
 
     document.querySelectorAll("pre").forEach((block, index) => {
       const code = block.querySelector("code");

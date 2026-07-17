@@ -241,7 +241,7 @@ models/piper/en_US-lessac-low.onnx
 Test Piper and speaker playback:
 
 ```bash
-echo "Hello from Pi Agent" | \
+echo "Hello from Pie Agent" | \
   tools/piper/piper --model models/piper/en_US-lessac-low.onnx --output-raw | \
   aplay -r 22050 -f S16_LE -t raw -
 ```
