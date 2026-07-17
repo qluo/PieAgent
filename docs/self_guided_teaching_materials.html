@@ -274,9 +274,52 @@
         font-size: 30px;
       }
     }
+
+    /* Colorful, kid-friendly learning app layout */
+    :root { --navy: #1d2a52; --sun: #ffd95f; --sky: #dff4ff; --mint: #ddf8e7; --rose: #ffe3ed; --lavender: #ebe5ff; }
+    body { background: radial-gradient(circle at 8% 5%, #fff5bd 0 7%, transparent 7.2%), #f5f8ff; }
+    .sidebar { position: fixed; z-index: 10; top: 18px; bottom: 18px; left: 18px; width: 240px; overflow-y: auto; padding: 18px 13px; border: 3px solid var(--navy); border-radius: 26px; background: #fff; box-shadow: 7px 7px 0 #cbd8ff; }
+    .sidebar-brand { margin: 0 8px 16px; color: var(--navy); font-size: 22px; font-weight: 800; line-height: 1.15; }
+    .sidebar-brand span { display: block; margin-top: 4px; color: #65708d; font-size: 13px; }
+    .sidebar h2 { margin: 16px 8px 6px; color: #65708d; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .sidebar a { display: block; margin: 5px 0; padding: 9px 10px; border: 2px solid transparent; border-radius: 14px; color: var(--navy); font-size: 14px; font-weight: 800; text-decoration: none; }
+    .sidebar a:hover, .sidebar a.active { border-color: var(--navy); background: var(--sun); }
+    .sidebar .lesson-link:nth-of-type(3n + 1) { background: var(--mint); }
+    .sidebar .lesson-link:nth-of-type(3n + 2) { background: var(--sky); }
+    .sidebar .lesson-link:nth-of-type(3n) { background: var(--rose); }
+    .mobile-menu { display: none; }
+    main { max-width: 1150px; margin: 0 30px 0 285px; padding: 30px 0 60px; }
+    header, section { border: 3px solid var(--navy); border-radius: 25px; box-shadow: 6px 6px 0 #d8e3ff; }
+    header { padding: 34px; background: linear-gradient(135deg, #fff 0 72%, #e4f6ff 72%); }
+    header h1, section h2 { color: var(--navy); }
+    header h1 { font-size: clamp(34px, 5vw, 54px); }
+    header nav { display: none; }
+    section { padding: 28px; }
+    .card, .flow div, .callout, .step-checklist li { border: 2px solid var(--navy); border-radius: 18px; box-shadow: 3px 3px 0 rgba(29, 42, 82, .12); }
+    .lesson { border-left-width: 10px; border-left-color: #5fc7ff; }
+    .lesson:nth-of-type(2n) { border-left-color: #7cdbac; }
+    .lesson:nth-of-type(3n) { border-left-color: #ffd95f; }
+    .lesson:nth-of-type(5n) { border-left-color: #f37da9; }
+    .tag { border: 2px solid var(--navy); border-radius: 999px; background: var(--sun); box-shadow: 2px 2px 0 var(--navy); }
+    .page-section[hidden] { display: none; }
+    .lesson-tabs { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+    .lesson-tabs button { padding: 9px 14px; border: 2px solid var(--navy); border-radius: 999px; background: var(--lavender); color: var(--navy); font: inherit; font-weight: 800; cursor: pointer; }
+    .lesson-tabs button:hover { background: var(--sun); }
+    @media (max-width: 900px) { .mobile-menu { position: fixed; z-index: 20; top: 12px; left: 12px; display: block; padding: 9px 12px; border: 2px solid var(--navy); border-radius: 12px; background: var(--sun); color: var(--navy); font: inherit; font-weight: 800; } .sidebar { top: 64px; left: 12px; bottom: 12px; width: min(290px, calc(100vw - 24px)); transform: translateX(-120%); transition: transform .2s ease; } .sidebar.open { transform: translateX(0); } main { margin: 0; padding: 66px 14px 38px; } header, section { padding: 20px; } }
   </style>
 </head>
 <body>
+  <button class="mobile-menu" type="button" aria-expanded="false" aria-controls="site-sidebar">Menu</button>
+  <aside class="sidebar" id="site-sidebar">
+    <p class="sidebar-brand">🥧 Pie Agent <span>Learn by building!</span></p>
+    <h2>Start here</h2>
+    <a href="#overview" data-page-link="overview">✨ Overview</a>
+    <a href="#setup" data-page-link="setup">🧰 Setup</a>
+    <a href="#how-to" data-page-link="how-to">🛠️ How to learn</a>
+    <h2>Lessons</h2>
+    <a class="lesson-link" href="#lesson-1" data-page-link="lesson-1">1. Fake Agent</a><a class="lesson-link" href="#lesson-2" data-page-link="lesson-2">2. Face Controller</a><a class="lesson-link" href="#lesson-3" data-page-link="lesson-3">3. Wake Word</a><a class="lesson-link" href="#lesson-4" data-page-link="lesson-4">4. Agent Loop</a><a class="lesson-link" href="#lesson-5" data-page-link="lesson-5">5. Speech to Text</a><a class="lesson-link" href="#lesson-6" data-page-link="lesson-6">6. Text to Speech</a><a class="lesson-link" href="#lesson-7" data-page-link="lesson-7">7. Local LLM</a><a class="lesson-link" href="#lesson-8" data-page-link="lesson-8">8. Web Search</a><a class="lesson-link" href="#lesson-9" data-page-link="lesson-9">9. Instructions</a><a class="lesson-link" href="#lesson-10" data-page-link="lesson-10">10. Put it together</a>
+    <h2>Extra help</h2><a href="#resources" data-page-link="resources">🧩 Debugging & ideas</a>
+  </aside>
   <main>
     <header>
       <h1>Self-Guided Lessons to Build AI Agent on Raspberry Pi</h1>
@@ -1292,6 +1335,67 @@ uv run pytest tests</code></pre>
         });
       });
     });
+
+    const sections = [...document.querySelectorAll("main > section")];
+    const pageLinks = [...document.querySelectorAll("[data-page-link]")];
+    const sidebar = document.querySelector(".sidebar");
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const lessonIds = [];
+
+    sections.forEach((section) => {
+      const title = section.querySelector("h2")?.textContent.trim();
+      let page = "resources";
+      if (section.classList.contains("lesson")) {
+        page = section.id;
+        lessonIds.push(page);
+      } else if (["Agentic Loop Overview", "Learning Map"].includes(title)) {
+        page = "overview";
+      } else if (["Before You Start", "Raspberry Pi Runtime Setup"].includes(title)) {
+        page = "setup";
+      } else if (["How To Use The TODOs", "How To Run Lesson Tests"].includes(title)) {
+        page = "how-to";
+      }
+      section.dataset.page = page;
+      section.classList.add("page-section");
+    });
+
+    function showPage(page, updateHash = true) {
+      if (!sections.some((section) => section.dataset.page === page)) return;
+      sections.forEach((section) => { section.hidden = section.dataset.page !== page; });
+      pageLinks.forEach((link) => link.classList.toggle("active", link.dataset.pageLink === page));
+      if (updateHash) history.replaceState(null, "", `#${page}`);
+      sidebar.classList.remove("open");
+      mobileMenu.setAttribute("aria-expanded", "false");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    pageLinks.forEach((link) => link.addEventListener("click", (event) => {
+      event.preventDefault();
+      showPage(link.dataset.pageLink);
+    }));
+
+    mobileMenu.addEventListener("click", () => {
+      const open = sidebar.classList.toggle("open");
+      mobileMenu.setAttribute("aria-expanded", String(open));
+    });
+
+    document.querySelectorAll(".lesson").forEach((lesson, index) => {
+      const tabs = document.createElement("div");
+      tabs.className = "lesson-tabs";
+      const previous = document.createElement("button");
+      previous.type = "button";
+      previous.textContent = index ? "← Previous lesson" : "← Overview";
+      previous.addEventListener("click", () => showPage(index ? lessonIds[index - 1] : "overview"));
+      const next = document.createElement("button");
+      next.type = "button";
+      next.textContent = index === lessonIds.length - 1 ? "Finish! 🎉" : "Next lesson →";
+      next.addEventListener("click", () => showPage(index === lessonIds.length - 1 ? "resources" : lessonIds[index + 1]));
+      tabs.append(previous, next);
+      lesson.appendChild(tabs);
+    });
+
+    const requestedPage = window.location.hash.slice(1);
+    showPage(sections.some((section) => section.dataset.page === requestedPage) ? requestedPage : "overview", false);
   </script>
 </body>
 </html>
