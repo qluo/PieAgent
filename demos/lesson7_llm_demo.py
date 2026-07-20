@@ -17,7 +17,7 @@ from agent.tools.llm import LlmTool
 
 def parse_args() -> argparse.Namespace:
     """Read the local model name and question."""
-    parser = argparse.ArgumentParser(description="Ask Pi Agent's local Ollama model.")
+    parser = argparse.ArgumentParser(description="Ask Pie Agent's local Ollama model.")
     parser.add_argument("question", nargs="?", default="What is a Raspberry Pi?")
     parser.add_argument("--model", default="gemma3:1b")
     parser.add_argument("--base-url", default="http://localhost:11434")

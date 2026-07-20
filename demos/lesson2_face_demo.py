@@ -22,7 +22,7 @@ DEMO_STATES = (states.IDLE, states.LISTENING, states.THINKING, states.SPEAKING)
 
 def parse_args() -> argparse.Namespace:
     """Read how long each expression should remain visible."""
-    parser = argparse.ArgumentParser(description="Cycle through Pi Agent face states.")
+    parser = argparse.ArgumentParser(description="Cycle through Pie Agent face states.")
     parser.add_argument(
         "--seconds-per-state",
         type=float,

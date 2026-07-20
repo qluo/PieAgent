@@ -5,11 +5,11 @@ def test_build_prompt_combines_instructions_and_user_request():
     agent = Agent(None, None, None, None, None, {})
     agent.agents_md = "Be concise."
 
-    prompt = agent.build_prompt("What is Pi Agent?")
+    prompt = agent.build_prompt("What is Pie Agent?")
 
     assert prompt == (
         "Agent instructions:\nBe concise.\n\n"
-        "User request:\nWhat is Pi Agent?"
+        "User request:\nWhat is Pie Agent?"
     )
 
 

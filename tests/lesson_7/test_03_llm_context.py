@@ -11,8 +11,8 @@ def test_answer_with_context_builds_a_prompt_and_uses_answer(monkeypatch):
 
     monkeypatch.setattr(tool, "answer", fake_answer)
 
-    assert tool.answer_with_context("What is PiAgent?", "PiAgent is a teaching project.") == "contextual answer"
+    assert tool.answer_with_context("What is Pie Agent?", "Pie Agent is a teaching project.") == "contextual answer"
     assert "Context:" in prompts[0]
     assert "Question:" in prompts[0]
-    assert "What is PiAgent?" in prompts[0]
-    assert "PiAgent is a teaching project." in prompts[0]
+    assert "What is Pie Agent?" in prompts[0]
+    assert "Pie Agent is a teaching project." in prompts[0]

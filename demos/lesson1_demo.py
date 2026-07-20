@@ -96,7 +96,7 @@ class FakeLlmTool:
         text = user_text.lower()
 
         if "name" in text:
-            return "My name is Pi Agent."
+            return "My name is Pie Agent."
 
         if "hello" in text or "hi" in text:
             return "Hello! I am awake and ready."
@@ -151,7 +151,7 @@ class Agent:
         Inputs: none directly. Uses the tools passed into __init__().
         Output: none. Stops when the user types quit, exit, or stop.
         """
-        print("Pi Agent demo is running. Type 'quit' when asked to speak.")
+        print("Pie Agent demo is running. Type 'quit' when asked to speak.")
 
         while True:
             self.face_state.set("idle")

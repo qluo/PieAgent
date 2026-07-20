@@ -120,7 +120,7 @@ class Agent:
         # Lesson 9: Local Agent Instructions
         #
         # Goal:
-        # Keep Pi Agent's default behavior in AGENTS.md instead of repeating
+        # Keep Pie Agent's default behavior in AGENTS.md instead of repeating
         # it in every user request.
         #
         # Implementation guide:

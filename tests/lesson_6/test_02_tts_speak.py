@@ -41,14 +41,14 @@ def test_tts_streams_piper_audio_to_aplay(monkeypatch):
         player_binary="aplay",
     )
 
-    assert tool.speak("Hello from Pi Agent") is None
+    assert tool.speak("Hello from Pie Agent") is None
 
     assert len(calls) == 2
     assert calls[0][0][:4] == ["piper", "--model", "voice.onnx", "--output-raw"]
     assert calls[1][0][0] == "aplay"
     assert calls[1][1]["stdin"] is piper.stdout
     assert calls[1][0][1:] == ["-r", "22050", "-f", "S16_LE", "-t", "raw", "-"]
-    assert piper.stdin.writes == [b"Hello from Pi Agent"]
+    assert piper.stdin.writes == [b"Hello from Pie Agent"]
     assert piper.stdin.closed is True
     assert piper.wait_calls == 1
     assert player.wait_calls == 1

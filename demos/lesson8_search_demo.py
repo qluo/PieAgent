@@ -16,7 +16,7 @@ from agent.tools.search import SearchTool
 
 def parse_args() -> argparse.Namespace:
     """Read the question, model name, and search result limit."""
-    parser = argparse.ArgumentParser(description="Ask Pi Agent a question with search routing.")
+    parser = argparse.ArgumentParser(description="Ask Pie Agent a question with search routing.")
     parser.add_argument("question", nargs="?", default="What is the latest Raspberry Pi model?")
     parser.add_argument("--model", default="gemma3:1b")
     parser.add_argument("--max-results", type=int, default=1)

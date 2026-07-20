@@ -16,7 +16,7 @@ from agent.tools.stt import SpeechToTextTool
 
 def parse_args() -> argparse.Namespace:
     """Read the input mode and transcription settings."""
-    parser = argparse.ArgumentParser(description="Try Pi Agent speech-to-text.")
+    parser = argparse.ArgumentParser(description="Try Pie Agent speech-to-text.")
     parser.add_argument(
         "--mode",
         choices=("keyboard", "microphone"),
