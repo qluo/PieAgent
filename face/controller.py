@@ -44,11 +44,7 @@ class FaceController:
         #
         # Expected return value:
         # Nothing. This method draws exactly one frame.
-        if self.renderer is None:
-            self.renderer = FaceRenderer()
-
-        state = self.face_state.get()
-        self.renderer.draw(state)
+        return
 
 
     def run(self, sleep_seconds: float = 0.1) -> None:
@@ -82,10 +78,4 @@ class FaceController:
         #
         # Expected return value:
         # Nothing. This method keeps running.
-        if self.renderer is None:
-            self.renderer = FaceRenderer()
-
-        self.renderer.load()
-        while True:
-            self.run_once()
-            time.sleep(sleep_seconds)
+        return
