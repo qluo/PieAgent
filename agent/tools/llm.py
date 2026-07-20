@@ -74,14 +74,7 @@ class LlmTool:
         # Expected return value:
         # A string response from the local model.
 
-        response = requests.post(
-            f"{self.base_url}/api/generate",
-            json={"model": self.model_name, "prompt": user_text, "stream": False},
-            timeout=self.timeout,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["response"].strip()
+        return ""
 
     def needs_search(self, user_text: str) -> bool:
         """Ask the local model whether a web search would help."""
@@ -91,13 +84,7 @@ class LlmTool:
         # 3. Normalize the returned text by removing whitespace and using
         #    uppercase letters before deciding.
         # 4. Return True for SEARCH and False for NO_SEARCH.
-        prompt = (
-            "Based on your current knowledge, decide if this user question needs current web search results.\n"
-            "Answer with only SEARCH or NO_SEARCH.\n\n"
-            f"Question: {user_text}"
-        )
-        decision = self.answer(prompt).strip().upper()
-        return decision.startswith("SEARCH")
+        return False
 
     def answer_with_context(self, user_text: str, context: str) -> str:
         """Answer using tool context and a local Ollama model.
@@ -127,9 +114,4 @@ class LlmTool:
         #
         # Expected return value:
         # A string response that uses the tool context.
-        prompt = (
-            "Use this context to answer the user's question.\n\n"
-            f"Context:\n{context}\n\n"
-            f"Question:\n{user_text}"
-        )
-        return self.answer(prompt)
+        return ""

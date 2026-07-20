@@ -859,7 +859,7 @@ uv run pytest tests/lesson_2</code></pre>
           <h3>Files And Functions</h3>
           <ul>
             <li><code>agent/tools/wake_word.py</code></li>
-            <li><code>WakeWordTool.wait()</code></li>
+            <li><code>WakeWordTool.wait()</code>, <code>_wait_for_keyboard_wake()</code>, and <code>_wait_for_microphone_wake()</code></li>
             <li><code>demos/lesson1_demo.py</code>: <code>FakeWakeWordTool.wait()</code></li>
           </ul>
         </div>
@@ -875,24 +875,26 @@ uv run pytest tests/lesson_2</code></pre>
         <li>Read <code>FakeWakeWordTool.wait()</code> in <code>demos/lesson1_demo.py</code>.</li>
         <li>Open the Python file <code>agent/tools/wake_word.py</code> in your IDE.</li>
         <li>Read <code>WakeWordTool.__init__()</code>. Notice <code>model_path</code>, <code>threshold</code>, <code>sample_rate</code>, and <code>mode</code>.</li>
-        <li>Keep the same method name: <code>wait()</code>.</li>
-        <li>Use <code>mode="keyboard"</code> for tests and early classroom debugging.</li>
-        <li>Use <code>mode="microphone"</code> for the real Raspberry Pi wake word.</li>
-        <li>First implement <code>_wait_for_keyboard_wake()</code>: loop until the user types <code>wake</code>.</li>
-        <li>Then implement <code>_wait_for_microphone_wake()</code>: load the default <code>hey_jarvis</code> model, use the microphone callback to put 16 kHz mono audio chunks into a queue, and score each chunk in a simple loop.</li>
-        <li>Run the manual microphone demo:<pre><code>uv run python -m demos.lesson3_wake_word_demo</code></pre></li>
-        <li>Return from <code>wait()</code> only when the wake word is detected.</li>
+        <li>Find the three student TODO functions: <code>wait()</code>, <code>_wait_for_keyboard_wake()</code>, and <code>_wait_for_microphone_wake()</code>.</li>
+        <li>Use <code>mode="keyboard"</code> for tests and classroom debugging; use <code>mode="microphone"</code> for the real Raspberry Pi wake word.</li>
+        <li>Implement <code>_wait_for_keyboard_wake()</code> so it keeps asking until the user types <code>wake</code>, ignoring capitalization and extra spaces. Run the keyboard test:<pre><code>uv run pytest tests/lesson_3/test_02_keyboard_wake_word.py</code></pre></li>
+        <li>Implement <code>wait()</code> so it routes keyboard and microphone modes to the correct helper, and raises a helpful error for another mode. Run the mode test:<pre><code>uv run pytest tests/lesson_3/test_03_wake_word_mode.py</code></pre></li>
+        <li>Implement <code>_wait_for_microphone_wake()</code> using the default <code>hey_jarvis</code> model, a callback that puts 16 kHz mono audio chunks in a queue, and a loop that returns when the model score reaches the threshold. Run the microphone mock test:<pre><code>uv run pytest tests/lesson_3/test_04_microphone_wake_word.py</code></pre></li>
+        <li>Run the manual microphone demo on the Raspberry Pi:<pre><code>uv run python -m demos.lesson3_wake_word_demo</code></pre></li>
+        <li>Understand how <code>wait()</code> blocks the agent until a wake word is detected, while keeping the details of keyboard and microphone input inside <code>WakeWordTool</code>.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The agent starts only after the wake step finishes.</li>
         <li>The wake word code stays inside <code>WakeWordTool</code>.</li>
+        <li>You implemented keyboard and microphone wake detection, plus mode routing.</li>
         <li>The rest of the agent does not know whether wake word detection is fake, keyboard-based, or microphone-based.</li>
       </ul>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_3/test_01_wake_word_api.py
 uv run pytest tests/lesson_3/test_02_keyboard_wake_word.py
 uv run pytest tests/lesson_3/test_03_wake_word_mode.py
+uv run pytest tests/lesson_3/test_04_microphone_wake_word.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_3</code></pre>

@@ -63,24 +63,4 @@ class SearchTool:
         # A short string like:
         #   "Title: ...\nSummary: ...\nURL: ..."
 
-        try:
-            with DDGS() as engine:
-                results = list(
-                    engine.text(
-                        query,
-                        region=self.region,
-                        max_results=self.max_results,
-                    )
-                )
-        except Exception as error:
-            return f"Search failed for {query}: {error}"
-
-        if not results:
-            return f"No search results found for {query}."
-
-        result = results[0]
-        title = result.get("title", "")
-        summary = result.get("body", "")
-        url = result.get("href", "")
-
-        return f"Title: {title}\nSummary: {summary}\nURL: {url}"
+        return ""

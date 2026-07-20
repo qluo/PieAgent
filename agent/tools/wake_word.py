@@ -58,25 +58,15 @@ class WakeWordTool:
         # - numpy<2: audio arrays used by openwakeword.
         #
         # Implementation guide:
-        # 1. Open the microphone with sounddevice.
-        # 2. Feed short chunks of audio into openwakeword.
-        # 3. Return from this method only when the wake score is high enough.
+        # 1. Check self.mode.
+        # 2. In keyboard mode, call the keyboard helper and return when it ends.
+        # 3. In microphone mode, call the microphone helper.
+        # 4. Raise a clear ValueError for any other mode so configuration errors
+        #    are found before recording starts.
         #
         # Expected return value:
         # Nothing. This method returns only when the wake word is detected.
-        # Lesson 3 helper functions:
-        # - For keyboard practice, call self._wait_for_keyboard_wake().
-        # - For the Raspberry Pi version, call self._wait_for_microphone_wake().
-        # - Use self.mode to choose between "keyboard" and "microphone".
-        
-        if self.mode == "keyboard":
-            self._wait_for_keyboard_wake()
-            return
-
-        if self.mode != "microphone":
-            raise ValueError('WakeWordTool mode must be "microphone" or "keyboard".')
-
-        self._wait_for_microphone_wake()
+        return
 
     def _wait_for_keyboard_wake(self) -> None:
         """Teaching helper: wait until someone types wake."""
@@ -84,44 +74,20 @@ class WakeWordTool:
         # 1. Keep asking for input in a loop.
         # 2. Strip spaces and convert the typed text to lowercase.
         # 3. Return only when the normalized word is "wake".
-        while True:
-            typed_word = input("Type 'wake' to wake PiAgent: ").strip().lower()
-            if typed_word == "wake":
-                return
+        return
 
     def _wait_for_microphone_wake(self) -> None:
         """Listen to microphone audio and check openWakeWord scores."""
         # Implementation guide:
-        # 1. Load the openWakeWord Model.
-        # 2. Create audio_queue = Queue().
-        # 3. Make audio_callback(indata, _frames, _time, status). Inside it, add
-        #    one mono audio chunk with audio_queue.put(indata[:, 0].copy()).
-        # 4. Open sd.InputStream(..., callback=audio_callback).
-        # 5. In a loop, score each chunk with model.predict(audio_chunk).
-        # 6. Return when max(scores.values()) reaches self.threshold.
-        
-        if self.model_path:
-            model = Model(wakeword_models=[self.model_path])
-        else:
-            model = Model()
-
-        audio_queue: Queue = Queue()
-
-        def audio_callback(indata, _frames, _time, status) -> None:
-            if status:
-                print(f"Microphone status: {status}")
-            audio_queue.put(indata[:, 0].copy())
-
-        print("Listening for wake word...")
-        with sd.InputStream(
-            samplerate=self.sample_rate,
-            channels=1,
-            dtype="int16",
-            blocksize=CHUNK_SIZE,
-            callback=audio_callback,
-        ):
-            while True:
-                audio_chunk = audio_queue.get()
-                scores = model.predict(audio_chunk)
-                if scores and max(scores.values()) >= self.threshold:
-                    return
+        # 1. Load Model with self.model_path when it has a value; otherwise,
+        #    create the default openWakeWord model.
+        # 2. Create a Queue to pass microphone chunks from the callback to the
+        #    scoring loop.
+        # 3. Write a callback that reports a status when present, then adds a
+        #    copied mono chunk from indata[:, 0] to the queue.
+        # 4. Open sd.InputStream with self.sample_rate, one channel, int16
+        #    audio, CHUNK_SIZE, and that callback.
+        # 5. In the stream, get one chunk at a time and score it with
+        #    model.predict(audio_chunk).
+        # 6. Return when a score reaches self.threshold.
+        return

@@ -78,16 +78,7 @@ class SpeechToTextTool:
         #
         # Expected return value:
         # The user's words as a Python string.
-        if self.mode == "keyboard":
-            return input("You: ")
-
-        audio = self.listen_until_silence()
-        wav_path = self.save_temp_wav(audio)
-        text = self.run_whisper(wav_path)
-        wav_path.unlink(missing_ok=True)
-
-        print(f"Heard: {text}")
-        return text
+        return ""
 
     def save_temp_wav(self, audio: bytes) -> Path:
         """Save microphone audio to a temporary WAV for whisper.cpp."""

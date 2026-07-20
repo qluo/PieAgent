@@ -76,21 +76,7 @@ class Agent:
         # 4. Set the face to speaking before sending the answer to the TTS tool.
         # 5. Repeat the whole sequence so the agent can handle another request.
         #
-        # Test idea:
-        # Use fake tools first. If the loop works with fake tools, then swap
-        # in one real tool at a time.
-        while True:
-            self.face_state.set(states.IDLE)
-            self.wake_word.wait()
-
-            self.face_state.set(states.LISTENING)
-            user_text = self.stt.listen_and_transcribe()
-
-            self.face_state.set(states.THINKING)
-            response = self.respond(user_text)
-
-            self.face_state.set(states.SPEAKING)
-            self.tts.speak(response)
+        return
 
     def respond(self, user_text: str) -> str:
         """Produce a response, optionally using tools.
@@ -118,17 +104,7 @@ class Agent:
         # Expected return value:
         # A string that can be sent to self.tts.speak(...).
 
-        prompt = self.build_prompt(user_text)
-
-        if (
-            "search" in self.tools
-            and hasattr(self.llm, "needs_search")
-            and self.llm.needs_search(prompt)
-        ):
-            context = self.tools["search"].search(user_text)
-            return self.llm.answer_with_context(prompt, context)
-
-        return self.llm.answer(prompt)
+        return ""
 
     def build_prompt(self, user_text: str) -> str:
         """
@@ -151,14 +127,7 @@ class Agent:
         # 3. Otherwise, make a prompt with labeled instruction and user-request
         #    sections so the model can tell them apart.
         #
-        if not self.agents_md.strip():
-            return user_text
-        return (
-            "Agent instructions:\n"
-            f"{self.agents_md.strip()}\n\n"
-            "User request:\n"
-            f"{user_text}"
-        )
+        return ""
 
     @staticmethod
     def load_agents_md() -> str:
@@ -177,7 +146,4 @@ class Agent:
         # 2. Return an empty string when the optional file is missing.
         # 3. Otherwise read and return its UTF-8 text.
         #
-        agents_file = PROJECT_ROOT / "AGENTS.md"
-        if not agents_file.is_file():
-            return ""
-        return agents_file.read_text(encoding="utf-8")
+        return ""
