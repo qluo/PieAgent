@@ -19,22 +19,16 @@ def main() -> None:
     Output:
     - None. Runs until the agent program is stopped.
     """
-    face_state = FaceState()
-
-    face_controller = FaceController(face_state=face_state)
-    Thread(target=face_controller.run, daemon=True).start()
-
-    agent = Agent(
-        face_state=face_state,
-        wake_word=WakeWordTool(),
-        stt=SpeechToTextTool(),
-        tts=TextToSpeechTool(),
-        llm=LlmTool(model_name="gemma3:1b"),
-        tools={
-            "search": SearchTool(),
-        },
-    )
-    agent.run()
+    # Lesson 10: Put Everything Together
+    #
+    # Implementation guide:
+    # 1. Create one shared FaceState.
+    # 2. Give it to FaceController and start controller.run() in a daemon
+    #    Thread so face drawing continues while the agent waits for input.
+    # 3. Create Agent with the same FaceState, WakeWordTool,
+    #    SpeechToTextTool, TextToSpeechTool, LlmTool, and a "search" tool.
+    # 4. Start the completed agent with agent.run().
+    return
 
 
 if __name__ == "__main__":

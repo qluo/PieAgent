@@ -68,13 +68,14 @@ class SpeechToTextTool:
         # - whisper.cpp: local speech-to-text program for transcription.
         #
         # Implementation guide:
-        # 1. Call self.listen_until_silence() to capture one spoken question.
-        # 2. Inside listen_until_silence(), call self.loudness(audio_chunk) to
-        #    decide when speech starts and when silence has lasted long enough.
-        # 3. Save the recorded audio bytes as a temporary WAV file.
-        # 4. Run whisper.cpp using self.whisper_binary and self.model_path.
-        # 5. Delete the temporary WAV after whisper.cpp finishes.
-        # 6. Print and return the transcription text.
+        # 1. In keyboard mode, return input("You: ") so the agent loop can be
+        #    tested without microphone hardware.
+        # 2. Otherwise, call the provided listen_until_silence() helper to
+        #    capture one spoken question.
+        # 3. Use the provided save_temp_wav() and run_whisper() helpers to save
+        #    the audio temporarily and transcribe it.
+        # 4. Delete the temporary WAV after whisper.cpp finishes.
+        # 5. Print and return the transcription text.
         #
         # Expected return value:
         # The user's words as a Python string.

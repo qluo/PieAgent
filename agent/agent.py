@@ -87,19 +87,29 @@ class Agent:
         Output:
         - A response string that can be sent to self.tts.speak(...).
         """
-        # Lesson 4, then Lessons 7 and 8:
+        # Lesson 4, then later Lessons 8 and 9:
         #
         # Goal:
         # Decide whether the agent should answer directly with the LLM or use
         # a tool first.
         #
-        # Implementation steps for Lessons 8 and 9:
-        # 1. Build one LLM prompt from the user's text and AGENTS.md.
-        # 2. When a search tool and needs_search() are available, ask the LLM
-        #    whether the prompt needs current information.
-        # 3. If it does, search with the original user text, then pass both the
-        #    prompt and search context to answer_with_context().
-        # 4. Otherwise, return the direct answer from answer(prompt).
+        # Implementation guide for Lesson 4:
+        # 1. Return the direct answer from self.llm.answer(user_text).
+        #
+        # Later updates:
+        # - Lesson 8 chooses between a direct answer and search context.
+        # - Lesson 9 builds an AGENTS.md prompt for the LLM but keeps the
+        #   original user_text for a search query.
+        #
+        # Lesson 8 update:
+        # 1. Ask llm.needs_search(user_text) whether current search is useful.
+        # 2. When it is, call the search tool and give its context to
+        #    llm.answer_with_context(user_text, context).
+        # 3. Otherwise, return the direct LLM answer.
+        #
+        # Lesson 9 update:
+        # Build the LLM prompt first, but continue using the original user_text
+        # as the search query.
         #
         # Expected return value:
         # A string that can be sent to self.tts.speak(...).

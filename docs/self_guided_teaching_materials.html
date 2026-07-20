@@ -929,16 +929,12 @@ uv run python -m demos.lesson3_wake_word_demo --threshold 0.3</code></pre>
       <h3>Steps</h3>
       <ol>
         <li>Open the Python file <code>demos/lesson1_demo.py</code> in your IDE and find <code>Agent.run()</code>.</li>
-        <li>Open the Python file <code>agent/agent.py</code> in your IDE and find the skeleton <code>Agent.run()</code>.</li>
-        <li>Add <code>from face import states</code> at the top so the agent can use named face states.</li>
-        <li>Copy the high-level loop idea, not every fake detail.</li>
-        <li>Call <code>self.wake_word.wait()</code> when idle.</li>
-        <li>Set the face to <code>listening</code>, then call <code>self.stt.listen_and_transcribe()</code>.</li>
-        <li>Set the face to <code>thinking</code>, then call <code>self.respond(user_text)</code>.</li>
-        <li>Set the face to <code>speaking</code>, then call <code>self.tts.speak(response)</code>.</li>
-        <li>Set the face back to <code>idle</code>.</li>
-        <li>Find <code>Agent.respond(user_text)</code>. For now, implement the TODO by returning <code>self.llm.answer(user_text)</code>.</li>
-        <li>Later, Lesson 8 will update <code>respond()</code> so the LLM decides whether search is needed.</li>
+        <li>Open <code>agent/agent.py</code>, read <code>Agent.__init__()</code>, and find the two student functions to implement: <code>run()</code> and <code>respond(user_text)</code>.</li>
+        <li>Implement <code>run()</code> as a repeating loop: set idle, wait for wake, listen, think, respond, and speak. Set each matching face state before the slow tool call.</li>
+        <li>Implement <code>respond(user_text)</code> by returning <code>self.llm.answer(user_text)</code>. Lessons 8 and 9 will extend this function with search and default instructions.</li>
+        <li>Run the response and loop tests:<pre><code>uv run pytest tests/lesson_4/test_01_agent_respond.py
+uv run pytest tests/lesson_4/test_03_agent_run.py</code></pre></li>
+        <li>Run the demo, then explain how the agent coordinates tools without doing microphone, LLM, or speaker work itself:<pre><code>uv run python -m demos.lesson4_agent_loop_demo</code></pre></li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -976,8 +972,7 @@ uv run pytest tests/lesson_4</code></pre>
           <ul>
             <li><code>agent/tools/stt.py</code></li>
             <li><code>SpeechToTextTool.listen_and_transcribe()</code></li>
-            <li><code>SpeechToTextTool.listen_until_silence()</code>: provided helper that records one spoken phrase.</li>
-            <li><code>SpeechToTextTool.loudness()</code>: provided helper that measures microphone volume.</li>
+            <li><code>listen_until_silence()</code>, <code>save_temp_wav()</code>, <code>run_whisper()</code>, and <code>loudness()</code>: provided helpers for recording and transcription.</li>
             <li><code>agent/agent.py</code>: where the agent calls STT.</li>
           </ul>
         </div>
@@ -992,14 +987,13 @@ uv run pytest tests/lesson_4</code></pre>
       <ol>
         <li>Open the Python file <code>agent/tools/stt.py</code> in your IDE.</li>
         <li>Read <code>SpeechToTextTool.__init__()</code>. Notice <code>sample_rate</code>, <code>seconds</code>, <code>silence_seconds</code>, <code>model_path</code>, and <code>whisper_binary</code>.</li>
-        <li>Keep the method name <code>listen_and_transcribe()</code>.</li>
-        <li>Read the provided <code>listen_until_silence()</code> helper. It uses <code>sounddevice</code> to listen in short chunks.</li>
-        <li>Read the provided <code>loudness()</code> helper. <code>listen_until_silence()</code> uses it to start when speech begins and stop after quiet.</li>
-        <li>Inside <code>listen_and_transcribe()</code>, call <code>self.listen_until_silence()</code> to capture the user's speech.</li>
-        <li>Save the captured speech to a temporary WAV file for <code>whisper.cpp</code>.</li>
-        <li>Send the temporary WAV file to <code>whisper.cpp</code>.</li>
-        <li>Return the transcription as a string.</li>
-        <li>Print the transcription while debugging so you can see what the agent heard.</li>
+        <li>Find the student function to implement: <code>listen_and_transcribe()</code>. The recording, WAV, whisper.cpp, and loudness helpers are already provided.</li>
+        <li>Implement keyboard mode first by returning typed input. Run the keyboard test:<pre><code>uv run pytest tests/lesson_5/test_02_keyboard_stt.py</code></pre></li>
+        <li>Implement microphone mode by calling the provided helpers to record audio, save a temporary WAV, transcribe it, remove the temporary file, and return the text.</li>
+        <li>Run the helper tests, then the manual demo on the Raspberry Pi:<pre><code>uv run pytest tests/lesson_5/test_03_loudness.py
+uv run pytest tests/lesson_5/test_04_stt_helpers.py
+uv run python -m demos.lesson5_stt_demo --mode microphone</code></pre></li>
+        <li>Understand how the tool keeps audio recording and transcription separate from the agent loop.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -1016,6 +1010,7 @@ uv run python -m demos.lesson5_stt_demo --mode microphone</code></pre>
       <pre><code>uv run pytest tests/lesson_5/test_01_stt_api.py
 uv run pytest tests/lesson_5/test_02_keyboard_stt.py
 uv run pytest tests/lesson_5/test_03_loudness.py
+uv run pytest tests/lesson_5/test_04_stt_helpers.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_5</code></pre>
@@ -1054,11 +1049,11 @@ uv run pytest tests/lesson_5</code></pre>
       <ol>
         <li>Open the Python file <code>agent/tools/tts.py</code> in your IDE.</li>
         <li>Read <code>TextToSpeechTool.__init__()</code>. Notice <code>voice_model_path</code>, <code>piper_binary</code>, and <code>player_binary</code>.</li>
-        <li>Keep the method name <code>speak(text)</code>.</li>
-        <li>Install or prepare a local TTS engine such as Piper.</li>
-        <li>Send text into Piper.</li>
-        <li>Stream Piper's raw audio into <code>aplay</code>.</li>
-        <li>Call <code>tts.speak(response)</code> from the agent only after the face switches to <code>speaking</code>.</li>
+        <li>Find the student function to implement: <code>speak(text)</code>. Install or prepare Piper before using the real speaker.</li>
+        <li>Implement <code>speak(text)</code> by starting Piper with <code>--output-raw</code>, piping its audio into <code>aplay</code>, sending UTF-8 text to Piper, and waiting for both programs to finish.</li>
+        <li>Run the unit test, then the demo on the Raspberry Pi:<pre><code>uv run pytest tests/lesson_6/test_02_tts_speak.py
+uv run python -m demos.lesson6_tts_demo</code></pre></li>
+        <li>Understand why <code>Agent.run()</code> switches the face to <code>speaking</code> before it calls <code>tts.speak(response)</code>.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -1094,8 +1089,6 @@ uv run pytest tests/lesson_6</code></pre>
           <ul>
             <li><code>agent/tools/llm.py</code></li>
             <li><code>LlmTool.answer(user_text)</code></li>
-            <li><code>LlmTool.answer_with_context(user_text, context)</code></li>
-            <li><code>Agent.respond(user_text)</code></li>
           </ul>
         </div>
       </div>
@@ -1108,13 +1101,14 @@ uv run pytest tests/lesson_6</code></pre>
       </ul>
       <h3>Steps</h3>
       <ol>
-        <li>Install Ollama on the Raspberry Pi or development computer.</li>
-        <li>Pull the model: <code>ollama pull gemma3:1b</code>.</li>
-        <li>Test it in the terminal: <code>ollama run gemma3:1b</code>.</li>
-        <li>Open the Python file <code>agent/tools/llm.py</code> in your IDE.</li>
-        <li>Implement <code>answer(user_text)</code> so it sends the user text to Ollama.</li>
-        <li>Return only the model's answer string.</li>
-        <li>Implement <code>answer_with_context(user_text, context)</code> later for tool results.</li>
+        <li>Install Ollama, pull the model, and confirm it works:<pre><code>ollama pull gemma3:1b
+ollama run gemma3:1b</code></pre></li>
+        <li>Open <code>agent/tools/llm.py</code>, read <code>LlmTool.__init__()</code>, and find the student function to implement: <code>answer(user_text)</code>.</li>
+        <li>Implement <code>answer(user_text)</code> using the endpoint, request JSON, timeout, and response-parsing details in the code's implementation guide.</li>
+        <li>Run the mocked HTTP and settings tests, then the local demo:<pre><code>uv run pytest tests/lesson_7/test_01_llm_settings.py
+uv run pytest tests/lesson_7/test_02_llm_answer.py
+uv run python -m demos.lesson7_llm_demo</code></pre></li>
+        <li>Understand that <code>answer_with_context()</code> and <code>needs_search()</code> are the next lesson's functions.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -1128,6 +1122,7 @@ uv run pytest tests/lesson_6</code></pre>
       <pre><code>uv run pytest tests/lesson_7/test_01_llm_settings.py
 uv run pytest tests/lesson_7/test_02_llm_answer.py
 uv run pytest tests/lesson_7/test_03_llm_context.py
+uv run pytest tests/lesson_7/test_03_remote_llm.py
 
 # Or run the whole lesson:
 uv run pytest tests/lesson_7</code></pre>
@@ -1153,7 +1148,7 @@ uv run pytest tests/lesson_7</code></pre>
             <li><code>agent/tools/search.py</code></li>
             <li><code>SearchTool.search(query)</code></li>
             <li><code>agent/agent.py</code>: <code>Agent.respond(user_text)</code></li>
-            <li><code>agent/tools/llm.py</code>: <code>answer_with_context(...)</code></li>
+            <li><code>agent/tools/llm.py</code>: <code>needs_search(...)</code> and <code>answer_with_context(...)</code>.</li>
           </ul>
         </div>
       </div>
@@ -1168,17 +1163,14 @@ uv run pytest tests/lesson_7</code></pre>
       </div>
       <h3>Steps</h3>
       <ol>
-        <li>Open the Python file <code>agent/tools/search.py</code> in your IDE.</li>
-        <li>Read <code>SearchTool.__init__()</code>. Notice <code>max_results</code> and <code>region</code>.</li>
-        <li>Install <code>ddgs</code> when you are ready.</li>
-        <li>Import <code>DDGS</code>.</li>
-        <li>Use <code>ddgs.text(...)</code> to fetch one or two results.</li>
-        <li>Return a short string containing the title and snippet.</li>
-        <li>Open the Python file <code>agent/tools/llm.py</code> in your IDE and add a small decision method such as <code>needs_search(user_text)</code>.</li>
-        <li>Ask the LLM if the question needs current web search results.</li>
-        <li>If the LLM says search is needed, call <code>SearchTool.search()</code>.</li>
-        <li>Send the search context into <code>llm.answer_with_context(...)</code>.</li>
-        <li>If the LLM says search is not needed, answer directly with <code>llm.answer(...)</code>.</li>
+        <li>Open <code>agent/tools/search.py</code>, <code>agent/tools/llm.py</code>, and <code>agent/agent.py</code>. Find the student functions <code>search()</code>, <code>needs_search()</code>, <code>answer_with_context()</code>, and the Lesson 8 update to <code>respond()</code>.</li>
+        <li>Implement <code>SearchTool.search()</code> using <code>DDGS</code>, the configured region and result limit, and a short labeled title, summary, and URL result. Handle empty results and search errors.</li>
+        <li>Implement <code>needs_search()</code> and <code>answer_with_context()</code> using their implementation guides. Then update <code>Agent.respond()</code> to route between a direct answer and search context.</li>
+        <li>Run the search-routing tests before trying a real query:<pre><code>uv run pytest tests/lesson_8/test_01_search_api.py
+uv run pytest tests/lesson_8/test_03_agent_search_routing.py
+uv run pytest tests/lesson_8/test_04_llm_needs_search.py</code></pre></li>
+        <li>Run the demo with a non-personal, current-information question:<pre><code>uv run python -m demos.lesson8_search_demo "What happened in space today?"</code></pre></li>
+        <li>Understand that search results are untrusted context for the LLM, not instructions for the agent to follow.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -1220,12 +1212,12 @@ uv run pytest tests/lesson_8</code></pre>
       </div>
       <h3>Steps</h3>
       <ol>
-        <li>Open the root <code>AGENTS.md</code> file and read the default instructions.</li>
-        <li>In <code>agent/agent.py</code>, implement <code>load_agents_md()</code> to read <code>PROJECT_ROOT / "AGENTS.md"</code> as UTF-8 text.</li>
-        <li>Return an empty string when the file does not exist, so a project can still run without it.</li>
-        <li>Store the result once in <code>self.agents_md</code> when <code>Agent</code> is created.</li>
-        <li>Implement <code>build_prompt(user_text)</code>. When instructions exist, include both the instructions and the user's request in one clear prompt.</li>
-        <li>Update <code>respond()</code> to send that prompt to the LLM. Keep the original user text for a search query.</li>
+        <li>Open the root <code>AGENTS.md</code>, then find <code>load_agents_md()</code>, <code>build_prompt(user_text)</code>, and the Lesson 9 update to <code>respond()</code> in <code>agent/agent.py</code>.</li>
+        <li>Implement <code>load_agents_md()</code> so it reads <code>PROJECT_ROOT / "AGENTS.md"</code> as UTF-8 text and returns an empty string when the file is missing.</li>
+        <li>Implement <code>build_prompt(user_text)</code> so empty instructions leave the request unchanged, while non-empty instructions and the user request appear in clearly labeled sections.</li>
+        <li>Update <code>respond()</code> to give the built prompt to the LLM while keeping the original text for a search query.</li>
+        <li>Run the prompt tests, then explain why local instructions apply to every conversation:<pre><code>uv run pytest tests/lesson_9/test_01_agents_md.py
+uv run pytest tests/lesson_9/test_02_build_prompt.py</code></pre></li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
@@ -1278,10 +1270,12 @@ uv run pytest tests/lesson_9</code></pre>
       <h3>Steps</h3>
       <ol>
         <li>Confirm the runtime setup is complete: microphone, speaker, display, Ollama, whisper.cpp, Piper, and models.</li>
-        <li>Confirm Ollama is running and <code>ollama run gemma3:1b</code> works.</li>
-        <li>Run <code>uv run python main.py</code>.</li>
-        <li>Test the full path: wake, speak question, transcribe, think, answer, return to idle.</li>
-        <li>If something breaks, test the tool from that lesson again by itself.</li>
+        <li>Open <code>main.py</code> and find the student function to implement: <code>main()</code>.</li>
+        <li>Implement the wiring from the code's guide: one shared <code>FaceState</code>, a background face-controller thread, then an <code>Agent</code> with every completed tool and the search tool.</li>
+        <li>Run the wiring tests before starting the hardware:<pre><code>uv run pytest tests/lesson_10/test_01_project_wiring.py
+uv run pytest tests/lesson_10/test_02_main_wiring.py</code></pre></li>
+        <li>Run <code>uv run python main.py</code>, then test the full path: wake, speak a question, transcribe, think, answer, and return to idle.</li>
+        <li>If something breaks, rerun the focused test or demo from that tool's lesson.</li>
       </ol>
       <pre><code>uv run python main.py</code></pre>
       <h3>Checkpoint</h3>
