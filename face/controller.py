@@ -37,6 +37,11 @@ class FaceController:
         # Make one small controller step easy to test before writing the
         # forever loop in run().
         #
+        # Implementation guide:
+        # 1. Create a FaceRenderer only when self.renderer is None.
+        # 2. Read the latest state from self.face_state.get().
+        # 3. Pass that state to self.renderer.draw(state).
+        #
         # Expected return value:
         # Nothing. This method draws exactly one frame.
         if self.renderer is None:
@@ -69,10 +74,11 @@ class FaceController:
         # Suggested package:
         # - time.sleep: pause between frames.
         #
-        # Real version idea:
-        # 1. Call self.renderer.load() once before the loop.
-        # 2. Inside the loop, call self.run_once().
-        # 3. Sleep for a short time, such as 0.1 seconds.
+        # Implementation guide:
+        # 1. Create a FaceRenderer when one was not supplied to __init__().
+        # 2. Call self.renderer.load() once before the loop.
+        # 3. Inside the loop, call self.run_once() to draw the latest state.
+        # 4. Sleep for sleep_seconds so the loop does not use all CPU time.
         #
         # Expected return value:
         # Nothing. This method keeps running.

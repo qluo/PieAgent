@@ -68,6 +68,14 @@ class Agent:
         # The Agent is the orchestrator. It decides the order of actions,
         # but each tool does its own special job.
         #
+        # Implementation guide:
+        # 1. Set the face to idle before waiting for a wake word.
+        # 2. After wake_word.wait() returns, set the face to listening and ask
+        #    the STT tool for the user's words.
+        # 3. Set the face to thinking while respond(user_text) creates an answer.
+        # 4. Set the face to speaking before sending the answer to the TTS tool.
+        # 5. Repeat the whole sequence so the agent can handle another request.
+        #
         # Test idea:
         # Use fake tools first. If the loop works with fake tools, then swap
         # in one real tool at a time.
@@ -99,20 +107,13 @@ class Agent:
         # Decide whether the agent should answer directly with the LLM or use
         # a tool first.
         #
-        # Later:
-        # TODO for Lesson 8:
-        # 1. Ask the LLM if search is needed:
-        #      self.llm.needs_search(user_text)
-        # 2. If the LLM says search is needed, call:
-        #      self.tools["search"].search(user_text)
-        # 3. Pass the search result into:
-        #      self.llm.answer_with_context(user_text, context)
-        # 4. If search is not needed, call:
-        #      self.llm.answer(user_text)
-        #
-        # Lesson 9 update:
-        # Start by calling self.build_prompt(user_text). Pass that prompt to
-        # the LLM, but pass the original user_text to the search tool.
+        # Implementation steps for Lessons 8 and 9:
+        # 1. Build one LLM prompt from the user's text and AGENTS.md.
+        # 2. When a search tool and needs_search() are available, ask the LLM
+        #    whether the prompt needs current information.
+        # 3. If it does, search with the original user text, then pass both the
+        #    prompt and search context to answer_with_context().
+        # 4. Otherwise, return the direct answer from answer(prompt).
         #
         # Expected return value:
         # A string that can be sent to self.tts.speak(...).
@@ -144,6 +145,12 @@ class Agent:
         # Keep Pi Agent's default behavior in AGENTS.md instead of repeating
         # it in every user request.
         #
+        # Implementation guide:
+        # 1. Treat whitespace-only instructions as missing instructions.
+        # 2. When no instructions exist, return user_text unchanged.
+        # 3. Otherwise, make a prompt with labeled instruction and user-request
+        #    sections so the model can tell them apart.
+        #
         if not self.agents_md.strip():
             return user_text
         return (
@@ -164,6 +171,11 @@ class Agent:
         #
         # Goal:
         # Read PROJECT_ROOT / "AGENTS.md" once when an Agent is created.
+        #
+        # Implementation guide:
+        # 1. Build the file path from PROJECT_ROOT and "AGENTS.md".
+        # 2. Return an empty string when the optional file is missing.
+        # 3. Otherwise read and return its UTF-8 text.
         #
         agents_file = PROJECT_ROOT / "AGENTS.md"
         if not agents_file.is_file():

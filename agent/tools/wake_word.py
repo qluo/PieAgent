@@ -57,7 +57,7 @@ class WakeWordTool:
         # - sounddevice: records microphone audio in Python.
         # - numpy<2: audio arrays used by openwakeword.
         #
-        # Real version idea:
+        # Implementation guide:
         # 1. Open the microphone with sounddevice.
         # 2. Feed short chunks of audio into openwakeword.
         # 3. Return from this method only when the wake score is high enough.
@@ -80,9 +80,10 @@ class WakeWordTool:
 
     def _wait_for_keyboard_wake(self) -> None:
         """Teaching helper: wait until someone types wake."""
-        # TODO for students:
-        # 1. Keep asking for input().
-        # 2. Return when the typed word is "wake".
+        # Implementation guide:
+        # 1. Keep asking for input in a loop.
+        # 2. Strip spaces and convert the typed text to lowercase.
+        # 3. Return only when the normalized word is "wake".
         while True:
             typed_word = input("Type 'wake' to wake PiAgent: ").strip().lower()
             if typed_word == "wake":
@@ -90,7 +91,7 @@ class WakeWordTool:
 
     def _wait_for_microphone_wake(self) -> None:
         """Listen to microphone audio and check openWakeWord scores."""
-        # TODO for students:
+        # Implementation guide:
         # 1. Load the openWakeWord Model.
         # 2. Create audio_queue = Queue().
         # 3. Make audio_callback(indata, _frames, _time, status). Inside it, add

@@ -51,11 +51,13 @@ class SearchTool:
         # Search tools usually return lots of data. Your job is to shape that
         # data into a small, useful context string.
         #
-        # Real version idea:
-        # 1. Open DDGS with: with DDGS() as ddgs:
-        # 2. Call ddgs.text(query, region="us-en", max_results=1).
-        # 3. Pull out the title, href, and body/snippet.
-        # 4. Return a short string for the LLM.
+        # Implementation guide:
+        # 1. Use DDGS as a context manager so it closes its search resources.
+        # 2. Call text() with query, self.region, and self.max_results, then
+        #    turn the returned iterable into a list.
+        # 3. Return a clear message when search fails or returns no results.
+        # 4. For the first result, read title, body, and href safely, then make
+        #    a labeled Title, Summary, and URL string for the LLM.
         #
         # Expected return value:
         # A short string like:

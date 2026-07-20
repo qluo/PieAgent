@@ -56,8 +56,22 @@ class FaceRenderer:
         # Each folder name is a face state. Each PNG inside that folder is one
         # animation frame for that state.
         #
+        # Implementation guide:
+        # 1. Turn self.faces_dir into a Path so Python can inspect the folders.
+        # 2. Start with empty self.frames and self.frame_indexes dictionaries.
+        # 3. Visit each subfolder inside the faces directory. The folder name is
+        #    the state name, for example "idle" or "thinking".
+        # 4. Find that folder's PNG files and sort them so animation always
+        #    starts in the same order.
+        # 5. Open each PNG with Pillow and convert it to RGBA so pygame can
+        #    draw it later.
+        # 6. Save the list of frames under self.frames[state_name], and set
+        #    self.frame_indexes[state_name] to 0.
+        # 7. Set up the display once, then return self.frames.
+        #
         # Expected result:
         # After load() runs, draw("thinking") can find thinking frames.
+        return
 
 
     def draw(self, state: str) -> None:
@@ -85,17 +99,18 @@ class FaceRenderer:
         # Animation is just showing images in order:
         # frame 1, frame 2, frame 3, then back to frame 1.
         #
-        # Real version idea:
-        # 1. If the display is not ready yet, call self._setup_display().
-        # 2. Look up the frame list for state.
-        # 3. Keep a frame index for each state.
-        # 4. Get the current frame.
-        # 5. Call self._draw_with_pygame(frame).
-        # 6. Move the frame index forward.
-        # 7. Store self.last_drawn_state = state so your test can check it.
+        # Implementation guide:
+        # 1. Load frames first when self.frames is empty.
+        # 2. Look up the requested state's frames and report a useful error
+        #    when the state has no images.
+        # 3. Use the state's current frame index, then draw that frame with the
+        #    provided _draw_with_pygame() helper when a display is available.
+        # 4. Advance the index with modulo so it wraps after the last frame.
+        # 5. Store self.last_drawn_state = state for tests and debugging.
         #
         # Expected return value:
         # Nothing. The result appears on the display.
+        return
 
 
     def _draw_with_pygame(self, frame: object) -> None:
@@ -105,13 +120,9 @@ class FaceRenderer:
         # Goal:
         # Take one image frame and show it on the pygame screen.
         #
-        # Suggested steps:
-        # 1. If self._pygame or self._screen is missing, return early.
-        # 2. Read pygame events so the display stays responsive.
-        # 3. Convert the frame into a pygame surface.
-        # 4. Scale the surface to fit the screen.
-        # 5. Blit the surface onto the screen.
-        # 6. Call pygame.display.flip() to show the new frame.
+        # This provided helper keeps the pygame window responsive, turns a
+        # Pillow image into a pygame surface, centers it on the screen, and
+        # flips the display so the new face becomes visible.
         pygame = self._pygame
         screen = self._screen
         if pygame is None or screen is None:
@@ -130,6 +141,7 @@ class FaceRenderer:
         screen.fill((0, 0, 0))
         screen.blit(surface, (x, y))
         pygame.display.flip()
+        return
 
     def _setup_display(self) -> None:
         """Prepare pygame for drawing face images.
@@ -147,3 +159,4 @@ class FaceRenderer:
             # usable so students can still test the code before moving to the Pi.
             self._pygame = None
             self._screen = None
+        return

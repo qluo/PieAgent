@@ -804,31 +804,27 @@ uv run pytest tests/lesson_1</code></pre>
         <li>In <code>demos/lesson1_demo.py</code>, find every line that calls <code>face_state.set(...)</code>.</li>
         <li>Run the demo and watch the face state change from idle to listening, thinking, speaking, and back to idle.</li>
         <li>Open the local <code>faces/</code> folder and look at the picture folders: <code>idle</code>, <code>listening</code>, <code>thinking</code>, <code>speaking</code>, <code>error</code>, <code>capturing</code>, and <code>warmup</code>.</li>
-        <li>Run the state test first:<pre><code>uv run pytest tests/lesson_2/test_01_face_state.py</code></pre></li>
-        <li>Run the picture folder test:<pre><code>uv run pytest tests/lesson_2/test_02_face_assets.py</code></pre></li>
-        <li>Open the Python file <code>face/renderer.py</code> in your IDE. Find the three student TODO functions: <code>load()</code>, <code>draw(state)</code>, and <code>_draw_with_pygame(frame)</code>.</li>
+        <li>Run the state and picture-folder tests:<pre><code>uv run pytest tests/lesson_2/test_01_face_state.py
+uv run pytest tests/lesson_2/test_02_face_assets.py</code></pre></li>
+        <li>Open the Python file <code>face/renderer.py</code> in your IDE. Find the two student TODO functions: <code>load()</code> and <code>draw(state)</code>.</li>
         <li>Read <code>FaceRenderer.__init__()</code>. <code>faces_dir</code> tells the renderer where to find the state picture folders. Notice that it, <code>frames</code>, <code>frame_indexes</code>, <code>last_drawn_state</code>, <code>_pygame</code>, and <code>_screen</code> are stored on <code>self</code>.</li>
-        <li>Read the provided helper <code>_setup_display()</code>. It starts <code>pygame</code>, creates a fullscreen window, and stores the screen on <code>self</code>.</li>
-        <li>Implement <code>load()</code> so it reads PNG files from each folder.</li>
-        <li>Store the loaded pictures in a dictionary where the key is the state name, such as <code>"thinking"</code>.</li>
+        <li>Read the provided display helpers: <code>_setup_display()</code> starts <code>pygame</code>, creates a fullscreen window, and stores the screen on <code>self</code>; <code>_draw_with_pygame(frame)</code> displays one prepared image frame.</li>
+        <li>Implement <code>load()</code> so it reads PNG files from each folder and stores the loaded pictures in a dictionary keyed by the state name, such as <code>"thinking"</code>.</li>
         <li>Run the load test before drawing anything:<pre><code>uv run pytest tests/lesson_2/test_03_renderer_load.py</code></pre></li>
-        <li>Implement <code>draw(state)</code> so it draws the next picture for the current state.</li>
-        <li>Implement <code>_draw_with_pygame(frame)</code>. It should put one loaded image frame on the screen and call <code>pygame.display.flip()</code>.</li>
-        <li>Store <code>self.last_drawn_state = state</code> inside <code>draw()</code> so the test can check which state was drawn.</li>
+        <li>Implement <code>draw(state)</code> so it draws the next picture for the current state and stores <code>self.last_drawn_state = state</code> so the test can check which state was drawn.</li>
         <li>Run the draw test:<pre><code>uv run pytest tests/lesson_2/test_04_renderer_draw.py</code></pre></li>
         <li>Open the Python file <code>face/controller.py</code> in your IDE. Its constructor receives the shared <code>face_state</code> and an optional <code>renderer</code>; tests use a small fake renderer while the real program uses <code>FaceRenderer</code>. Implement <code>run_once()</code> so it reads <code>face_state.get()</code> and asks the renderer to draw that state one time.</li>
         <li>Run the controller step test:<pre><code>uv run pytest tests/lesson_2/test_05_controller_run_once.py</code></pre></li>
         <li>Implement <code>run(self, sleep_seconds: float = 0.1)</code> so it loads the renderer once, then repeatedly calls <code>run_once()</code> and sleeps for <code>sleep_seconds</code>.</li>
         <li>Run the controller loop test:<pre><code>uv run pytest tests/lesson_2/test_06_controller_run.py</code></pre></li>
-        <li>Find <code>Thread(target=face_controller.run, daemon=True).start()</code> in <code>main.py</code>.</li>
-        <li>Discuss why the face controller needs a background thread: the picture face should not freeze while the agent waits for input.</li>
+        <li>Understand how face rendering works in a background thread: find <code>Thread(target=face_controller.run, daemon=True).start()</code> in <code>main.py</code>, then explain why it keeps the face moving while the agent waits for input.</li>
       </ol>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>You can explain what <code>FaceState.set()</code> does.</li>
         <li>You can explain why the face controller runs in a thread.</li>
         <li>You can explain how one face state maps to one picture folder.</li>
-        <li>You implemented <code>load()</code>, <code>draw(state)</code>, and <code>_draw_with_pygame(frame)</code>.</li>
+        <li>You implemented <code>load()</code> and <code>draw(state)</code>, and understand how the provided display helper is used.</li>
         <li>The renderer can show at least one PNG picture from the <code>faces/</code> folder.</li>
       </ul>
       <h3>Demo</h3>

@@ -47,21 +47,15 @@ class TextToSpeechTool:
         # - Piper: local text-to-speech that can run on Raspberry Pi.
         # - aplay: simple WAV playback command on Raspberry Pi OS.
         #
-        # Real version idea:
-        # 1. Send text into Piper.
-        # 2. Ask Piper for raw audio with --output-raw.
-        # 3. Pipe Piper's raw audio directly into aplay.
-        #
-        # Expected return value:
-        # Nothing. This method finishes after speaking is done.
-        # Piper reads text from stdin and writes raw speech audio to stdout.
-        # aplay reads that raw audio from stdin and sends it to the speaker.
-        #
-        # TODO for students:
-        # 1. Start piper with subprocess.Popen(...).
-        # 2. Send text into piper stdin.
-        # 3. Pipe piper stdout into aplay stdin, without saving a WAV file.
-        # 4. Wait for both programs to finish.
+        # Implementation guide:
+        # 1. Start Piper with the selected voice model, --output-raw, and pipes
+        #    for its standard input and output.
+        # 2. Start aplay with the selected sample rate and raw 16-bit mono
+        #    audio settings. Give it Piper's stdout as its input.
+        # 3. Encode text as UTF-8, write it to Piper's stdin, then close stdin
+        #    to tell Piper there is no more text.
+        # 4. Wait for both processes so the next agent turn does not start
+        #    speaking before the current response has finished.
         
         # Piper reads text from stdin and writes raw speech audio to stdout.
         # We use --output-raw so the audio can go straight to the speaker.

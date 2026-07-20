@@ -64,11 +64,12 @@ class LlmTool:
         # Ollama runs a local web server at self.base_url. Your Python code
         # sends a prompt to that server and receives generated text back.
         #
-        # Real version idea:
-        # 1. Send a POST request to an Ollama endpoint.
-        # 2. Include self.model_name and user_text in the request body.
-        # 3. Parse the JSON response.
-        # 4. Return only the answer text.
+        # Implementation guide:
+        # 1. Build the endpoint by adding /api/generate to self.base_url.
+        # 2. POST JSON containing self.model_name, user_text as the prompt,
+        #    and stream=False so one complete response is returned.
+        # 3. Use self.timeout and raise an error for unsuccessful HTTP results.
+        # 4. Read the response JSON and strip whitespace from its response text.
         #
         # Expected return value:
         # A string response from the local model.
@@ -87,7 +88,9 @@ class LlmTool:
         # Lesson 8 helper:
         # 1. Build a short prompt that includes user_text.
         # 2. Ask the LLM to answer with exactly SEARCH or NO_SEARCH.
-        # 3. Return True for SEARCH and False for NO_SEARCH.
+        # 3. Normalize the returned text by removing whitespace and using
+        #    uppercase letters before deciding.
+        # 4. Return True for SEARCH and False for NO_SEARCH.
         prompt = (
             "Based on your current knowledge, decide if this user question needs current web search results.\n"
             "Answer with only SEARCH or NO_SEARCH.\n\n"
@@ -116,10 +119,11 @@ class LlmTool:
         # The LLM does not automatically know what your search tool found.
         # You must include the search result inside the prompt.
         #
-        # Real version idea:
-        # 1. Combine user_text and context into a clear prompt.
-        # 2. Send that prompt to Ollama the same way answer(...) does.
-        # 3. Return only the final answer text.
+        # Implementation guide:
+        # 1. Build one prompt with clearly labeled context and question sections.
+        # 2. Call self.answer(prompt) so this method reuses the Ollama request
+        #    code instead of making a second HTTP implementation.
+        # 3. Return that answer unchanged.
         #
         # Expected return value:
         # A string response that uses the tool context.
