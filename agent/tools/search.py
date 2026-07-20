@@ -13,18 +13,13 @@ class SearchTool:
     """
 
     def __init__(self, max_results: int = 1, region: str = "us-en") -> None:
-        """Create the search tool.
+        """Store DuckDuckGo search settings.
 
-        Inputs:
-        - max_results: number of search results to ask for.
-        - region: DuckDuckGo search region, such as "us-en".
-
-        Output:
-        - None. Stores settings for search().
+        Args:
+            max_results: Number of results to request.
+            region: DuckDuckGo region, such as ``us-en``.
         """
-        # This limits how many web results DDGS is asked to fetch.
         self.max_results = max_results
-        # This tells DDGS which regional version of search to use.
         self.region = region
 
     def search(self, query: str) -> str:

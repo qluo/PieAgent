@@ -18,33 +18,23 @@ class SpeechToTextTool:
         whisper_binary: str = "./whisper.cpp/build/bin/whisper-cli",
         mode: str = "microphone",
     ) -> None:
-        """Create the speech-to-text tool.
+        """Store the settings used by :meth:`listen_and_transcribe`.
 
-        Inputs:
-        - sample_rate: microphone sample rate for recording.
-        - seconds: maximum listening time.
-        - silence_seconds: how long quiet must last before recording stops.
-        - silence_threshold: loudness needed before a chunk counts as speech.
-        - model_path: whisper.cpp model file path.
-        - whisper_binary: whisper.cpp command path.
-        - mode: "keyboard" for early tests, "microphone" for the Pi version.
-
-        Output:
-        - None. Stores settings for listen_and_transcribe().
+        Args:
+            sample_rate: Audio samples recorded each second.
+            seconds: Maximum time to listen for speech.
+            silence_seconds: Quiet time that ends a recording after speech starts.
+            silence_threshold: Minimum average volume considered speech.
+            model_path: Local whisper.cpp model file.
+            whisper_binary: Command used to run whisper.cpp.
+            mode: Input source: keyboard for testing or microphone on the Pi.
         """
-        # The microphone records this many audio samples every second.
         self.sample_rate = sample_rate
-        # Recording stops after this maximum number of seconds.
         self.seconds = seconds
-        # After speech starts, this much quiet ends the recording.
         self.silence_seconds = silence_seconds
-        # Chunks louder than this average value count as speech.
         self.silence_threshold = silence_threshold
-        # whisper.cpp loads this local model to turn audio into words.
         self.model_path = model_path
-        # This command runs whisper.cpp on the temporary WAV file.
         self.whisper_binary = whisper_binary
-        # Keyboard mode avoids microphone hardware while students test the loop.
         self.mode = mode
 
     def listen_and_transcribe(self) -> str:

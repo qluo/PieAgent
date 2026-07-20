@@ -5,21 +5,14 @@ import time
 
 class FaceController:
     def __init__(self, face_state: FaceState, renderer: FaceRenderer | None = None) -> None:
-        """Create the face controller.
+        """Create the controller that connects shared state to the renderer.
 
-        Inputs:
-        - face_state: shared FaceState object. The agent writes states such as
-          "listening" here, and this controller reads them to choose a face.
-        - renderer: optional FaceRenderer that loads and draws image frames.
-          Tests pass in a small fake renderer; in the real program, create a
-          FaceRenderer when this value is None.
-
-        Output:
-        - None. The controller stores the inputs for later use.
+        Args:
+            face_state: Shared state written by the agent and read for drawing.
+            renderer: Optional renderer. Tests supply a fake; otherwise the
+                controller creates a ``FaceRenderer`` when it first runs.
         """
-        # The controller reads this shared value to know which face to draw.
         self.face_state = face_state
-        # A supplied renderer helps tests; run_once() creates one when this is None.
         self.renderer = renderer
 
     def run_once(self) -> None:

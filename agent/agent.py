@@ -15,33 +15,25 @@ class Agent:
         llm: object,
         tools: dict[str, object],
     ) -> None:
-        """Create the agent.
+        """Create the agent and store its tools.
 
-        Inputs:
-        - face_state: shared FaceState used to tell the face controller what
-          the agent is doing.
-        - wake_word: tool object with wait() -> None.
-        - stt: tool object with listen_and_transcribe() -> str.
-        - tts: tool object with speak(text: str) -> None.
-        - llm: tool object with answer(user_text: str) -> str.
-        - tools: optional extra tools, such as {"search": SearchTool()}.
+        Args:
+            face_state: Shared state used to update the face controller.
+            wake_word: Tool with ``wait()``.
+            stt: Tool with ``listen_and_transcribe()``.
+            tts: Tool with ``speak(text)``.
+            llm: Tool with ``answer(user_text)``.
+            tools: Extra named tools, such as ``{"search": SearchTool()}``.
 
-        Output:
-        - None. The new Agent stores these objects for later use.
+        ``agents_md`` is loaded once here so every prompt can use the same
+        project instructions without reading the file again.
         """
-        # The agent writes its current activity here for the face controller.
         self.face_state = face_state
-        # This tool blocks until the student wakes the agent.
         self.wake_word = wake_word
-        # This tool turns the next spoken question into text.
         self.stt = stt
-        # This tool says the completed answer out loud.
         self.tts = tts
-        # This tool creates answers and decides whether a search is useful.
         self.llm = llm
-        # Extra named tools, such as the search tool used in respond().
         self.tools = tools
-        # Read the default instructions once instead of opening AGENTS.md every turn.
         self.agents_md = self.load_agents_md()
 
     def run(self) -> None:

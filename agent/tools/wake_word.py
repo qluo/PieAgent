@@ -15,26 +15,17 @@ class WakeWordTool:
         sample_rate: int = 16000,
         mode: str = "microphone",
     ) -> None:
-        """Create the wake word tool.
+        """Store the wake-word detector settings.
 
-        Inputs:
-        - model_path: openWakeWord model name or optional path to a model file.
-        - threshold: score needed before the wake word counts as detected.
-        - sample_rate: microphone sample rate expected by the wake model.
-        - mode: "keyboard" for the classroom/test version or "microphone" for
-          live Raspberry Pi audio. It defaults to "microphone" for the real
-          assistant.
-
-        Output:
-        - None. Stores settings for wait().
+        Args:
+            model_path: openWakeWord model name or model-file path.
+            threshold: Score needed to detect the wake word.
+            sample_rate: Microphone sample rate expected by the model.
+            mode: ``keyboard`` for tests or ``microphone`` for live audio.
         """
-        # openWakeWord loads this model name or model file to listen for.
         self.model_path = model_path
-        # A model score must reach this value before wake detection succeeds.
         self.threshold = threshold
-        # The microphone must provide audio at this rate for the wake model.
         self.sample_rate = sample_rate
-        # Keyboard mode is for lessons; microphone mode listens to live audio.
         self.mode = mode
 
     def wait(self) -> None:

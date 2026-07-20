@@ -9,24 +9,17 @@ class TextToSpeechTool:
         player_binary: str = "aplay",
         sample_rate: int = 22050,
     ) -> None:
-        """Create the text-to-speech tool.
+        """Store the settings used by :meth:`speak`.
 
-        Inputs:
-        - voice_model_path: path to a local Piper voice model.
-        - piper_binary: path or command name for the Piper program.
-        - player_binary: path or command name for the audio player.
-        - sample_rate: audio sample rate expected by the Piper voice.
-
-        Output:
-        - None. Stores settings for speak().
+        Args:
+            voice_model_path: Local Piper voice model.
+            piper_binary: Piper command that turns text into raw audio.
+            player_binary: Audio-player command that sends raw audio to the speaker.
+            sample_rate: Sample rate used by the voice and aplay.
         """
-        # Piper loads this voice file to choose how Pie Agent sounds.
         self.voice_model_path = voice_model_path
-        # This is the Piper program that converts text into raw audio.
         self.piper_binary = piper_binary
-        # This is the audio player that sends Piper's audio to the speaker.
         self.player_binary = player_binary
-        # aplay needs this value to play Piper's raw audio at the right speed.
         self.sample_rate = sample_rate
 
     def speak(self, text: str) -> None:

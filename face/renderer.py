@@ -8,25 +8,18 @@ class FaceRenderer:
     def __init__(self, faces_dir: str = "faces") -> None:
         """Create the face renderer.
 
-        Inputs:
-        - faces_dir: top-level folder that contains one subfolder per face
-          state, such as faces/idle and faces/thinking. Change this only when
-          your face image folders live somewhere other than faces/.
+        Args:
+            faces_dir: Top-level folder holding one subfolder per face state.
 
-        Output:
-        - None. Starts with no loaded frames.
+        ``load`` fills ``frames`` and ``frame_indexes``; ``draw`` records the
+        latest requested state; and ``_setup_display`` sets the private display
+        attributes.
         """
-        # This tells load() where to look for the state picture folders.
         self.faces_dir = faces_dir
-        # load() fills this with a list of image frames for each state name.
         self.frames: dict[str, list[object]] = {}
-        # draw() uses these positions to show each state's frames in order.
         self.frame_indexes: dict[str, int] = {}
-        # Tests and debugging can inspect the most recently requested state.
         self.last_drawn_state: str | None = None
-        # _setup_display() stores the pygame module here when display setup works.
         self._pygame: object | None = None
-        # _setup_display() stores pygame's fullscreen window here for drawing.
         self._screen: object | None = None
 
     def load(self) -> dict[str, list[object]]:

@@ -22,25 +22,20 @@ class LlmTool:
         base_url: str = "http://localhost:11434",
         timeout: float = 60.0,
     ) -> None:
-        """Create the local LLM tool.
+        """Store local or remote Ollama settings.
 
-        Inputs:
-        - model_name: Ollama model name to use on the selected server.
-        - base_url: Ollama server URL. Defaults to ``PI_AGENT_OLLAMA_URL`` or
-          the local server at ``http://localhost:11434``.
-        - timeout: maximum seconds to wait for an Ollama response.
+        Args:
+            model_name: Ollama model name to use.
+            base_url: Server URL, overridden by ``PI_AGENT_OLLAMA_URL`` when set.
+            timeout: Maximum seconds to wait for a response.
 
-        Output:
-        - None. Stores model settings for later requests.
+        The URL is normalized so ``answer`` can safely append ``/api/generate``.
         """
-        # Ollama uses this name to choose which downloaded model should answer.
         self.model_name = model_name
-        # Remove a final slash so answer() can safely add /api/generate.
         self.base_url = (
             os.environ.get("PI_AGENT_OLLAMA_URL")
             or base_url
         ).rstrip("/")
-        # requests.post() uses this to stop waiting after too long.
         self.timeout = timeout
 
     def answer(self, user_text: str) -> str:
