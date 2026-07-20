@@ -1105,7 +1105,7 @@ uv run pytest tests/lesson_6</code></pre>
         <li>Install Ollama, pull the model, and confirm it works:<pre><code>ollama pull gemma3:1b
 ollama run gemma3:1b</code></pre></li>
         <li>Open <code>agent/tools/llm.py</code>, read <code>LlmTool.__init__()</code>, and find the student function to implement: <code>answer(user_text)</code>.</li>
-        <li>Implement <code>answer(user_text)</code> using the endpoint, request JSON, timeout, and response-parsing details in the code's implementation guide.</li>
+        <li>Implement <code>answer(user_text)</code> to call the Ollama model at <code>http://localhost:11434/api/generate</code>: send the model name and user text as JSON, use the timeout, then return the response text. Follow the code's implementation guide for the details.</li>
         <li>Run the mocked HTTP and settings tests, then the local demo:<pre><code>uv run pytest tests/lesson_7/test_01_llm_settings.py
 uv run pytest tests/lesson_7/test_02_llm_answer.py
 uv run python -m demos.lesson7_llm_demo</code></pre></li>
@@ -1164,12 +1164,11 @@ uv run pytest tests/lesson_7</code></pre>
       </div>
       <h3>Steps</h3>
       <ol>
-        <li>Open <code>agent/tools/search.py</code>, <code>agent/tools/llm.py</code>, and <code>agent/agent.py</code>. Find the student functions <code>search()</code>, <code>needs_search()</code>, <code>answer_with_context()</code>, and the Lesson 8 update to <code>respond()</code>.</li>
-        <li>Implement <code>SearchTool.search()</code> using <code>DDGS</code>, the configured region and result limit, and a short labeled title, summary, and URL result. Handle empty results and search errors.</li>
-        <li>Implement <code>needs_search()</code> and <code>answer_with_context()</code> using their implementation guides. Then update <code>Agent.respond()</code> to route between a direct answer and search context.</li>
-        <li>Run the search-routing tests before trying a real query:<pre><code>uv run pytest tests/lesson_8/test_01_search_api.py
-uv run pytest tests/lesson_8/test_03_agent_search_routing.py
-uv run pytest tests/lesson_8/test_04_llm_needs_search.py</code></pre></li>
+        <li>Open <code>agent/tools/search.py</code>, find <code>SearchTool.search(query)</code>, and implement it with <code>DDGS</code>, the configured region and result limit, and a short labeled title, summary, and URL result. Handle empty results and search errors.</li>
+        <li>Run the search test before connecting it to the agent:<pre><code>uv run pytest tests/lesson_8/test_01_search_api.py</code></pre></li>
+        <li>Open <code>agent/tools/llm.py</code> and <code>agent/agent.py</code>. Implement <code>needs_search()</code>, <code>answer_with_context()</code>, and the Lesson 8 update to <code>Agent.respond()</code> using their implementation guides.</li>
+        <li>Run the routing tests:<pre><code>uv run pytest tests/lesson_8/test_04_llm_needs_search.py
+uv run pytest tests/lesson_8/test_03_agent_search_routing.py</code></pre></li>
         <li>Run the demo with a non-personal, current-information question:<pre><code>uv run python -m demos.lesson8_search_demo "What happened in space today?"</code></pre></li>
         <li>Understand that search results are untrusted context for the LLM, not instructions for the agent to follow.</li>
       </ol>
