@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("question", nargs="?", default="What is a Raspberry Pi?")
     parser.add_argument("--model", default="gemma3:1b")
     parser.add_argument("--base-url", default="http://localhost:11434")
-    parser.add_argument("--timeout", type=float, default=60.0)
+    parser.add_argument("--timeout", type=float, default=120.0)
     return parser.parse_args()
 
 
@@ -38,7 +38,10 @@ def main() -> None:
     result: dict[str, str] = {}
 
     def get_answer() -> None:
-        result["answer"] = llm.answer(args.question)
+        try:
+            result["answer"] = llm.answer(args.question)
+        except Exception as error:
+            result["error"] = str(error)
 
     worker = Thread(target=get_answer)
     worker.start()
@@ -51,6 +54,10 @@ def main() -> None:
         sleep(0.2)
     worker.join()
     print("\rThinking: [####################]")
+    if "error" in result:
+        print(f"Could not get an answer: {result['error']}")
+        print("Check that Ollama is running and try --timeout 180.")
+        return
     print(f"Agent: {result['answer']}")
 
 
