@@ -32,3 +32,18 @@ def test_controller_run_loads_once_and_draws_before_sleep(monkeypatch):
 
     assert renderer.load_calls == 1
     assert len(renderer.drawn_states) == 1
+
+
+def test_controller_stops_before_rendering_another_frame(monkeypatch):
+    renderer = RecordingRenderer()
+    controller = FaceController(FaceState(), renderer=renderer)
+
+    def stop_after_one_frame(_seconds):
+        controller.stop()
+
+    monkeypatch.setattr(time, "sleep", stop_after_one_frame)
+
+    controller.run(sleep_seconds=0.1)
+
+    assert renderer.load_calls == 1
+    assert len(renderer.drawn_states) == 1

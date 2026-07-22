@@ -37,7 +37,8 @@ def main() -> None:
     args = parse_args()
     face_state = FaceState()
     controller = FaceController(face_state, renderer=FaceRenderer())
-    Thread(target=controller.run, daemon=True).start()
+    renderer_thread = Thread(target=controller.run)
+    renderer_thread.start()
 
     print("Face demo running.")
     try:
@@ -49,6 +50,8 @@ def main() -> None:
         print("\nStopped.")
     finally:
         face_state.set(states.IDLE)
+        controller.stop()
+        renderer_thread.join()
         print("Face demo complete.")
 
 

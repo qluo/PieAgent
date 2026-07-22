@@ -1,5 +1,6 @@
 from face.renderer import FaceRenderer
 from face.state import FaceState
+from threading import Event
 import time
 
 
@@ -20,6 +21,11 @@ class FaceController:
         # Keep the shared state and drawing tool together for run_once() and run().
         self.face_state = face_state
         self.renderer = renderer
+        self._stop_event = Event()
+
+    def stop(self) -> None:
+        """Request that the rendering loop stops after its current frame."""
+        self._stop_event.set()
 
     def run_once(self) -> None:
         """Render one face frame.
@@ -85,7 +91,8 @@ class FaceController:
         if self.renderer is None:
             self.renderer = FaceRenderer()
 
+        self._stop_event.clear()
         self.renderer.load()
-        while True:
+        while not self._stop_event.is_set():
             self.run_once()
             time.sleep(sleep_seconds)
