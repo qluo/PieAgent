@@ -1,8 +1,10 @@
+import logging
 from pathlib import Path
 from face import states
 from face.state import FaceState
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+logger = logging.getLogger(__name__)
 
 class Agent:
 
@@ -78,12 +80,15 @@ class Agent:
         while True:
             self.face_state.set(states.IDLE)
             self.wake_word.wait()
+            logger.info("Agent: wake word detected")
 
             self.face_state.set(states.LISTENING)
             user_text = self.stt.listen_and_transcribe()
+            logger.info("Agent: transcription received (%d characters)", len(user_text))
 
             self.face_state.set(states.THINKING)
             response = self.respond(user_text)
+            logger.info("Agent: response ready")
 
             self.face_state.set(states.SPEAKING)
             self.tts.speak(response)
@@ -132,9 +137,11 @@ class Agent:
             and hasattr(self.llm, "needs_search")
             and self.llm.needs_search(user_text)
         ):
+            logger.info("Agent: using web search")
             context = self.tools["search"].search(user_text)
             return self.llm.answer_with_context(prompt, context)
 
+        logger.info("Agent: answering without web search")
         return self.llm.answer(prompt)
 
     def build_prompt(self, user_text: str) -> str:

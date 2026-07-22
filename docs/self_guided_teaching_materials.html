@@ -1394,13 +1394,13 @@ uv run pytest tests/lesson_9</code></pre>
         <li>Text-to-speech option: Piper with <code>models/piper/en_US-lessac-low.onnx</code>.</li>
         <li>Local LLM option: Ollama with <code>gemma3:1b</code>.</li>
         <li>Face asset option: PNG images inside <code>faces/idle</code>, <code>faces/listening</code>, <code>faces/thinking</code>, and <code>faces/speaking</code>.</li>
-        <li>System check tools: terminal logs and small <code>print()</code> messages.</li>
+        <li>System check tools: terminal logs and small <code>print()</code> messages. The agent shows an action trace without logging message text.</li>
       </ul>
       <h3>Steps</h3>
       <ol>
         <li>Confirm the runtime setup is complete: microphone, speaker, display, Ollama, whisper.cpp, Piper, and models.</li>
         <li>Confirm Ollama is running and <code>ollama run gemma3:1b</code> works.</li>
-        <li>Run <code>uv run python main.py</code>.</li>
+        <li>Run <code>uv run python main.py</code> to see each tool decision in the terminal.</li>
         <li>Test the full path: wake, speak question, transcribe, think, answer, return to idle.</li>
         <li>If something breaks, test the tool from that lesson again by itself.</li>
       </ol>

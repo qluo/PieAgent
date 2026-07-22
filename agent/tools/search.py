@@ -1,4 +1,9 @@
+import logging
+
 from ddgs import DDGS
+
+
+logger = logging.getLogger(__name__)
 
 
 class SearchTool:
@@ -62,6 +67,7 @@ class SearchTool:
         # A short string like:
         #   "Title: ...\nSummary: ...\nURL: ..."
 
+        logger.info("Search: requesting up to %d result(s)", self.max_results)
         try:
             with DDGS() as engine:
                 results = list(
@@ -72,15 +78,17 @@ class SearchTool:
                     )
                 )
         except Exception as error:
+            logger.warning("Search: request failed")
             return f"Search failed for {query}: {error}"
 
         if not results:
+            logger.info("Search: no results found")
             return f"No search results found for {query}."
 
+        logger.info("Search: result received")
         result = results[0]
         title = result.get("title", "")
         summary = result.get("body", "")
         url = result.get("href", "")
 
         return f"Title: {title}\nSummary: {summary}\nURL: {url}"
-

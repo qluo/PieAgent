@@ -1,6 +1,10 @@
+import logging
 import os
 
 import requests
+
+
+logger = logging.getLogger(__name__)
 
 
 class LlmTool:
@@ -74,6 +78,7 @@ class LlmTool:
         # Expected return value:
         # A string response from the local model.
 
+        logger.info("LLM: requesting a response from model %s", self.model_name)
         response = requests.post(
             f"{self.base_url}/api/generate",
             json={"model": self.model_name, "prompt": user_text, "stream": False},
@@ -81,6 +86,7 @@ class LlmTool:
         )
         response.raise_for_status()
         data = response.json()
+        logger.info("LLM: response received")
         return data["response"].strip()
 
     def needs_search(self, user_text: str) -> bool:
@@ -106,7 +112,9 @@ class LlmTool:
             f"Question: {user_text}"
         )
         decision = self.answer(prompt).strip().upper()
-        return decision.startswith("SEARCH")
+        should_search = decision.startswith("SEARCH")
+        logger.info("LLM: search decision is %s", "SEARCH" if should_search else "NO_SEARCH")
+        return should_search
 
     def answer_with_context(self, user_text: str, context: str) -> str:
         """Answer using tool context and a local Ollama model.

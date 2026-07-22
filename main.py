@@ -1,3 +1,5 @@
+import logging
+import os
 from threading import Thread
 
 from agent.agent import Agent
@@ -19,6 +21,12 @@ def main() -> None:
     Output:
     - None. Runs until the agent program is stopped.
     """
+    log_level = os.environ.get("PIE_AGENT_LOG_LEVEL", "INFO").upper()
+    logging.basicConfig(
+        level=getattr(logging, log_level, logging.WARNING),
+        format="%(levelname)s: %(message)s",
+    )
+
     face_state = FaceState()
 
     face_controller = FaceController(face_state=face_state)
