@@ -1020,6 +1020,11 @@ except KeyboardInterrupt:
       </ul>
       <h3>Demo</h3>
       <pre><code>uv run python -m demos.lesson4_agent_loop_demo</code></pre>
+      <h3>Before You Run The Demo</h3>
+      <ul>
+        <li>Finish <code>Agent.run()</code> and <code>Agent.respond()</code> first; the demo uses your implementation.</li>
+        <li>No hardware is needed: press Enter to wake the agent, type a message, and use Ctrl+C to stop.</li>
+      </ul>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_4/test_01_agent_respond.py
 uv run pytest tests/lesson_4/test_02_agent_dependencies.py
@@ -1084,6 +1089,11 @@ uv run pytest tests/lesson_4</code></pre>
       <pre><code># Start with keyboard mode, then use microphone mode after implementation:
 uv run python -m demos.lesson5_stt_demo
 uv run python -m demos.lesson5_stt_demo --mode microphone</code></pre>
+      <h3>Before You Run The Demo</h3>
+      <ul>
+        <li>Start with keyboard mode; it works without a microphone or local transcription model.</li>
+        <li>Use microphone mode only after connecting a microphone and configuring <code>whisper.cpp</code> and its model.</li>
+      </ul>
       <h3>Test</h3>
       <pre><code>uv run pytest tests/lesson_5/test_01_stt_api.py
 uv run pytest tests/lesson_5/test_02_keyboard_stt.py
