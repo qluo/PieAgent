@@ -759,8 +759,6 @@ uv run pytest tests</code></pre>
         <li>Add one new <code>if</code> rule to make the fake agent answer your own question.</li>
         <li>Run <code>uv run python demos/lesson1_demo.py</code> again and test your new answer.</li>
       </ol>
-      <pre><code>if "robot" in text:
-    return "Robots are machines that can sense, think, or act."</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>You can run the fake agent from the terminal.</li>
@@ -830,37 +828,6 @@ uv run pytest tests/lesson_1</code></pre>
         <li>Find <code>Thread(target=face_controller.run, daemon=True).start()</code> in <code>main.py</code>.</li>
         <li>Discuss why the face controller needs a background thread: the picture face should not freeze while the agent waits for input.</li>
       </ol>
-      <pre><code>faces/
-  idle/
-    idle_01.png
-    idle_02.png
-    idle_03.png
-    idle_04.png
-  listening/
-    listening_01.png
-    listening_02.png
-    listening_03.png
-    listening_04.png
-  thinking/
-    thinking_01.png
-    thinking_02.png
-    thinking_03.png
-    thinking_04.png</code></pre>
-      <pre><code>renderer = FaceRenderer(faces_dir="faces")
-renderer.load()
-renderer.draw("thinking")
-
-def _setup_display(self):
-    # Provided helper: starts pygame and creates self._screen
-    ...
-
-def _draw_with_pygame(self, frame):
-    # TODO for students:
-    # 1. Return early if pygame or screen is missing.
-    # 2. Read pygame events.
-    # 3. Convert frame to a pygame surface.
-    # 4. Scale, blit, and flip the display.
-    pass</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>You can explain what <code>FaceState.set()</code> does.</li>
@@ -925,31 +892,6 @@ uv run pytest tests/lesson_2</code></pre>
         <li>Run the manual microphone demo:<pre><code>uv run python -m demos.lesson3_wake_word_demo</code></pre></li>
         <li>Return from <code>wait()</code> only when the wake word is detected.</li>
       </ol>
-      <pre><code>class WakeWordTool:
-    def __init__(self, model_path="hey_jarvis", threshold=0.5, sample_rate=16000, mode="microphone"):
-        self.model_path = model_path
-        self.threshold = threshold
-        self.sample_rate = sample_rate
-        self.mode = mode
-
-    def wait(self):
-        if self.mode == "keyboard":
-            return self._wait_for_keyboard_wake()
-        return self._wait_for_microphone_wake()
-
-    def _wait_for_keyboard_wake(self):
-        # TODO: loop until the user types "wake"
-        pass
-
-    def _wait_for_microphone_wake(self):
-        # 1. Load the openWakeWord Model.
-        # 2. Create audio_queue = Queue().
-        # 3. Make audio_callback(indata, _frames, _time, status). Inside it, add
-        #    one mono audio chunk with audio_queue.put(indata[:, 0].copy()).
-        # 4. Open sd.InputStream(..., callback=audio_callback).
-        # 5. In a loop, score each chunk with model.predict(audio_chunk).
-        # 6. Return when max(scores.values()) reaches self.threshold.
-        pass</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The agent starts only after the wake step finishes.</li>
@@ -1005,13 +947,6 @@ uv run python -m demos.lesson3_wake_word_demo --threshold 0.3</code></pre>
         <li>Find <code>Agent.respond(user_text)</code>. For now, implement the TODO by returning <code>self.llm.answer(user_text)</code>.</li>
         <li>Later, Lesson 8 will update <code>respond()</code> so the LLM decides whether search is needed.</li>
       </ol>
-      <pre><code>try:
-    # Run the agent until the user presses Ctrl+C in the terminal.
-    agent.run()
-except KeyboardInterrupt:
-    # Put the face back to idle before the program exits.
-    face_state.set(states.IDLE)
-    print("\nPie Agent stopped.")</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li><code>Agent.run()</code> has the full loop shape.</li>
@@ -1143,15 +1078,6 @@ uv run pytest tests/lesson_5</code></pre>
         <li>Write the UTF-8 text to Piper, close its input, then wait for Piper and <code>aplay</code> to finish.</li>
         <li>Call <code>tts.speak(response)</code> from the agent only after the face switches to <code>speaking</code>.</li>
       </ol>
-      <pre><code>def __init__(self, voice_model_path, piper_binary="tools/piper/piper", player_binary="aplay"):
-    self.voice_model_path = voice_model_path
-    self.piper_binary = piper_binary
-    self.player_binary = player_binary
-
-def speak(self, text: str):
-    # TODO: send text to Piper
-    # TODO: stream audio to aplay
-    pass</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The tool accepts text as input.</li>
@@ -1208,16 +1134,6 @@ uv run pytest tests/lesson_6</code></pre>
         <li>Return only the model's answer string.</li>
         <li>Leave <code>answer_with_context(user_text, context)</code> for Lesson 8, where search results become extra context.</li>
       </ol>
-      <pre><code>class LlmTool:
-    def __init__(
-        self,
-        model_name: str = "gemma3:1b",
-        base_url: str = "http://localhost:11434",
-        timeout: float = 60.0,
-    ):
-        self.model_name = model_name
-        self.base_url = base_url
-        self.timeout = timeout</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>Ollama runs locally.</li>
@@ -1282,19 +1198,6 @@ uv run pytest tests/lesson_7</code></pre>
         <li>Send the returned search context into <code>llm.answer_with_context(user_text, context)</code>.</li>
         <li>If the LLM says search is not needed, answer directly with <code>llm.answer(...)</code>.</li>
       </ol>
-      <pre><code>from ddgs import DDGS
-
-with DDGS() as ddgs:
-    results = list(
-        ddgs.text(query, region=self.region, max_results=self.max_results)
-    )
-
-def respond(self, user_text):
-    if self.llm.needs_search(user_text):
-        context = self.tools["search"].search(user_text)
-        return self.llm.answer_with_context(user_text, context)
-
-    return self.llm.answer(user_text)</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The search tool returns a short useful result.</li>
@@ -1342,11 +1245,6 @@ uv run pytest tests/lesson_8</code></pre>
         <li>Implement <code>build_prompt(user_text)</code>. When instructions exist, include both the instructions and the user's request in one clear prompt.</li>
         <li>Update <code>respond()</code> to send that prompt to the LLM for its answer. Keep the original user text for the search decision and query.</li>
       </ol>
-      <pre><code>Agent instructions:
-... contents of AGENTS.md ...
-
-User request:
-What can you do?</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The agent loads <code>AGENTS.md</code> once during setup.</li>
@@ -1405,7 +1303,6 @@ uv run pytest tests/lesson_9</code></pre>
         <li>Test the full path: wake, speak question, transcribe, think, answer, return to idle.</li>
         <li>If something breaks, rerun that tool's lesson demo or test by itself to find which part failed.</li>
       </ol>
-      <pre><code>uv run python main.py</code></pre>
       <h3>Checkpoint</h3>
       <ul class="checklist">
         <li>The face changes when the agent changes state.</li>
