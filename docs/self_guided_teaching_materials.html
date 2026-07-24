@@ -116,6 +116,11 @@
       grid-template-columns: minmax(0, 1fr);
     }
 
+    .setup-needs {
+      grid-template-columns: minmax(0, 1fr);
+      margin-top: 28px;
+    }
+
     .card {
       min-width: 0;
       padding: 16px;
@@ -588,7 +593,17 @@
 
     <section id="setup" data-page="setup">
       <h2>Before You Start</h2>
-      <div class="two">
+      <div class="callout">
+        <p><strong>Get the code:</strong> <a href="https://github.com/qluo/PieAgent">github.com/qluo/PieAgent</a></p>
+        <pre><code>git clone https://github.com/qluo/PieAgent.git
+cd PieAgent
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt</code></pre>
+      </div>
+      <div class="two setup-needs">
         <div class="card purple">
           <h3>You Need</h3>
           <ul>
@@ -600,19 +615,7 @@
             <li>Ollama installed for the local LLM lesson. Use the official <a href="https://ollama.com/download">Ollama download and install instructions</a>.</li>
           </ul>
         </div>
-        <div class="card pink">
-          <h3>Helpful Rule</h3>
-          <p>Make one small change at a time. Run the program. See what changed. Then make the next change.</p>
-        </div>
       </div>
-      <pre><code>curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull gemma3:1b
-uv run python demos/lesson1_demo.py</code></pre>
     </section>
 
     <section id="runtime-setup" data-page="setup">
