@@ -3,6 +3,10 @@ import os
 import requests
 
 
+class LlmUnavailableError(RuntimeError):
+    """Raised when the configured Ollama server cannot provide a response."""
+
+
 class LlmTool:
     """Ollama LLM tool that can use a local or remote Ollama server.
 
@@ -51,14 +55,17 @@ class LlmTool:
         Output:
         - The model's answer as a string.
         """
-        response = requests.post(
-            f"{self.base_url}/api/generate",
-            json={"model": self.model_name, "prompt": user_text, "stream": False},
-            timeout=self.timeout,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["response"].strip()
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/generate",
+                json={"model": self.model_name, "prompt": user_text, "stream": False},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data["response"].strip()
+        except requests.RequestException as error:
+            raise LlmUnavailableError("Ollama is unavailable.") from error
 
     def needs_search(self, user_text: str) -> bool:
         """Ask the local model if this question needs a web search."""

@@ -1,6 +1,10 @@
 from ddgs import DDGS
 
 
+class SearchUnavailableError(RuntimeError):
+    """Raised when live web search cannot be completed."""
+
+
 class SearchTool:
     """Web search tool using DuckDuckGo search.
 
@@ -44,7 +48,7 @@ class SearchTool:
                     )
                 )
         except Exception as error:
-            return f"Search failed for {query}: {error}"
+            raise SearchUnavailableError("Live search is unavailable.") from error
 
         if not results:
             return f"No search results found for {query}."

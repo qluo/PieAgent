@@ -2,6 +2,8 @@ from pathlib import Path
 
 from face import states
 from face.state import FaceState
+from agent.tools.llm import LlmUnavailableError
+from agent.tools.search import SearchUnavailableError
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -62,6 +64,11 @@ class Agent:
             self.face_state.set(states.LISTENING)
             user_text = self.stt.listen_and_transcribe()
 
+            if not user_text.strip():
+                self.face_state.set(states.SPEAKING)
+                self.tts.speak("I didn't catch that. Please try again.")
+                continue
+
             self.face_state.set(states.THINKING)
             response = self.respond(user_text)
 
@@ -79,15 +86,25 @@ class Agent:
         """
         prompt = self.build_prompt(user_text)
 
-        if (
-            "search" in self.tools
-            and hasattr(self.llm, "needs_search")
-            and self.llm.needs_search(user_text)
-        ):
-            context = self.tools["search"].search(user_text)
-            return self.llm.answer_with_context(prompt, context)
+        try:
+            if (
+                "search" in self.tools
+                and hasattr(self.llm, "needs_search")
+                and self.llm.needs_search(user_text)
+            ):
+                try:
+                    context = self.tools["search"].search(user_text)
+                except SearchUnavailableError:
+                    response = self.llm.answer(prompt)
+                    return (
+                        f"{response}\n\n"
+                        "Live search was unavailable, so I answered from my local knowledge."
+                    )
+                return self.llm.answer_with_context(prompt, context)
 
-        return self.llm.answer(prompt)
+            return self.llm.answer(prompt)
+        except LlmUnavailableError:
+            return "I can't reach my language model right now."
 
     def build_prompt(self, user_text: str) -> str:
         """Combine persistent project instructions with a user request."""
