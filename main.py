@@ -1,3 +1,4 @@
+import os
 from threading import Thread
 
 from agent.agent import Agent
@@ -29,7 +30,11 @@ def main() -> None:
         wake_word=WakeWordTool(),
         stt=SpeechToTextTool(),
         tts=TextToSpeechTool(
-            voice_model_path="models/piper/en_US-lessac-low.onnx",
+            voice_model_path=os.environ.get(
+                "PIE_AGENT_TTS_VOICE_MODEL",
+                "models/piper/en_US-lessac-medium.onnx",
+            ),
+            sample_rate=int(os.environ.get("PIE_AGENT_TTS_SAMPLE_RATE", "22050")),
         ),
         llm=LlmTool(),
         tools={

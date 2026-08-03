@@ -82,7 +82,7 @@ class Agent:
         if (
             "search" in self.tools
             and hasattr(self.llm, "needs_search")
-            and self.llm.needs_search(prompt)
+            and self.llm.needs_search(user_text)
         ):
             context = self.tools["search"].search(user_text)
             return self.llm.answer_with_context(prompt, context)
