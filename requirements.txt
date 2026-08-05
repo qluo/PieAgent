@@ -11,6 +11,10 @@ openwakeword
 # Local Ollama HTTP calls
 requests
 
+# Optional local Kokoro neural text-to-speech
+kokoro-onnx
+soundfile
+
 # Web search tool
 ddgs
 

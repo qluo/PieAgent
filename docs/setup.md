@@ -1,127 +1,141 @@
 # Setup
 
-## Create A Virtual Environment With uv
+## Test Pi Agent On A Mac
 
-Install `uv` first if you do not already have it:
+This is the recommended first run on macOS: it uses your keyboard for the wake
+word and transcription, a local Ollama model for answers, and a local Kokoro
+voice for speech. It does not need microphone permission or `whisper.cpp`.
+
+Use macOS Sonoma (14) or later if possible. Apple Silicon gives the best local
+LLM performance.
+
+### 1. Install System Prerequisites
+
+Install Xcode's command-line tools:
+
+```bash
+xcode-select --install
+```
+
+If you do not already have Homebrew, install it from [brew.sh](https://brew.sh).
+Then install the audio libraries used by the microphone and Kokoro dependencies:
+
+```bash
+brew install portaudio espeak-ng
+```
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if needed:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Create and activate a virtual environment:
+Close and reopen Terminal so `uv` is available, then confirm:
+
+```bash
+uv --version
+```
+
+### 2. Create The Python Environment
+
+From the project folder—the folder containing `main.py` and
+`requirements.txt`—run:
 
 ```bash
 uv venv
 source .venv/bin/activate
-```
-
-Install the Python packages:
-
-```bash
 uv pip install -r requirements.txt
 ```
 
-Run the fake working Lesson 1 demo:
+### 3. Install And Test Ollama
+
+Download the macOS Ollama app from [ollama.com/download](https://ollama.com/download),
+move it to Applications, and open it once. It makes the `ollama` command
+available in Terminal.
+
+The agent defaults to `gemma3:1b`, so download that model and check it works:
 
 ```bash
-uv run python demos/lesson1_demo.py
+ollama pull gemma3:1b
+ollama run gemma3:1b "Reply with OK."
 ```
 
-## Run Lesson Tests
+Type `/bye` to leave Ollama's chat. If either command says `ollama` is not
+found, quit and reopen the Ollama app, then open a new Terminal window.
 
-Run tests from the project folder, the folder that contains `demos/`, `face/`,
-`agent/`, and `pytest.ini`.
+### 4. Install And Test The Local Kokoro Voice
 
-Each lesson has its own test folder. Run one small test at a time while you build.
-For example, in Lesson 2 you can test `FaceState`, then `FaceRenderer.load()`, then
-`FaceRenderer.draw()`:
+Download the small int8 Kokoro model and its voices once:
 
 ```bash
-uv run pytest tests/lesson_2/test_01_face_state.py
-uv run pytest tests/lesson_2/test_03_renderer_load.py
-uv run pytest tests/lesson_2/test_04_renderer_draw.py
+mkdir -p models/kokoro
+curl -L -o models/kokoro/kokoro-v1.0.int8.onnx \
+  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
+curl -L -o models/kokoro/voices-v1.0.bin \
+  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 ```
 
-Run a whole lesson folder when you think the lesson is complete:
+Run the speech-only demo. You should hear one sentence through your Mac's
+selected output device:
 
 ```bash
-uv run pytest tests/lesson_1
-uv run pytest tests/lesson_2
-uv run pytest tests/lesson_3
-uv run pytest tests/lesson_4
-uv run pytest tests/lesson_5
-uv run pytest tests/lesson_6
-uv run pytest tests/lesson_7
-uv run pytest tests/lesson_8
-uv run pytest tests/lesson_9
+uv run python demos/kokoro_tts_demo.py
 ```
 
-It is normal for later lesson tests to fail before you implement those lessons.
-
-## Tool Settings
-
-Some skeleton classes have an `__init__()` method that stores settings before
-the real implementation is written. For example:
-
-```python
-WakeWordTool(threshold=0.5, sample_rate=16000)
-SpeechToTextTool(seconds=3.0, output_wav="input.wav")
-TextToSpeechTool(output_wav="output.wav")
-SearchTool(max_results=1, region="us-en")
-FaceRenderer(faces_dir="faces")
-```
-
-Students can keep the defaults at first, then change one setting at a time
-when testing real hardware.
-
-## Run The Wake Word Audio Demo
-
-Lesson 3 also has a manual microphone demo. This is not a unit test because it
-needs real hardware:
+Kokoro is fully local after these files are downloaded. Its defaults are the
+`af_sarah` voice and normal speed. You can preview another voice, for example:
 
 ```bash
-uv run python demos/test_wake_word_audio.py
+PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py
 ```
 
-If detection is too hard, try a lower threshold:
+### 5. Run The Agent In Keyboard Mode
+
+This starts the real face, LLM, search routing, and Kokoro speech without
+requiring the microphone stack:
 
 ```bash
-uv run python demos/test_wake_word_audio.py --threshold 0.3
-```
-
-## Ollama Setup
-
-Install Ollama using the official instructions:
-
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-Pull a small local model:
-
-```bash
-ollama pull llama3.2:1b
-```
-
-## Use Ollama On Another Machine
-
-`LlmTool` can send requests to any machine running the Ollama-compatible API.
-Leave the default unchanged for a model on the Pi, or configure the remote
-server before starting the agent:
-
-```bash
-export PI_AGENT_OLLAMA_URL="http://192.168.1.50:11434"
+export PIE_AGENT_TTS_ENGINE=kokoro
+export PIE_AGENT_WAKE_WORD_MODE=keyboard
+export PIE_AGENT_STT_MODE=keyboard
 uv run python main.py
 ```
 
-You can also configure it directly in Python:
+When prompted, type `wake`, then type a question such as `What is the capital
+of France?`. The answer should appear in the terminal and be spoken. Stop the
+agent with `Control-C`.
 
-```python
-LlmTool(model_name="gemma3:1b", base_url="http://192.168.1.50:11434")
+### 6. Optional: Use The Microphone Later
+
+For microphone operation, give your terminal app microphone access in **System
+Settings → Privacy & Security → Microphone**. Then remove the two keyboard
+settings:
+
+```bash
+unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
 ```
 
-On the remote computer, Ollama must listen on an address reachable from the Pi
-and have the requested model installed. Do not expose Ollama's port directly
-to the public internet: it has no built-in authentication. Prefer a private
-network such as Tailscale, or put it behind an authenticated HTTPS reverse
-proxy or SSH tunnel.
+The current microphone transcription tool also needs a local `whisper.cpp`
+binary and a Whisper model at `models/ggml-base.en.bin`; those are not installed
+by `requirements.txt`. Set those up before using microphone mode.
+
+## Raspberry Pi Notes
+
+The same Python setup applies on Raspberry Pi OS. Piper remains the default
+TTS backend there and uses `aplay`; select Kokoro by setting
+`PIE_AGENT_TTS_ENGINE=kokoro`. The current TTS tools choose `afplay` on macOS
+and `aplay` on Linux automatically.
+
+## Run Tests
+
+Run from the project folder:
+
+```bash
+uv run pytest -q
+```
+
+The lesson folders can also be run individually, for example:
+
+```bash
+uv run pytest tests/lesson_6
+```
