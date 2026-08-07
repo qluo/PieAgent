@@ -4,7 +4,7 @@ from PIL import Image
 
 
 class FaceRenderer:
-    def __init__(self, faces_dir: str = "faces") -> None:
+    def __init__(self, faces_dir: str | None = None) -> None:
         """Create the face renderer.
 
         Inputs:
@@ -13,7 +13,9 @@ class FaceRenderer:
         Output:
         - None. Starts with no loaded frames.
         """
-        self.faces_dir = faces_dir
+        self.faces_dir = faces_dir or str(
+            Path(__file__).resolve().parents[1] / "assets" / "faces"
+        )
         self.frames: dict[str, list[object]] = {}
         self.frame_indexes: dict[str, int] = {}
         self.last_drawn_state: str | None = None

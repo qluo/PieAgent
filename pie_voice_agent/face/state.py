@@ -1,6 +1,6 @@
 from threading import Lock
 
-from face import states
+from pie_voice_agent.face import states
 
 
 class FaceState:

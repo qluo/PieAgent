@@ -6,7 +6,7 @@ Run after downloading the model files described in docs/setup.md:
 
 import os
 
-from agent.tools.kokoro_tts import KokoroTextToSpeechTool
+from pie_voice_agent.kokoro_tts import KokoroTextToSpeechTool
 
 
 def main() -> None:

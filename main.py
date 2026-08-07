@@ -1,34 +1,37 @@
+"""Compose the local voice application from the three Pie Agent layers."""
+
 import os
+from pathlib import Path
 from threading import Thread
 
-from agent.agent import Agent
-from agent.tools.llm import LlmTool
-from agent.tools.kokoro_tts import KokoroTextToSpeechTool
-from agent.tools.search import SearchTool
-from agent.tools.stt import SpeechToTextTool
-from agent.tools.tts import TextToSpeechTool
-from agent.tools.wake_word import WakeWordTool
-from face.controller import FaceController
-from face.state import FaceState
+from pie_ai import OllamaClient
+from pie_agent_core import Agent, Context
+from pie_agent_core.search import SearchTool
+from pie_voice_agent import VoiceAgent
+from pie_voice_agent.face.controller import FaceController
+from pie_voice_agent.face.state import FaceState
+from pie_voice_agent.kokoro_tts import KokoroTextToSpeechTool
+from pie_voice_agent.memory import MarkdownMemory
+from pie_voice_agent.memory_tool import RememberFactTool
+from pie_voice_agent.stt import SpeechToTextTool
+from pie_voice_agent.tts import TextToSpeechTool
+from pie_voice_agent.wake_word import WakeWordTool
 
 
-def main() -> None:
-    """Start the face controller and agent.
+PROJECT_ROOT = Path(__file__).resolve().parent
 
-    Inputs:
-    - None. Creates all objects inside the function.
 
-    Output:
-    - None. Runs until the agent program is stopped.
-    """
-    face_state = FaceState()
+def load_system_prompt() -> str:
+    """Read the voice application's optional project instructions."""
+    instructions = PROJECT_ROOT / "AGENTS.md"
+    return instructions.read_text(encoding="utf-8") if instructions.is_file() else ""
 
-    face_controller = FaceController(face_state=face_state)
-    Thread(target=face_controller.run, daemon=True).start()
 
+def build_tts() -> object:
+    """Create the selected local text-to-speech adapter."""
     tts_engine = os.environ.get("PIE_AGENT_TTS_ENGINE", "piper").lower()
     if tts_engine == "kokoro":
-        tts = KokoroTextToSpeechTool(
+        return KokoroTextToSpeechTool(
             model_path=os.environ.get(
                 "PIE_AGENT_TTS_KOKORO_MODEL",
                 "models/kokoro/kokoro-v1.0.int8.onnx",
@@ -40,41 +43,45 @@ def main() -> None:
             voice=os.environ.get("PIE_AGENT_TTS_KOKORO_VOICE", "af_sarah"),
             speed=float(os.environ.get("PIE_AGENT_TTS_KOKORO_SPEED", "1.0")),
         )
-    elif tts_engine == "piper":
-        tts = TextToSpeechTool(
+    if tts_engine == "piper":
+        return TextToSpeechTool(
             voice_model_path=os.environ.get(
                 "PIE_AGENT_TTS_VOICE_MODEL",
                 "models/piper/en_US-lessac-medium.onnx",
             ),
             sample_rate=int(os.environ.get("PIE_AGENT_TTS_SAMPLE_RATE", "22050")),
         )
-    else:
-        raise ValueError('PIE_AGENT_TTS_ENGINE must be "piper" or "kokoro".')
+    raise ValueError('PIE_AGENT_TTS_ENGINE must be "piper" or "kokoro".')
+
+
+def main() -> None:
+    """Start the complete local voice agent."""
+    face_state = FaceState()
+    face_controller = FaceController(face_state=face_state)
+    Thread(target=face_controller.run, daemon=True).start()
+
+    memory = MarkdownMemory()
+    core_agent = Agent(
+        model_client=OllamaClient(
+            model_name=os.environ.get("PIE_AGENT_MODEL", "qwen3:1.7b")
+        ),
+        tools=[SearchTool(), RememberFactTool(memory)],
+        context=Context(system_prompt=load_system_prompt()),
+    )
 
     wake_word_mode = os.environ.get("PIE_AGENT_WAKE_WORD_MODE", "microphone")
-    wake_word = (
-        WakeWordTool()
-        if wake_word_mode == "microphone"
-        else WakeWordTool(mode=wake_word_mode)
-    )
     stt_mode = os.environ.get("PIE_AGENT_STT_MODE", "microphone")
-    stt = (
-        SpeechToTextTool()
-        if stt_mode == "microphone"
-        else SpeechToTextTool(mode=stt_mode)
-    )
-
-    agent = Agent(
+    voice_agent = VoiceAgent(
+        agent=core_agent,
         face_state=face_state,
-        wake_word=wake_word,
-        stt=stt,
-        tts=tts,
-        llm=LlmTool(),
-        tools={
-            "search": SearchTool(),
-        },
+        wake_word=WakeWordTool(mode=wake_word_mode),
+        stt=SpeechToTextTool(mode=stt_mode),
+        tts=build_tts(),
+        memory=memory,
+        streaming=os.environ.get("PIE_AGENT_STREAMING", "").lower()
+        in {"1", "true", "yes"},
     )
-    agent.run()
+    voice_agent.run()
 
 
 if __name__ == "__main__":

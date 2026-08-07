@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pi Agent Architecture</title>
+  <title>Pie Agent Runtime Architecture</title>
   <style>
     :root {
       color-scheme: light;
@@ -219,8 +219,8 @@
 </head>
 <body>
   <main>
-    <h1>Pi Agent Architecture</h1>
-    <p>One agent orchestrates tools. A separate face controller thread renders the current visual state. The only shared contract is <strong>FaceState</strong>.</p>
+    <h1>Pie Agent Runtime Architecture</h1>
+    <p><code>pie_voice_agent</code> owns device I/O and face presentation. It drives a generic <code>pie_agent_core</code> turn loop, which calls provider-neutral <code>pie_ai</code>.</p>
 
     <section>
       <h2>1. Agent Design</h2>
@@ -397,9 +397,9 @@ face_state.set("idle")</div>
         <path d="M870 183 L907 183" class="arrow-line" marker-end="url(#arrowhead-loop)"></path>
         <path d="M960 110 C925 35, 145 35, 105 102" class="dashed-line" marker-end="url(#arrowhead-loop)"></path>
 
-        <text x="455" y="315" text-anchor="middle" class="small">SpeechToTextTool.listen_and_transcribe()</text>
-        <text x="630" y="342" text-anchor="middle" class="small">LlmTool.answer() or SearchTool.search()</text>
-        <text x="805" y="369" text-anchor="middle" class="small">TextToSpeechTool.speak()</text>
+        <text x="455" y="315" text-anchor="middle" class="small">VoiceAgent captures a transcript</text>
+        <text x="630" y="342" text-anchor="middle" class="small">Agent.run_turn() calls ModelClient and AgentTool</text>
+        <text x="805" y="369" text-anchor="middle" class="small">VoiceAgent speaks turn_finished reply</text>
       </svg>
       <p>Each stage updates the face before doing slow work, so the display shows what the agent is currently doing.</p>
     </section>
@@ -412,8 +412,9 @@ face_state.set("idle")</div>
 face_controller = FaceController(face_state)
 Thread(target=face_controller.run, daemon=True).start()
 
-agent = Agent(face_state, wake_word, stt, tts, llm, tools)
-agent.run()</div>
+core_agent = Agent(OllamaClient(), [SearchTool(), RememberFactTool(memory)], Context(prompt))
+voice_agent = VoiceAgent(core_agent, face_state, wake_word, stt, tts, memory)
+voice_agent.run()</div>
     </section>
   </main>
 </body>

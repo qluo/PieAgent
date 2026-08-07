@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pie Agent Loop Workflow</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212f;
+      --muted: #607086;
+      --line: #cbd5e1;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --voice: #eaf8ef;
+      --core: #fff3df;
+      --ai: #e9f5ff;
+      --tool: #f4f0ff;
+      --code: #111827;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 34px; margin-bottom: 8px; }
+    h2 { font-size: 22px; margin-bottom: 12px; }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    p, li, td { color: var(--muted); }
+
+    section {
+      margin-top: 24px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--white);
+    }
+
+    .lede { max-width: 830px; font-size: 18px; }
+    .note { padding: 12px 14px; background: #edf6fd; border-left: 4px solid #4b7da9; color: var(--ink); }
+
+    .diagram-wrap { overflow-x: auto; }
+    svg { display: block; min-width: 1050px; width: 100%; height: auto; }
+    svg text { font-family: Arial, Helvetica, sans-serif; fill: var(--ink); }
+    .actor { stroke: #93a4b8; stroke-width: 1.5; }
+    .voice { fill: var(--voice); }
+    .core { fill: var(--core); }
+    .ai { fill: var(--ai); }
+    .tool { fill: var(--tool); }
+    .lane { stroke: #a9b7c8; stroke-width: 1.5; stroke-dasharray: 7 6; }
+    .message { stroke: #43566b; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+    .return { stroke: #43566b; stroke-width: 1.8; stroke-dasharray: 6 5; fill: none; marker-end: url(#arrow); }
+    .event { stroke: #795d9a; stroke-width: 1.8; fill: none; marker-end: url(#event-arrow); }
+    .call-label { font-size: 13px; font-weight: 700; }
+    .small { font-size: 12px; fill: var(--muted); }
+    .label { font-size: 15px; font-weight: 700; }
+    .phase { font-size: 14px; font-weight: 700; fill: #4c5f74; }
+    .branch { fill: #faf5e8; stroke: #d6b35f; stroke-width: 1.5; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
+    .card h3 { color: var(--ink); }
+    .card ul { margin: 0; padding-left: 20px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { color: var(--ink); background: #f1f5f9; }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #edf2f7;
+      color: #24364c;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .9em;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow-x: auto;
+      border-radius: 8px;
+      color: #e5e7eb;
+      background: var(--code);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pie Agent Loop Workflow</h1>
+    <p class="lede">This sequence begins after the voice application has produced a user question. It shows a full turn, including the optional tool-call loop and the final spoken reply. Durable memory and saved sessions remain outside the core; the application can supply relevant <code>AgentNote</code> entries for this turn.</p>
+
+    <section>
+      <h2>Sequence Diagram</h2>
+      <p class="note"><strong>Version-one behavior:</strong> tools execute sequentially. <code>generate(..., streaming=True)</code> emits <code>ModelEvent</code> values; the core forwards them through the turn iterator while collecting the final reply.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 1180 1190" role="img" aria-label="Sequence diagram of Pie Agent handling a user question with an optional tool call">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <polygon points="0 0, 10 4, 0 8" fill="#43566b"></polygon>
+            </marker>
+            <marker id="event-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <polygon points="0 0, 10 4, 0 8" fill="#795d9a"></polygon>
+            </marker>
+          </defs>
+
+          <rect x="26" y="18" width="138" height="54" rx="8" class="actor voice"></rect>
+          <text x="95" y="43" text-anchor="middle" class="label">Voice App</text>
+          <text x="95" y="61" text-anchor="middle" class="small">STT + TTS + face</text>
+
+          <rect x="208" y="18" width="138" height="54" rx="8" class="actor core"></rect>
+          <text x="277" y="43" text-anchor="middle" class="label">Agent</text>
+          <text x="277" y="61" text-anchor="middle" class="small">run_turn(...)</text>
+
+          <rect x="379" y="18" width="160" height="54" rx="8" class="actor core"></rect>
+          <text x="459" y="43" text-anchor="middle" class="label">AgentConversation</text>
+          <text x="459" y="61" text-anchor="middle" class="small">AgentMessage[]</text>
+
+          <rect x="572" y="18" width="150" height="54" rx="8" class="actor core"></rect>
+          <text x="647" y="43" text-anchor="middle" class="label">Context</text>
+          <text x="647" y="61" text-anchor="middle" class="small">transform() + to_model_messages()</text>
+
+          <rect x="766" y="18" width="150" height="54" rx="8" class="actor ai"></rect>
+          <text x="841" y="43" text-anchor="middle" class="label">ModelClient</text>
+          <text x="841" y="61" text-anchor="middle" class="small">generate(...)</text>
+
+          <rect x="960" y="18" width="194" height="54" rx="8" class="actor tool"></rect>
+          <text x="1057" y="43" text-anchor="middle" class="label">AgentTool</text>
+          <text x="1057" y="61" text-anchor="middle" class="small">Search or remember_fact</text>
+
+          <line x1="95" y1="72" x2="95" y2="1150" class="lane"></line>
+          <line x1="277" y1="72" x2="277" y2="1150" class="lane"></line>
+          <line x1="459" y1="72" x2="459" y2="1150" class="lane"></line>
+          <line x1="647" y1="72" x2="647" y2="1150" class="lane"></line>
+          <line x1="841" y1="72" x2="841" y2="1150" class="lane"></line>
+          <line x1="1057" y1="72" x2="1057" y2="1150" class="lane"></line>
+
+          <text x="26" y="112" class="phase">1. Receive and prepare</text>
+          <path d="M95 144 H277" class="message"></path>
+          <text x="186" y="136" text-anchor="middle" class="call-label">1. run_turn(user_text, notes)</text>
+
+          <path d="M277 188 H459" class="message"></path>
+          <text x="368" y="180" text-anchor="middle" class="call-label">2. append user AgentMessage</text>
+
+          <path d="M277 232 H95" class="event"></path>
+          <text x="186" y="224" text-anchor="middle" class="call-label">3. emit turn_started</text>
+
+          <path d="M277 276 H647" class="message"></path>
+          <text x="462" y="268" text-anchor="middle" class="call-label">4. Context.transform(conversation.messages, conversation) → prepared AgentMessage[]</text>
+
+          <path d="M647 320 H277" class="return"></path>
+          <text x="462" y="312" text-anchor="middle" class="call-label">5. Context.to_model_messages(prepared) → ModelMessage[]</text>
+
+          <text x="26" y="366" class="phase">2. Ask the model</text>
+          <path d="M277 398 H841" class="message"></path>
+          <text x="559" y="390" text-anchor="middle" class="call-label">6. generate(messages, tool_schemas, streaming=False)</text>
+
+          <path d="M841 442 H277" class="return"></path>
+          <text x="559" y="434" text-anchor="middle" class="call-label">7. ModelResponse (provider hidden)</text>
+
+          <rect x="193" y="570" width="760" height="308" rx="8" class="branch"></rect>
+          <text x="213" y="598" class="phase">3. If the model requests a tool, repeat this branch for each tool call</text>
+
+          <path d="M277 632 H459" class="message"></path>
+          <text x="368" y="624" text-anchor="middle" class="call-label">8. store assistant tool-call message</text>
+
+          <path d="M277 676 H95" class="event"></path>
+          <text x="186" y="668" text-anchor="middle" class="call-label">9. emit tool_started</text>
+
+          <text x="667" y="704" text-anchor="middle" class="call-label">10. concrete tool validates arguments and performs its capability</text>
+
+          <path d="M277 732 H1057" class="message"></path>
+          <text x="667" y="724" text-anchor="middle" class="call-label">11. AgentTool.execute(arguments)</text>
+
+          <path d="M1057 768 H277" class="return"></path>
+          <text x="667" y="760" text-anchor="middle" class="call-label">12. AgentToolResult (completed, failed, or declined)</text>
+
+          <text x="667" y="796" text-anchor="middle" class="call-label">The core receives only the neutral AgentToolResult</text>
+
+          <path d="M277 824 H459" class="message"></path>
+          <text x="368" y="816" text-anchor="middle" class="call-label">13. append tool-result message</text>
+
+          <path d="M277 858 H95" class="event"></path>
+          <text x="186" y="850" text-anchor="middle" class="call-label">14. emit tool_finished</text>
+
+          <path d="M277 896 C450 930, 670 930, 841 896" class="message"></path>
+          <text x="560" y="938" text-anchor="middle" class="call-label">15. prepare updated context, then generate(...)</text>
+
+          <text x="26" y="936" class="phase">4. Finish and present</text>
+          <path d="M841 972 H277" class="return"></path>
+          <text x="559" y="964" text-anchor="middle" class="call-label">16. final ModelResponse</text>
+
+          <path d="M277 1016 H459" class="message"></path>
+          <text x="368" y="1008" text-anchor="middle" class="call-label">17. append assistant AgentMessage</text>
+
+          <path d="M277 1060 H95" class="event"></path>
+          <text x="186" y="1052" text-anchor="middle" class="call-label">18. emit turn_finished(reply)</text>
+
+          <path d="M95 1104 H277" class="return"></path>
+          <text x="186" y="1096" text-anchor="middle" class="call-label">19. speak(reply.text)</text>
+
+          <text x="590" y="1140" text-anchor="middle" class="small">agent_started occurs when the run loop begins; agent_finished occurs when it stops.</text>
+          <text x="590" y="1165" text-anchor="middle" class="small">The direct-answer path skips steps 8–15 and continues from step 16. The core never imports voice code.</text>
+        </svg>
+      </div>
+    </section>
+
+    <section>
+      <h2>Message Types</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>AgentMessage — core working record</h3>
+          <ul>
+            <li><code>user</code>, <code>assistant</code>, and <code>tool_result</code> record the conversation.</li>
+            <li><code>agent_note</code> carries temporary application context, such as a retrieved preference or repository note.</li>
+            <li>All entries live in <code>AgentConversation.messages</code>.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>ModelMessage — LLM-visible input</h3>
+          <ul>
+            <li><code>system</code>, <code>user</code>, <code>assistant</code>, and <code>tool_result</code> are provider-neutral.</li>
+            <li>An assistant message may contain a requested <code>ToolCall</code>.</li>
+            <li><code>Context.to_model_messages()</code> performs the pure conversion and can omit an internal <code>agent_note</code>.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Core Lifecycle Events</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Event pairs</h3>
+          <ul>
+            <li><code>agent_started</code> → <code>agent_finished</code> wraps the agent run loop.</li>
+            <li><code>turn_started</code> → <code>turn_finished</code> wraps one user request.</li>
+            <li><code>tool_started</code> → <code>tool_finished</code> wraps each requested tool call.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Results and errors live in messages</h3>
+          <ul>
+            <li><code>tool_finished</code> carries an <code>AgentToolResult</code>; an error result is also stored as a <code>tool_result</code> message.</li>
+            <li>A handled model failure becomes an assistant error message, then the core emits <code>turn_finished</code>.</li>
+            <li>Streaming remains a separate <code>ModelEvent</code> stream from <code>pie_ai</code>.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Responsibilities During The Turn</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>pie_ai</h3>
+          <ul>
+            <li><code>ModelMessage</code> and <code>ToolSchema</code> are the only model-facing inputs.</li>
+            <li><code>ModelClient.generate()</code> is provider-neutral.</li>
+            <li>A provider implementation converts the neutral request to its network API.</li>
+            <li>It never executes a tool or changes agent state.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>pie_agent_core</h3>
+          <ul>
+            <li><code>Agent</code> owns the sequence and repeats model calls after tools.</li>
+            <li><code>AgentConversation</code> retains this conversation’s <code>AgentMessage</code> entries.</li>
+            <li><code>Context.transform()</code> selects the in-session context; <code>Context.to_model_messages()</code> creates model-visible input.</li>
+            <li><code>AgentTool</code> is the neutral executable contract and returns <code>AgentToolResult</code>.</li>
+            <li>It has no voice confirmation, coding permissions, or other application policy.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>pie_voice_agent</h3>
+          <ul>
+            <li><code>VoiceTool</code> implements or wraps <code>AgentTool</code>.</li>
+            <li>It owns spoken status and any confirmation conversation.</li>
+            <li>It can return a declined <code>AgentToolResult</code> without running the underlying capability.</li>
+            <li>A future coding agent can use its own <code>CodingTool</code> wrapper for workspace or sandbox rules.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Memory Boundary</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Inside pie_agent_core</h3>
+          <ul>
+            <li><code>AgentConversation.messages</code> is the working record of the active conversation.</li>
+            <li><code>AgentNote</code> is temporary application context carried in that record.</li>
+            <li><code>Context</code> decides which entries become <code>ModelMessage</code> values.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Outside pie_agent_core</h3>
+          <ul>
+            <li>The voice app owns session save/restore and any local memory store.</li>
+            <li>It retrieves relevant facts, preferences, or notes and supplies them as <code>AgentNote</code> entries.</li>
+            <li>A coding app can use the same approach for repository context; a shared <code>pie_memory</code> package can wait until it is genuinely needed.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Function Contracts</h2>
+      <pre>ModelClient.generate(
+    messages: list[ModelMessage],
+    tools: list[ToolSchema] | None = None,
+    streaming: bool = False,
+) -> ModelResponse | Iterator[ModelEvent]
+
+Context.transform(
+    messages: list[AgentMessage],
+    conversation: AgentConversation,
+) -> list[AgentMessage]  # initially unchanged; later prune or compact
+
+Context.to_model_messages(
+    messages: list[AgentMessage],
+) -> list[ModelMessage]  # pure AgentMessage → ModelMessage boundary
+
+AgentTool.execute(
+    arguments: dict[str, object],
+) -> AgentToolResult
+
+AgentConversation
+    messages: list[AgentMessage]
+
+Agent.run_turn(
+    user_text: str,
+) -> Iterator[AgentEvent | ModelEvent]</pre>
+      <p class="note"><strong>Error handling:</strong> a provider error becomes an assistant error message. A tool error or a declined confirmation becomes an error <code>AgentToolResult</code> and a <code>tool_result</code> message, so the model can decide whether to recover, explain the result, or try another tool. Lifecycle events still end with their matching <code>*_finished</code> event.</p>
+    </section>
+  </main>
+</body>
+</html>

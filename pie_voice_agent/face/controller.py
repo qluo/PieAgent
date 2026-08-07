@@ -1,5 +1,5 @@
-from face.renderer import FaceRenderer
-from face.state import FaceState
+from pie_voice_agent.face.renderer import FaceRenderer
+from pie_voice_agent.face.state import FaceState
 import time
 
 

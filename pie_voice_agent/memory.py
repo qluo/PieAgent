@@ -1,10 +1,10 @@
 from pathlib import Path
 
 
-DEFAULT_MEMORY_DIR = Path(__file__).resolve().parents[2] / "memory"
+DEFAULT_MEMORY_DIR = Path(__file__).resolve().parents[1] / "memory"
 
 
-class MemoryTool:
+class MarkdownMemory:
     """Store a small amount of local agent memory in Markdown files."""
 
     conversation_heading = "# Conversation Memory\n\n"

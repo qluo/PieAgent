@@ -1,45 +1,24 @@
 # Setup
 
-## Test Pi Agent On A Mac
+## Raspberry Pi Setup
 
-This is the recommended first run on macOS: it uses your keyboard for the wake
-word and transcription, a local Ollama model for answers, and a local Kokoro
-voice for speech. It does not need microphone permission or `whisper.cpp`.
+This is the primary setup path. The Pi runs the voice application, calls a LAN-hosted Ollama model for reasoning and tools, and speaks locally with Kokoro. Start in keyboard mode; add the microphone after the full loop works.
 
-Use macOS Sonoma (14) or later if possible. Apple Silicon gives the best local
-LLM performance.
+### 1. Install System Dependencies
 
-### 1. Install System Prerequisites
-
-Install Xcode's command-line tools:
+Use 64-bit Raspberry Pi OS. A desktop session is required for the animated face display.
 
 ```bash
-xcode-select --install
-```
-
-If you do not already have Homebrew, install it from [brew.sh](https://brew.sh).
-Then install the audio libraries used by the microphone and Kokoro dependencies:
-
-```bash
-brew install portaudio espeak-ng
-```
-
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if needed:
-
-```bash
+sudo apt update
+sudo apt install -y portaudio19-dev espeak-ng alsa-utils libsndfile1
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Close and reopen Terminal so `uv` is available, then confirm:
-
-```bash
-uv --version
-```
+Open a new terminal and confirm `uv --version` works.
 
 ### 2. Create The Python Environment
 
-From the project folder—the folder containing `main.py` and
-`requirements.txt`—run:
+From the folder containing `main.py` and `requirements.txt`:
 
 ```bash
 uv venv
@@ -47,25 +26,25 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-### 3. Install And Test Ollama
+### 3. Configure The Remote Ollama Model
 
-Download the macOS Ollama app from [ollama.com/download](https://ollama.com/download),
-move it to Applications, and open it once. It makes the `ollama` command
-available in Terminal.
-
-The agent defaults to `gemma3:1b`, so download that model and check it works:
+Pie Agent uses Ollama's chat API for native tool calls. Set only the server base URL—do not include `/api/generate` or `/api/chat`:
 
 ```bash
-ollama pull gemma3:1b
-ollama run gemma3:1b "Reply with OK."
+export PIE_AGENT_OLLAMA_URL=http://192.168.68.69:11434
+export PIE_AGENT_MODEL=qwen3.5:4b
+curl -s "$PIE_AGENT_OLLAMA_URL/api/tags"
 ```
 
-Type `/bye` to leave Ollama's chat. If either command says `ollama` is not
-found, quit and reopen the Ollama app, then open a new Terminal window.
+The JSON from `/api/tags` should show `qwen3.5:4b` with `tools` capability. On the model host, verify inference before continuing:
 
-### 4. Install And Test The Local Kokoro Voice
+```bash
+ollama run qwen3.5:4b "Reply with OK."
+```
 
-Download the small int8 Kokoro model and its voices once:
+### 4. Install And Test Local Kokoro
+
+Download the model and voices once:
 
 ```bash
 mkdir -p models/kokoro
@@ -73,69 +52,61 @@ curl -L -o models/kokoro/kokoro-v1.0.int8.onnx \
   https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
 curl -L -o models/kokoro/voices-v1.0.bin \
   https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
-```
-
-Run the speech-only demo. You should hear one sentence through your Mac's
-selected output device:
-
-```bash
 uv run python demos/kokoro_tts_demo.py
 ```
 
-Kokoro is fully local after these files are downloaded. Its defaults are the
-`af_sarah` voice and normal speed. You can preview another voice, for example:
+Kokoro is fully local after this download. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
+
+### 5. Add The Microphone
+
+After keyboard mode works:
 
 ```bash
-PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py
+unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
+git clone https://github.com/ggerganov/whisper.cpp
+cmake -S whisper.cpp -B whisper.cpp/build
+cmake --build whisper.cpp/build -j
+./whisper.cpp/models/download-ggml-model.sh base.en
+cp whisper.cpp/models/ggml-base.en.bin models/
+uv run python main.py
 ```
 
-### 5. Run The Agent In Keyboard Mode
+The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
 
-This starts the real face, LLM, search routing, and Kokoro speech without
-requiring the microphone stack:
+## Package Layout
+
+- `pie_ai`: provider-neutral model messages, tool schemas, events, and `OllamaClient`.
+- `pie_agent_core`: conversation, context, native tool loop, and lifecycle events.
+- `pie_voice_agent`: wake word, STT, TTS, face, Markdown memory, and presentation.
+
+The older lesson tests are retired teaching artifacts for the removed `agent/` package and are not the runtime acceptance suite.
+
+## macOS Setup
+
+For Mac keyboard-mode development, install prerequisites:
 
 ```bash
+xcode-select --install
+brew install portaudio espeak-ng
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+
+Use the same remote-Ollama and Kokoro steps above. macOS uses `afplay` for local audio. For microphone use, grant the terminal app access in **System Settings → Privacy & Security → Microphone**, then follow the same `whisper.cpp` steps from the Raspberry Pi section.
+
+## Keyboard-Mode Validation
+
+Use this final check on either Raspberry Pi or macOS before troubleshooting microphone hardware:
+
+```bash
+export PIE_AGENT_OLLAMA_URL=http://192.168.68.69:11434
+export PIE_AGENT_MODEL=qwen3.5:4b
 export PIE_AGENT_TTS_ENGINE=kokoro
 export PIE_AGENT_WAKE_WORD_MODE=keyboard
 export PIE_AGENT_STT_MODE=keyboard
 uv run python main.py
 ```
 
-When prompted, type `wake`, then type a question such as `What is the capital
-of France?`. The answer should appear in the terminal and be spoken. Stop the
-agent with `Control-C`.
-
-### 6. Optional: Use The Microphone Later
-
-For microphone operation, give your terminal app microphone access in **System
-Settings → Privacy & Security → Microphone**. Then remove the two keyboard
-settings:
-
-```bash
-unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
-```
-
-The current microphone transcription tool also needs a local `whisper.cpp`
-binary and a Whisper model at `models/ggml-base.en.bin`; those are not installed
-by `requirements.txt`. Set those up before using microphone mode.
-
-## Raspberry Pi Notes
-
-The same Python setup applies on Raspberry Pi OS. Piper remains the default
-TTS backend there and uses `aplay`; select Kokoro by setting
-`PIE_AGENT_TTS_ENGINE=kokoro`. The current TTS tools choose `afplay` on macOS
-and `aplay` on Linux automatically.
-
-## Run Tests
-
-Run from the project folder:
-
-```bash
-uv run pytest -q
-```
-
-The lesson folders can also be run individually, for example:
-
-```bash
-uv run pytest tests/lesson_6
-```
+Type `wake`, then ask a short question. The reply should appear in the terminal and play through the speaker. Stop with `Control-C`. Set `PIE_AGENT_STREAMING=true` to print model text as it arrives; speech still waits for the completed reply.
