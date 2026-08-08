@@ -12,7 +12,8 @@ openwakeword
 requests
 
 # Optional local Kokoro neural text-to-speech
-kokoro-onnx
+# v1 Kokoro models use the binary voices-v1.0.bin format.
+kokoro-onnx>=0.5.0
 soundfile
 
 # Web search tool

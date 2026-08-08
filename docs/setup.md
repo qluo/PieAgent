@@ -21,7 +21,7 @@ Open a new terminal and confirm `uv --version` works.
 From the folder containing `main.py` and `requirements.txt`:
 
 ```bash
-uv venv
+uv venv --python 3.11
 source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
@@ -55,7 +55,7 @@ curl -L -o models/kokoro/voices-v1.0.bin \
 uv run python demos/kokoro_tts_demo.py
 ```
 
-Kokoro is fully local after this download. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
+Kokoro is fully local after this download. `kokoro-onnx>=0.5.0` is required: older releases expect a JSON voices file and cannot read `voices-v1.0.bin`. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
 
 ### 5. Add The Microphone
 
