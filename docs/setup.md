@@ -48,14 +48,14 @@ Download the model and voices once:
 
 ```bash
 mkdir -p models/kokoro
-curl -L -o models/kokoro/kokoro-v1.0.int8.onnx \
-  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
-curl -L -o models/kokoro/voices-v1.0.bin \
-  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
+curl -L -o models/kokoro/kokoro-v0_19.onnx \
+  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/kokoro-v0_19.onnx
+curl -L -o models/kokoro/voices.json \
+  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json
 uv run python demos/kokoro_tts_demo.py
 ```
 
-Kokoro is fully local after this download. `kokoro-onnx>=0.5.0` is required: older releases expect a JSON voices file and cannot read `voices-v1.0.bin`. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
+Kokoro is fully local after this download. Pie Agent uses `kokoro-onnx==0.3.0` with NumPy 1 because `openwakeword` is not compatible with NumPy 2. This Kokoro release requires the matching `kokoro-v0_19.onnx` and `voices.json` files; it cannot use the newer v1 `.bin` voices file. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
 
 ### 5. Add The Microphone
 

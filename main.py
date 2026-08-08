@@ -34,11 +34,11 @@ def build_tts() -> object:
         return KokoroTextToSpeechTool(
             model_path=os.environ.get(
                 "PIE_AGENT_TTS_KOKORO_MODEL",
-                "models/kokoro/kokoro-v1.0.int8.onnx",
+                "models/kokoro/kokoro-v0_19.onnx",
             ),
             voices_path=os.environ.get(
                 "PIE_AGENT_TTS_KOKORO_VOICES",
-                "models/kokoro/voices-v1.0.bin",
+                "models/kokoro/voices.json",
             ),
             voice=os.environ.get("PIE_AGENT_TTS_KOKORO_VOICE", "af_sarah"),
             speed=float(os.environ.get("PIE_AGENT_TTS_KOKORO_SPEED", "1.0")),

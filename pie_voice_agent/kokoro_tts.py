@@ -9,8 +9,8 @@ class KokoroTextToSpeechTool:
 
     def __init__(
         self,
-        model_path: str = "models/kokoro/kokoro-v1.0.int8.onnx",
-        voices_path: str = "models/kokoro/voices-v1.0.bin",
+        model_path: str = "models/kokoro/kokoro-v0_19.onnx",
+        voices_path: str = "models/kokoro/voices.json",
         voice: str = "af_sarah",
         speed: float = 1.0,
         language: str = "en-us",
