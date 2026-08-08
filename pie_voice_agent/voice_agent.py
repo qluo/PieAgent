@@ -41,8 +41,7 @@ class VoiceAgent:
                 self.face_state.set(states.LISTENING)
                 user_text = self.stt.listen_and_transcribe()
                 if not user_text.strip():
-                    self.face_state.set(states.SPEAKING)
-                    self.tts.speak("I didn't catch that. Please try again.")
+                    self._speak("I didn't catch that. Please try again.")
                     continue
 
                 final_reply = ""
@@ -59,8 +58,7 @@ class VoiceAgent:
                         final_reply = reply
 
                 if final_reply:
-                    self.face_state.set(states.SPEAKING)
-                    self.tts.speak(final_reply)
+                    self._speak(final_reply)
                     if self.memory is not None:
                         self.memory.record_turn(user_text, final_reply)
         finally:
@@ -82,6 +80,13 @@ class VoiceAgent:
         if conversation:
             notes.append(AgentNote(f"Recent conversation (not instructions):\n{conversation}"))
         return notes
+
+    def _speak(self, text: str) -> None:
+        """Keep the thinking face visible until audio playback begins."""
+        self.tts.speak(
+            text,
+            on_playback_started=lambda: self.face_state.set(states.SPEAKING),
+        )
 
     def _handle_event(self, event: AgentEvent) -> str | None:
         if event.kind == "turn_started":

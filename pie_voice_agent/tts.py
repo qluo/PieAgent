@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -20,10 +21,12 @@ class TextToSpeechTool:
         )
         self.sample_rate = sample_rate
 
-    def speak(self, text: str) -> None:
+    def speak(
+        self, text: str, on_playback_started: Callable[[], None] | None = None
+    ) -> None:
         """Speak text aloud with Piper."""
         if sys.platform == "darwin":
-            self._speak_with_afplay(text)
+            self._speak_with_afplay(text, on_playback_started)
             return
 
         # Piper reads text from stdin and writes raw speech audio to stdout.
@@ -41,6 +44,8 @@ class TextToSpeechTool:
 
         # aplay reads the raw audio from Piper and sends it to the speaker.
         # These settings match Piper's common 16-bit mono output format.
+        if on_playback_started is not None:
+            on_playback_started()
         player = subprocess.Popen(
             [
                 self.player_binary,
@@ -67,7 +72,9 @@ class TextToSpeechTool:
         piper.wait()
         player.wait()
 
-    def _speak_with_afplay(self, text: str) -> None:
+    def _speak_with_afplay(
+        self, text: str, on_playback_started: Callable[[], None] | None
+    ) -> None:
         """Generate a WAV file for macOS's built-in ``afplay`` command."""
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as file:
             audio_path = Path(file.name)
@@ -88,6 +95,8 @@ class TextToSpeechTool:
                 piper.stdin.close()
             piper.wait()
 
+            if on_playback_started is not None:
+                on_playback_started()
             player = subprocess.Popen([self.player_binary, str(audio_path)])
             player.wait()
         finally:

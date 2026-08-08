@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -27,7 +28,9 @@ class KokoroTextToSpeechTool:
         )
         self.kokoro = self._load_model()
 
-    def speak(self, text: str) -> None:
+    def speak(
+        self, text: str, on_playback_started: Callable[[], None] | None = None
+    ) -> None:
         """Generate and play speech for ``text``."""
         samples, sample_rate = self.kokoro.create(
             text,
@@ -42,6 +45,8 @@ class KokoroTextToSpeechTool:
             import soundfile as sf
 
             sf.write(audio_path, samples, sample_rate)
+            if on_playback_started is not None:
+                on_playback_started()
             subprocess.run([self.player_binary, str(audio_path)], check=True)
         finally:
             audio_path.unlink(missing_ok=True)
