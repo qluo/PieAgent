@@ -6,6 +6,7 @@ from typing import Iterator, Literal, Protocol, Sequence
 
 MessageRole = Literal["system", "user", "assistant", "tool_result"]
 EventKind = Literal["text_delta", "tool_call", "completed"]
+ThinkingLevel = bool | Literal["low", "medium", "high"]
 
 
 class ModelUnavailableError(RuntimeError):
@@ -65,4 +66,5 @@ class ModelClient(Protocol):
         messages: Sequence[ModelMessage],
         tools: Sequence[ToolSchema] = (),
         streaming: bool = False,
+        thinking: ThinkingLevel = False,
     ) -> ModelResponse | Iterator[ModelEvent]: ...

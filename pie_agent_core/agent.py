@@ -8,6 +8,7 @@ from pie_ai import (
     ModelMessage,
     ModelResponse,
     ModelUnavailableError,
+    ThinkingLevel,
 )
 
 from .context import Context
@@ -15,6 +16,23 @@ from .conversation import AgentConversation
 from .events import AgentEvent
 from .messages import AgentMessage, AgentNote
 from .tools import AgentTool, AgentToolResult
+
+
+COMPLEXITY_SIGNALS = (
+    "analyze",
+    "analyse",
+    "calculate",
+    "compare",
+    "debug",
+    "design",
+    "explain why",
+    "math",
+    "plan",
+    "reason",
+    "solve",
+    "step by step",
+    "think carefully",
+)
 
 
 class Agent:
@@ -27,12 +45,16 @@ class Agent:
         context: Context | None = None,
         conversation: AgentConversation | None = None,
         max_tool_rounds: int = 5,
+        thinking_mode: str = "auto",
     ) -> None:
         self.model_client = model_client
         self.tools = {tool.name: tool for tool in tools}
         self.context = context or Context()
         self.conversation = conversation or AgentConversation()
         self.max_tool_rounds = max_tool_rounds
+        if thinking_mode not in {"auto", "off", "on"}:
+            raise ValueError('thinking_mode must be "auto", "off", or "on".')
+        self.thinking_mode = thinking_mode
         self._started = False
 
     def start(self) -> AgentEvent:
@@ -48,6 +70,7 @@ class Agent:
         user_text: str,
         notes: Sequence[AgentNote] = (),
         streaming: bool = False,
+        thinking: ThinkingLevel | None = None,
     ) -> Iterator[AgentEvent | ModelEvent]:
         """Yield lifecycle events while completing a user request."""
         if not self._started:
@@ -59,9 +82,10 @@ class Agent:
         yield AgentEvent(kind="turn_started", message=user_message)
 
         notices: list[str] = []
+        requested_thinking = self._thinking_for(user_text) if thinking is None else thinking
         try:
             for _round in range(self.max_tool_rounds):
-                response = yield from self._generate(streaming)
+                response = yield from self._generate(streaming, requested_thinking)
                 assistant = AgentMessage(
                     kind="assistant",
                     content=response.message.content,
@@ -111,13 +135,18 @@ class Agent:
             self.conversation.messages.append(final_message)
             yield AgentEvent(kind="turn_finished", message=final_message)
 
-    def _generate(self, streaming: bool) -> Iterator[ModelEvent]:
+    def _generate(
+        self, streaming: bool, thinking: ThinkingLevel
+    ) -> Iterator[ModelEvent]:
         prepared = self.context.transform(
             self.conversation.messages, self.conversation
         )
         model_messages = self.context.to_model_messages(prepared)
         generated = self.model_client.generate(
-            model_messages, list(self.tools.values()), streaming=streaming
+            model_messages,
+            list(self.tools.values()),
+            streaming=streaming,
+            thinking=thinking,
         )
         if not streaming:
             assert isinstance(generated, ModelResponse)
@@ -154,6 +183,15 @@ class Agent:
             return tool.execute(arguments)
         except Exception as error:
             return AgentToolResult(f"Tool '{name}' failed: {error}", "error")
+
+    def _thinking_for(self, user_text: str) -> bool:
+        """Keep routine turns fast; reason only for explicit complex work."""
+        if self.thinking_mode == "on":
+            return True
+        if self.thinking_mode == "off":
+            return False
+        normalized = user_text.lower()
+        return any(signal in normalized for signal in COMPLEXITY_SIGNALS)
 
     def _final_message(
         self, assistant: AgentMessage, notices: Sequence[str]

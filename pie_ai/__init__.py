@@ -7,6 +7,7 @@ from .types import (
     ModelMessage,
     ModelResponse,
     ModelUnavailableError,
+    ThinkingLevel,
     ToolCall,
     ToolSchema,
 )
@@ -20,4 +21,5 @@ __all__ = [
     "OllamaClient",
     "ToolCall",
     "ToolSchema",
+    "ThinkingLevel",
 ]

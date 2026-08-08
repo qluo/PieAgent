@@ -33,6 +33,8 @@ Pie Agent uses Ollama's chat API for native tool calls. Set only the server base
 ```bash
 export PIE_AGENT_OLLAMA_URL=http://192.168.68.69:11434
 export PIE_AGENT_MODEL=qwen3.5:4b
+# auto disables thinking for ordinary turns and enables it for explicit complex work.
+export PIE_AGENT_THINKING=auto
 curl -s "$PIE_AGENT_OLLAMA_URL/api/tags"
 ```
 
@@ -110,6 +112,7 @@ Use this final check on either Raspberry Pi or macOS before troubleshooting micr
 ```bash
 export PIE_AGENT_OLLAMA_URL=http://192.168.68.69:11434
 export PIE_AGENT_MODEL=qwen3.5:4b
+export PIE_AGENT_THINKING=auto
 export PIE_AGENT_TTS_ENGINE=kokoro
 export PIE_AGENT_TTS_KOKORO_MODEL=models/kokoro/kokoro-v0_19.onnx
 export PIE_AGENT_TTS_KOKORO_VOICES=models/kokoro/voices.json
@@ -118,4 +121,4 @@ export PIE_AGENT_STT_MODE=keyboard
 uv run python main.py
 ```
 
-Type `wake`, then ask a short question. The reply should appear in the terminal and play through the speaker. Stop with `Control-C`. Set `PIE_AGENT_STREAMING=true` to print model text as it arrives; speech still waits for the completed reply.
+Type `wake`, then ask a short question. The reply should appear in the terminal and play through the speaker. Stop with `Control-C`. `PIE_AGENT_THINKING=auto` keeps ordinary turns fast and enables model thinking for requests such as planning, analysis, calculation, debugging, or “think carefully”; set it to `off` or `on` to override that policy. Set `PIE_AGENT_STREAMING=true` to print model text as it arrives; speech still waits for the completed reply.

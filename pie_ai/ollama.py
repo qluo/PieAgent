@@ -11,6 +11,7 @@ from .types import (
     ModelMessage,
     ModelResponse,
     ModelUnavailableError,
+    ThinkingLevel,
     ToolCall,
     ToolSchema,
 )
@@ -38,11 +39,13 @@ class OllamaClient:
         messages: Sequence[ModelMessage],
         tools: Sequence[ToolSchema] = (),
         streaming: bool = False,
+        thinking: ThinkingLevel = False,
     ) -> ModelResponse | Iterator[ModelEvent]:
         payload: dict[str, object] = {
             "model": self.model_name,
             "messages": [self._message_payload(message) for message in messages],
             "stream": streaming,
+            "think": thinking,
         }
         if tools:
             payload["tools"] = [self._tool_payload(tool) for tool in tools]

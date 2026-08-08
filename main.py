@@ -68,6 +68,7 @@ def main() -> None:
         ),
         tools=[SearchTool(), RememberFactTool(memory)],
         context=Context(system_prompt=load_system_prompt()),
+        thinking_mode=os.environ.get("PIE_AGENT_THINKING", "auto").lower(),
     )
 
     wake_word_mode = os.environ.get("PIE_AGENT_WAKE_WORD_MODE", "microphone")
