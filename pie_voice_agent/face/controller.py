@@ -17,6 +17,11 @@ class FaceController:
         """
         self.face_state = face_state
         self.renderer = renderer
+        self._running = True
+
+    def stop(self) -> None:
+        """Request that the render loop stops after its current frame."""
+        self._running = False
 
     def run_once(self) -> None:
         """Render one face frame.
@@ -47,6 +52,6 @@ class FaceController:
             self.renderer = FaceRenderer()
 
         self.renderer.load()
-        while True:
+        while self._running:
             self.run_once()
             time.sleep(sleep_seconds)

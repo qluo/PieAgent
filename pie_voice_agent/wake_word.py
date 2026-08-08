@@ -1,4 +1,5 @@
 from queue import Queue
+from pathlib import Path
 
 
 CHUNK_SIZE = 1280
@@ -64,6 +65,7 @@ class WakeWordTool:
             ) from error
 
         if self.model_path:
+            self._require_model_file()
             model = Model(wakeword_models=[self.model_path])
         else:
             model = Model()
@@ -88,3 +90,26 @@ class WakeWordTool:
                 scores = model.predict(audio_chunk)
                 if scores and max(scores.values()) >= self.threshold:
                     return
+
+    def _require_model_file(self) -> None:
+        """Explain how to install a missing built-in openWakeWord model."""
+        if self.model_path != DEFAULT_WAKE_WORD_MODEL:
+            return
+
+        try:
+            import openwakeword
+        except ImportError:
+            return
+
+        model_file = (
+            Path(openwakeword.__file__).parent
+            / "resources"
+            / "models"
+            / "hey_jarvis_v0.1.tflite"
+        )
+        if not model_file.is_file():
+            raise RuntimeError(
+                "Wake-word model is not installed. Run: "
+                'uv run python -c "import openwakeword; '
+                'openwakeword.utils.download_models()"'
+            )

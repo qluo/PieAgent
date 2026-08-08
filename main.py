@@ -58,7 +58,8 @@ def main() -> None:
     """Start the complete local voice agent."""
     face_state = FaceState()
     face_controller = FaceController(face_state=face_state)
-    Thread(target=face_controller.run, daemon=True).start()
+    face_thread = Thread(target=face_controller.run, daemon=True)
+    face_thread.start()
 
     memory = MarkdownMemory()
     core_agent = Agent(
@@ -81,7 +82,11 @@ def main() -> None:
         streaming=os.environ.get("PIE_AGENT_STREAMING", "").lower()
         in {"1", "true", "yes"},
     )
-    voice_agent.run()
+    try:
+        voice_agent.run()
+    finally:
+        face_controller.stop()
+        face_thread.join(timeout=1)
 
 
 if __name__ == "__main__":

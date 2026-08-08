@@ -52,6 +52,12 @@ curl -L -o models/kokoro/kokoro-v0_19.onnx \
   https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/kokoro-v0_19.onnx
 curl -L -o models/kokoro/voices.json \
   https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.json
+
+# Use the NumPy-1-compatible Kokoro asset pair, not v1 .bin voices files.
+export PIE_AGENT_TTS_ENGINE=kokoro
+export PIE_AGENT_TTS_KOKORO_MODEL=models/kokoro/kokoro-v0_19.onnx
+export PIE_AGENT_TTS_KOKORO_VOICES=models/kokoro/voices.json
+
 uv run python demos/kokoro_tts_demo.py
 ```
 
@@ -62,6 +68,7 @@ Kokoro is fully local after this download. Pie Agent uses `kokoro-onnx==0.3.0` w
 After keyboard mode works:
 
 ```bash
+uv run python -c "import openwakeword; openwakeword.utils.download_models()"
 unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
 git clone https://github.com/ggerganov/whisper.cpp
 cmake -S whisper.cpp -B whisper.cpp/build
@@ -71,7 +78,7 @@ cp whisper.cpp/models/ggml-base.en.bin models/
 uv run python main.py
 ```
 
-The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
+The first command downloads the bundled wake-word models once, including `hey_jarvis`. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
 
 ## Package Layout
 
@@ -104,6 +111,8 @@ Use this final check on either Raspberry Pi or macOS before troubleshooting micr
 export PIE_AGENT_OLLAMA_URL=http://192.168.68.69:11434
 export PIE_AGENT_MODEL=qwen3.5:4b
 export PIE_AGENT_TTS_ENGINE=kokoro
+export PIE_AGENT_TTS_KOKORO_MODEL=models/kokoro/kokoro-v0_19.onnx
+export PIE_AGENT_TTS_KOKORO_VOICES=models/kokoro/voices.json
 export PIE_AGENT_WAKE_WORD_MODE=keyboard
 export PIE_AGENT_STT_MODE=keyboard
 uv run python main.py
