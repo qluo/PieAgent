@@ -65,12 +65,19 @@ uv run python demos/kokoro_tts_demo.py
 
 Kokoro is fully local after this download. Pie Agent uses `kokoro-onnx==0.3.0` with NumPy 1 because `openwakeword` is not compatible with NumPy 2. This Kokoro release requires the matching `kokoro-v0_19.onnx` and `voices.json` files; it cannot use the newer v1 `.bin` voices file. Its default voice is `af_sarah`; try `PIE_AGENT_TTS_KOKORO_VOICE=af_bella uv run python demos/kokoro_tts_demo.py` for another voice.
 
-### 5. Add The Microphone
+### 5. Download The Wake-Word Model
 
 After keyboard mode works:
 
 ```bash
 uv run python -c "import openwakeword; openwakeword.utils.download_models()"
+```
+
+This one-time download installs the bundled `hey_jarvis` wake-word model needed for microphone mode.
+
+### 6. Add The Microphone
+
+```bash
 unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
 git clone https://github.com/ggerganov/whisper.cpp
 cmake -S whisper.cpp -B whisper.cpp/build
@@ -80,7 +87,7 @@ cp whisper.cpp/models/ggml-base.en.bin models/
 uv run python main.py
 ```
 
-The first command downloads the bundled wake-word models once, including `hey_jarvis`. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
+The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
 
 ## Package Layout
 
