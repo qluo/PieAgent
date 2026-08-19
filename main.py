@@ -96,6 +96,8 @@ def main() -> None:
     )
     try:
         voice_agent.run()
+    except KeyboardInterrupt:
+        print("\nStopping Pi Agent.")
     finally:
         face_controller.stop()
         face_thread.join(timeout=1)

@@ -97,6 +97,13 @@ class FaceRenderer:
             self._pygame = None
             self._screen = None
 
+    def close(self) -> None:
+        """Release the pygame display after the face loop stops."""
+        if self._pygame is not None:
+            self._pygame.quit()
+        self._pygame = None
+        self._screen = None
+
     def _draw_with_pygame(self, frame: Image.Image) -> None:
         pygame = self._pygame
         screen = self._screen

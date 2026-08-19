@@ -51,7 +51,10 @@ class FaceController:
         if self.renderer is None:
             self.renderer = FaceRenderer()
 
-        self.renderer.load()
-        while self._running:
-            self.run_once()
-            time.sleep(sleep_seconds)
+        try:
+            self.renderer.load()
+            while self._running:
+                self.run_once()
+                time.sleep(sleep_seconds)
+        finally:
+            self.renderer.close()
