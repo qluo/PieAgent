@@ -79,41 +79,6 @@ This one-time download installs the bundled `hey_jarvis` wake-word model needed 
 
 ```bash
 unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
-git clone https://github.com/ggerganov/whisper.cpp
-cmake -S whisper.cpp -B whisper.cpp/build
-cmake --build whisper.cpp/build -j
-./whisper.cpp/models/download-ggml-model.sh small.en
-cp whisper.cpp/models/ggml-small.en.bin models/
-export PIE_AGENT_STT_MODEL=models/ggml-small.en.bin
-uv run python main.py
-```
-
-`small.en` is the recommended English model for a Raspberry Pi 5 with 4 GB or more RAM. It is more accurate than `base.en`, but slower and uses about 852 MB of memory. On a lower-memory Pi, download `base.en` instead and set `PIE_AGENT_STT_MODEL=models/ggml-base.en.bin`. The recorder keeps 300 ms of pre-speech audio so it does not clip the first word. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
-
-### 7. Optional: Test Quantized Whisper Small
-
-`small.en-q5_1` is a quantized version of Whisper Small English. It uses less storage and memory than full `small.en` while aiming to retain similar recognition quality. Download it and select it for the current terminal session:
-
-```bash
-curl -L -o models/ggml-small.en-q5_1.bin \
-  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en-q5_1.bin
-export PIE_AGENT_STT_MODEL=models/ggml-small.en-q5_1.bin
-uv run python main.py
-```
-
-Compare it using the same spoken phrases as full `small.en`. To return to the faster base model, run:
-
-```bash
-export PIE_AGENT_STT_MODEL=models/ggml-base.en.bin
-uv run python main.py
-```
-
-### 8. Optional: Test Parakeet TDT With Sherpa-ONNX
-
-Parakeet TDT INT8 is a local English transcription backend that is optimized for lower latency. It has a larger model download (about 1.3 GB), and the first turn loads the model; later turns reuse it.
-
-```bash
-uv pip install -r requirements.txt
 mkdir -p models
 cd models
 curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8.tar.bz2
@@ -126,7 +91,25 @@ export PIE_AGENT_STT_THREADS=4
 uv run python main.py
 ```
 
-To switch back to Whisper, set `PIE_AGENT_STT_ENGINE=whisper` and select a Whisper model through `PIE_AGENT_STT_MODEL`.
+Parakeet TDT INT8 is now the default local English STT backend. It has a larger model download (about 1.3 GB), and the first turn loads the model; later turns reuse it. The recorder keeps 300 ms of pre-speech audio so it does not clip the first word. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
+
+### 7. Optional: Use Quantized Whisper Small Instead
+
+`small.en-q5_1` is a smaller Whisper alternative. It uses less storage and memory than full `small.en`, but Parakeet is the default because it tested faster with strong accuracy on Raspberry Pi 5.
+
+```bash
+git clone https://github.com/ggml-org/whisper.cpp
+cmake -S whisper.cpp -B whisper.cpp/build
+cmake --build whisper.cpp/build -j
+curl -L -o models/ggml-small.en-q5_1.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en-q5_1.bin
+
+export PIE_AGENT_STT_ENGINE=whisper
+export PIE_AGENT_STT_MODEL=models/ggml-small.en-q5_1.bin
+uv run python main.py
+```
+
+To return to the default backend in the current terminal, run `export PIE_AGENT_STT_ENGINE=parakeet`.
 
 ## Package Layout
 

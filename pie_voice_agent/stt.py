@@ -15,7 +15,7 @@ class SpeechToTextTool:
         whisper_binary: str = "whisper.cpp/build/bin/whisper-cli",
         mode: str = "microphone",
         pre_roll_seconds: float = 0.3,
-        engine: str = "whisper",
+        engine: str = "parakeet",
         parakeet_model_dir: str = "models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8",
         parakeet_threads: int = 4,
     ) -> None:

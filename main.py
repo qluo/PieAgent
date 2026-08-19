@@ -79,7 +79,7 @@ def main() -> None:
         wake_word=WakeWordTool(mode=wake_word_mode),
         stt=SpeechToTextTool(
             mode=stt_mode,
-            engine=os.environ.get("PIE_AGENT_STT_ENGINE", "whisper").lower(),
+            engine=os.environ.get("PIE_AGENT_STT_ENGINE", "parakeet").lower(),
             model_path=os.environ.get(
                 "PIE_AGENT_STT_MODEL", "models/ggml-small.en.bin"
             ),
