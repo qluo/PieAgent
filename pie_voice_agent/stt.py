@@ -11,7 +11,7 @@ class SpeechToTextTool:
         sample_rate: int = 16000,
         max_seconds: float = 10.0,
         silence_seconds: float = 1.0,
-        model_path: str = "models/ggml-small.en.bin",
+        model_path: str = "models/ggml-base.en.bin",
         whisper_binary: str = "whisper.cpp/build/bin/whisper-cli",
         mode: str = "microphone",
         pre_roll_seconds: float = 0.3,

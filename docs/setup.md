@@ -90,6 +90,24 @@ uv run python main.py
 
 `small.en` is the recommended English model for a Raspberry Pi 5 with 4 GB or more RAM. It is more accurate than `base.en`, but slower and uses about 852 MB of memory. On a lower-memory Pi, download `base.en` instead and set `PIE_AGENT_STT_MODEL=models/ggml-base.en.bin`. The recorder keeps 300 ms of pre-speech audio so it does not clip the first word. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
 
+### 7. Optional: Test Quantized Whisper Small
+
+`small.en-q5_1` is a quantized version of Whisper Small English. It uses less storage and memory than full `small.en` while aiming to retain similar recognition quality. Download it and select it for the current terminal session:
+
+```bash
+curl -L -o models/ggml-small.en-q5_1.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en-q5_1.bin
+export PIE_AGENT_STT_MODEL=models/ggml-small.en-q5_1.bin
+uv run python main.py
+```
+
+Compare it using the same spoken phrases as full `small.en`. To return to the faster base model, run:
+
+```bash
+export PIE_AGENT_STT_MODEL=models/ggml-base.en.bin
+uv run python main.py
+```
+
 ## Package Layout
 
 - `pie_ai`: provider-neutral model messages, tool schemas, events, and `OllamaClient`.
