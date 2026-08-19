@@ -8,6 +8,9 @@ sounddevice
 numpy<2
 openwakeword
 
+# Optional local Parakeet STT backend.
+sherpa-onnx
+
 # Local Ollama HTTP calls
 requests
 

@@ -108,6 +108,26 @@ export PIE_AGENT_STT_MODEL=models/ggml-base.en.bin
 uv run python main.py
 ```
 
+### 8. Optional: Test Parakeet TDT With Sherpa-ONNX
+
+Parakeet TDT INT8 is a local English transcription backend that is optimized for lower latency. It has a larger model download (about 1.3 GB), and the first turn loads the model; later turns reuse it.
+
+```bash
+uv pip install -r requirements.txt
+mkdir -p models
+cd models
+curl -LO https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8.tar.bz2
+tar -xjf sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8.tar.bz2
+cd ..
+
+export PIE_AGENT_STT_ENGINE=parakeet
+export PIE_AGENT_STT_PARAKEET_MODEL_DIR=models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8
+export PIE_AGENT_STT_THREADS=4
+uv run python main.py
+```
+
+To switch back to Whisper, set `PIE_AGENT_STT_ENGINE=whisper` and select a Whisper model through `PIE_AGENT_STT_MODEL`.
+
 ## Package Layout
 
 - `pie_ai`: provider-neutral model messages, tool schemas, events, and `OllamaClient`.

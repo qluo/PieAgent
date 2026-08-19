@@ -79,9 +79,15 @@ def main() -> None:
         wake_word=WakeWordTool(mode=wake_word_mode),
         stt=SpeechToTextTool(
             mode=stt_mode,
+            engine=os.environ.get("PIE_AGENT_STT_ENGINE", "whisper").lower(),
             model_path=os.environ.get(
                 "PIE_AGENT_STT_MODEL", "models/ggml-small.en.bin"
             ),
+            parakeet_model_dir=os.environ.get(
+                "PIE_AGENT_STT_PARAKEET_MODEL_DIR",
+                "models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8",
+            ),
+            parakeet_threads=int(os.environ.get("PIE_AGENT_STT_THREADS", "4")),
         ),
         tts=build_tts(),
         memory=memory,
