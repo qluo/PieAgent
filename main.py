@@ -77,7 +77,12 @@ def main() -> None:
         agent=core_agent,
         face_state=face_state,
         wake_word=WakeWordTool(mode=wake_word_mode),
-        stt=SpeechToTextTool(mode=stt_mode),
+        stt=SpeechToTextTool(
+            mode=stt_mode,
+            model_path=os.environ.get(
+                "PIE_AGENT_STT_MODEL", "models/ggml-small.en.bin"
+            ),
+        ),
         tts=build_tts(),
         memory=memory,
         streaming=os.environ.get("PIE_AGENT_STREAMING", "").lower()

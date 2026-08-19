@@ -1,3 +1,4 @@
+from collections import deque
 import subprocess
 import tempfile
 import wave
@@ -10,9 +11,10 @@ class SpeechToTextTool:
         sample_rate: int = 16000,
         max_seconds: float = 10.0,
         silence_seconds: float = 1.0,
-        model_path: str = "models/ggml-base.en.bin",
+        model_path: str = "models/ggml-small.en.bin",
         whisper_binary: str = "whisper.cpp/build/bin/whisper-cli",
         mode: str = "microphone",
+        pre_roll_seconds: float = 0.3,
     ) -> None:
         """Create the speech-to-text tool."""
         self.sample_rate = sample_rate
@@ -21,6 +23,7 @@ class SpeechToTextTool:
         self.model_path = model_path
         self.whisper_binary = whisper_binary
         self.mode = mode
+        self.pre_roll_seconds = pre_roll_seconds
 
     def listen_and_transcribe(self) -> str:
         """Listen to the user and return the words as text."""
@@ -46,6 +49,7 @@ class SpeechToTextTool:
         quiet_chunks_needed = int(self.silence_seconds / chunk_seconds)
 
         chunks = []
+        pre_roll_chunks = deque(maxlen=int(self.pre_roll_seconds / chunk_seconds))
         quiet_chunks = 0
         speech_started = False
 
@@ -59,13 +63,14 @@ class SpeechToTextTool:
             for _ in range(max_chunks):
                 chunk, _overflowed = stream.read(chunk_size)
                 chunk_bytes = bytes(chunk)
+                pre_roll_chunks.append(chunk_bytes)
                 is_speech = self.loudness(chunk_bytes) > speech_threshold
 
-                if is_speech:
+                if is_speech and not speech_started:
                     speech_started = True
+                    chunks.extend(pre_roll_chunks)
                     quiet_chunks = 0
-
-                if speech_started:
+                elif speech_started:
                     chunks.append(chunk_bytes)
                     if is_speech:
                         quiet_chunks = 0

@@ -82,12 +82,13 @@ unset PIE_AGENT_WAKE_WORD_MODE PIE_AGENT_STT_MODE
 git clone https://github.com/ggerganov/whisper.cpp
 cmake -S whisper.cpp -B whisper.cpp/build
 cmake --build whisper.cpp/build -j
-./whisper.cpp/models/download-ggml-model.sh base.en
-cp whisper.cpp/models/ggml-base.en.bin models/
+./whisper.cpp/models/download-ggml-model.sh small.en
+cp whisper.cpp/models/ggml-small.en.bin models/
+export PIE_AGENT_STT_MODEL=models/ggml-small.en.bin
 uv run python main.py
 ```
 
-The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
+`small.en` is the recommended English model for a Raspberry Pi 5 with 4 GB or more RAM. It is more accurate than `base.en`, but slower and uses about 852 MB of memory. On a lower-memory Pi, download `base.en` instead and set `PIE_AGENT_STT_MODEL=models/ggml-base.en.bin`. The recorder keeps 300 ms of pre-speech audio so it does not clip the first word. The wake-word and STT adapters now use the Pi microphone; Kokoro uses `aplay` for local playback.
 
 ## Package Layout
 
