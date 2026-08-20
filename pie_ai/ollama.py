@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 from collections.abc import Iterator, Sequence
 
 import requests
@@ -15,6 +16,7 @@ from .types import (
     ToolCall,
     ToolSchema,
 )
+from .logging import log_event
 
 
 class OllamaClient:
@@ -55,6 +57,8 @@ class OllamaClient:
         return self._complete(payload)
 
     def _complete(self, payload: dict[str, object]) -> ModelResponse:
+        started_at = time.perf_counter()
+        log_event("ai.ollama", "model_request_started", **self._request_fields(payload))
         try:
             response = requests.post(
                 f"{self.base_url}/api/chat",
@@ -64,10 +68,28 @@ class OllamaClient:
             response.raise_for_status()
             data = response.json()
         except (requests.RequestException, ValueError) as error:
+            log_event(
+                "ai.ollama",
+                "model_request_failed",
+                level=40,
+                duration_ms=round((time.perf_counter() - started_at) * 1000),
+                error_type=type(error).__name__,
+            )
             raise ModelUnavailableError("Ollama is unavailable.") from error
+        log_event(
+            "ai.ollama",
+            "model_request_finished",
+            duration_ms=round((time.perf_counter() - started_at) * 1000),
+            http_status=response.status_code,
+        )
         return ModelResponse(self._model_message(data.get("message", {})))
 
     def _stream(self, payload: dict[str, object]) -> Iterator[ModelEvent]:
+        started_at = time.perf_counter()
+        first_event_at: float | None = None
+        text_characters = 0
+        tool_call_count = 0
+        log_event("ai.ollama", "model_request_started", **self._request_fields(payload))
         try:
             with requests.post(
                 f"{self.base_url}/api/chat",
@@ -79,16 +101,49 @@ class OllamaClient:
                 for line in response.iter_lines(decode_unicode=True):
                     if not line:
                         continue
+                    if first_event_at is None:
+                        first_event_at = time.perf_counter()
+                        log_event(
+                            "ai.ollama",
+                            "model_first_event",
+                            duration_ms=round((first_event_at - started_at) * 1000),
+                        )
                     data = json.loads(line)
                     message = self._model_message(data.get("message", {}))
                     if message.content:
+                        text_characters += len(message.content)
                         yield ModelEvent(kind="text_delta", text=message.content)
                     for tool_call in message.tool_calls:
+                        tool_call_count += 1
                         yield ModelEvent(kind="tool_call", tool_call=tool_call)
                     if data.get("done"):
                         yield ModelEvent(kind="completed", message=message)
         except (requests.RequestException, ValueError) as error:
+            log_event(
+                "ai.ollama",
+                "model_request_failed",
+                level=40,
+                duration_ms=round((time.perf_counter() - started_at) * 1000),
+                error_type=type(error).__name__,
+            )
             raise ModelUnavailableError("Ollama is unavailable.") from error
+        log_event(
+            "ai.ollama",
+            "model_request_finished",
+            duration_ms=round((time.perf_counter() - started_at) * 1000),
+            http_status=response.status_code,
+            text_characters=text_characters,
+            tool_call_count=tool_call_count,
+        )
+
+    def _request_fields(self, payload: dict[str, object]) -> dict[str, object]:
+        return {
+            "model": self.model_name,
+            "streaming": bool(payload["stream"]),
+            "thinking": payload["think"],
+            "message_count": len(payload["messages"]),
+            "tool_count": len(payload.get("tools", [])),
+        }
 
     @staticmethod
     def _tool_payload(tool: ToolSchema) -> dict[str, object]:

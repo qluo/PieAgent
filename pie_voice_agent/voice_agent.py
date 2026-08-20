@@ -1,9 +1,10 @@
 """The device-facing application loop built around pie_agent_core."""
 
 from collections.abc import Sequence
+import time
 
 from pie_agent_core import Agent, AgentEvent, AgentNote
-from pie_ai import ModelEvent
+from pie_ai import ModelEvent, log_event
 from pie_voice_agent.face import states
 from pie_voice_agent.face.state import FaceState
 from pie_voice_agent.memory import MarkdownMemory
@@ -36,10 +37,27 @@ class VoiceAgent:
         try:
             while True:
                 self.face_state.set(states.IDLE)
+                log_event("voice.wake_word", "wake_word_waiting")
                 self.wake_word.wait()
+                log_event("voice.wake_word", "wake_word_detected")
 
                 self.face_state.set(states.LISTENING)
+                transcription_started_at = time.perf_counter()
+                log_event(
+                    "voice.stt",
+                    "transcription_started",
+                    engine=getattr(self.stt, "engine", "unknown"),
+                )
                 user_text = self.stt.listen_and_transcribe()
+                log_event(
+                    "voice.stt",
+                    "transcription_finished",
+                    duration_ms=round(
+                        (time.perf_counter() - transcription_started_at) * 1000
+                    ),
+                    character_count=len(user_text),
+                    blank=not user_text.strip(),
+                )
                 if not user_text.strip():
                     self._speak("I didn't catch that. Please try again.")
                     continue
@@ -83,9 +101,32 @@ class VoiceAgent:
 
     def _speak(self, text: str) -> None:
         """Keep the thinking face visible until audio playback begins."""
+        started_at = time.perf_counter()
+        log_event(
+            "voice.tts",
+            "tts_started",
+            engine=type(self.tts).__name__,
+            character_count=len(text),
+        )
+
+        def on_playback_started() -> None:
+            self.face_state.set(states.SPEAKING)
+            log_event(
+                "voice.tts",
+                "playback_started",
+                synthesis_duration_ms=round(
+                    (time.perf_counter() - started_at) * 1000
+                ),
+            )
+
         self.tts.speak(
             text,
-            on_playback_started=lambda: self.face_state.set(states.SPEAKING),
+            on_playback_started=on_playback_started,
+        )
+        log_event(
+            "voice.tts",
+            "tts_finished",
+            duration_ms=round((time.perf_counter() - started_at) * 1000),
         )
 
     def _handle_event(self, event: AgentEvent) -> str | None:

@@ -119,6 +119,18 @@ To return to the default backend in the current terminal, run `export PIE_AGENT_
 
 The older lesson tests are retired teaching artifacts for the removed `agent/` package and are not the runtime acceptance suite.
 
+## Runtime Logs
+
+Pie Agent writes structured local JSONL execution traces. A daily file is created lazily when the first record is written:
+
+```text
+logs/MM-DD-YYYY/pie-agent.jsonl
+```
+
+At each start, Pie Agent removes only date-named log folders outside the 30-day retention window; folders with other names are left untouched. The file handler checks the current date on every write, so a long-running agent switches to a new daily file after midnight.
+
+The reusable `pie_ai.logging` module provides the date-partitioned JSONL handler and trace/span IDs. Pie Agent configures its path and `pie-agent.jsonl` file name in `main.py`; another type of agent can reuse the same handler with its own file name. Default `INFO` records include lifecycle, backend selection, and timing metadata but never transcripts, prompts, memory facts, tool results, or replies. Set `PIE_AGENT_LOG_LEVEL=DEBUG` for additional operational detail; content remains excluded.
+
 ## macOS Setup
 
 For Mac keyboard-mode development, install prerequisites:

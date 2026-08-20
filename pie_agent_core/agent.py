@@ -1,6 +1,7 @@
 """The provider- and application-neutral tool-using agent loop."""
 
 from collections.abc import Iterator, Sequence
+import time
 
 from pie_ai import (
     ModelClient,
@@ -9,6 +10,11 @@ from pie_ai import (
     ModelResponse,
     ModelUnavailableError,
     ThinkingLevel,
+    begin_span,
+    begin_trace,
+    end_span,
+    end_trace,
+    log_event,
 )
 
 from .context import Context
@@ -56,13 +62,20 @@ class Agent:
             raise ValueError('thinking_mode must be "auto", "off", or "on".')
         self.thinking_mode = thinking_mode
         self._started = False
+        self._trace_token = None
 
     def start(self) -> AgentEvent:
+        self._trace_token = begin_trace()
         self._started = True
+        log_event("core.agent", "agent_started", tool_count=len(self.tools))
         return AgentEvent(kind="agent_started")
 
     def finish(self) -> AgentEvent:
+        log_event("core.agent", "agent_finished")
         self._started = False
+        if self._trace_token is not None:
+            end_trace(self._trace_token)
+            self._trace_token = None
         return AgentEvent(kind="agent_finished")
 
     def run_turn(
@@ -76,64 +89,111 @@ class Agent:
         if not self._started:
             yield self.start()
 
-        self.conversation.messages.extend(notes)
-        user_message = AgentMessage(kind="user", content=user_text)
-        self.conversation.messages.append(user_message)
-        yield AgentEvent(kind="turn_started", message=user_message)
-
-        notices: list[str] = []
-        requested_thinking = self._thinking_for(user_text) if thinking is None else thinking
+        span_token = begin_span()
+        started_at = time.perf_counter()
         try:
-            for _round in range(self.max_tool_rounds):
-                response = yield from self._generate(streaming, requested_thinking)
-                assistant = AgentMessage(
-                    kind="assistant",
-                    content=response.message.content,
-                    tool_calls=response.message.tool_calls,
-                )
-                self.conversation.messages.append(assistant)
+            self.conversation.messages.extend(notes)
+            user_message = AgentMessage(kind="user", content=user_text)
+            self.conversation.messages.append(user_message)
+            log_event(
+                "core.agent",
+                "turn_started",
+                note_count=len(notes),
+                conversation_messages=len(self.conversation.messages),
+            )
+            yield AgentEvent(kind="turn_started", message=user_message)
 
-                if not assistant.tool_calls:
-                    final_message = self._final_message(assistant, notices)
-                    yield AgentEvent(kind="turn_finished", message=final_message)
-                    return
+            notices: list[str] = []
+            requested_thinking = self._thinking_for(user_text) if thinking is None else thinking
+            try:
+                for round_number in range(1, self.max_tool_rounds + 1):
+                    response = yield from self._generate(streaming, requested_thinking)
+                    assistant = AgentMessage(
+                        kind="assistant",
+                        content=response.message.content,
+                        tool_calls=response.message.tool_calls,
+                    )
+                    self.conversation.messages.append(assistant)
 
-                for tool_call in assistant.tool_calls:
-                    yield AgentEvent(kind="tool_started", tool_name=tool_call.name)
-                    result = self._execute_tool(tool_call.name, tool_call.arguments)
-                    if result.user_notice:
-                        notices.append(result.user_notice)
-                    self.conversation.messages.append(
-                        AgentMessage(
-                            kind="tool_result",
-                            content=result.content,
-                            tool_name=tool_call.name,
+                    if not assistant.tool_calls:
+                        final_message = self._final_message(assistant, notices)
+                        log_event(
+                            "core.agent",
+                            "turn_finished",
+                            duration_ms=round((time.perf_counter() - started_at) * 1000),
+                            status="ok",
+                            tool_rounds=round_number - 1,
                         )
-                    )
-                    yield AgentEvent(
-                        kind="tool_finished",
-                        tool_name=tool_call.name,
-                        result=result,
-                    )
+                        yield AgentEvent(kind="turn_finished", message=final_message)
+                        return
 
-            final_message = AgentMessage(
-                kind="assistant",
-                content=self._with_notices(
-                    "I couldn't complete that request after several tool attempts.",
-                    notices,
-                ),
-            )
-            self.conversation.messages.append(final_message)
-            yield AgentEvent(kind="turn_finished", message=final_message)
-        except ModelUnavailableError:
-            final_message = AgentMessage(
-                kind="assistant",
-                content=self._with_notices(
-                    "I can't reach my language model right now.", notices
-                ),
-            )
-            self.conversation.messages.append(final_message)
-            yield AgentEvent(kind="turn_finished", message=final_message)
+                    for tool_call in assistant.tool_calls:
+                        tool_started_at = time.perf_counter()
+                        log_event(
+                            "core.agent",
+                            "tool_started",
+                            tool_name=tool_call.name,
+                            round=round_number,
+                        )
+                        yield AgentEvent(kind="tool_started", tool_name=tool_call.name)
+                        result = self._execute_tool(tool_call.name, tool_call.arguments)
+                        if result.user_notice:
+                            notices.append(result.user_notice)
+                        self.conversation.messages.append(
+                            AgentMessage(
+                                kind="tool_result",
+                                content=result.content,
+                                tool_name=tool_call.name,
+                            )
+                        )
+                        log_event(
+                            "core.agent",
+                            "tool_finished",
+                            tool_name=tool_call.name,
+                            status=result.status,
+                            duration_ms=round(
+                                (time.perf_counter() - tool_started_at) * 1000
+                            ),
+                        )
+                        yield AgentEvent(
+                            kind="tool_finished",
+                            tool_name=tool_call.name,
+                            result=result,
+                        )
+
+                final_message = AgentMessage(
+                    kind="assistant",
+                    content=self._with_notices(
+                        "I couldn't complete that request after several tool attempts.",
+                        notices,
+                    ),
+                )
+                self.conversation.messages.append(final_message)
+                log_event(
+                    "core.agent",
+                    "turn_finished",
+                    duration_ms=round((time.perf_counter() - started_at) * 1000),
+                    status="tool_limit",
+                    tool_rounds=self.max_tool_rounds,
+                )
+                yield AgentEvent(kind="turn_finished", message=final_message)
+            except ModelUnavailableError:
+                final_message = AgentMessage(
+                    kind="assistant",
+                    content=self._with_notices(
+                        "I can't reach my language model right now.", notices
+                    ),
+                )
+                self.conversation.messages.append(final_message)
+                log_event(
+                    "core.agent",
+                    "turn_finished",
+                    duration_ms=round((time.perf_counter() - started_at) * 1000),
+                    status="model_unavailable",
+                )
+                yield AgentEvent(kind="turn_finished", message=final_message)
+        finally:
+            end_span(span_token)
 
     def _generate(
         self, streaming: bool, thinking: ThinkingLevel
@@ -142,6 +202,15 @@ class Agent:
             self.conversation.messages, self.conversation
         )
         model_messages = self.context.to_model_messages(prepared)
+        log_event(
+            "core.context",
+            "context_prepared",
+            conversation_messages=len(self.conversation.messages),
+            prepared_messages=len(prepared),
+            model_messages=len(model_messages),
+            streaming=streaming,
+            thinking=thinking,
+        )
         generated = self.model_client.generate(
             model_messages,
             list(self.tools.values()),

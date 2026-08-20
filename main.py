@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from threading import Thread
 
-from pie_ai import OllamaClient
+from pie_ai import OllamaClient, configure_logging
 from pie_agent_core import Agent, Context
 from pie_agent_core.search import SearchTool
 from pie_voice_agent import VoiceAgent
@@ -56,6 +56,11 @@ def build_tts() -> object:
 
 def main() -> None:
     """Start the complete local voice agent."""
+    configure_logging(
+        PROJECT_ROOT / "logs",
+        file_name="pie-agent.jsonl",
+        level=os.environ.get("PIE_AGENT_LOG_LEVEL", "INFO"),
+    )
     face_state = FaceState()
     face_controller = FaceController(face_state=face_state)
     face_thread = Thread(target=face_controller.run, daemon=True)
