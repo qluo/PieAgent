@@ -1,7 +1,7 @@
 """Generic stateful agent runtime built on pie_ai."""
 
 from .agent import Agent
-from .context import Context
+from .context import Context, ConvertToModelMessages, TransformContext
 from .conversation import AgentConversation
 from .events import AgentEvent
 from .messages import AgentMessage, AgentNote
@@ -18,4 +18,6 @@ __all__ = [
     "AgentTool",
     "AgentToolResult",
     "Context",
+    "ConvertToModelMessages",
+    "TransformContext",
 ]

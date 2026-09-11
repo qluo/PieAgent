@@ -17,7 +17,7 @@ from pie_ai import (
     log_event,
 )
 
-from .context import Context
+from .context import Context, ConvertToModelMessages, TransformContext
 from .conversation import AgentConversation
 from .events import AgentEvent
 from .messages import AgentMessage, AgentNote
@@ -54,12 +54,20 @@ class Agent:
         max_tool_rounds: int = 5,
         thinking_mode: str = "auto",
         state: AgentState | None = None,
+        transform_context: TransformContext | None = None,
+        convert_to_model_messages: ConvertToModelMessages | None = None,
     ) -> None:
         if state is not None and conversation is not None:
             raise ValueError("Pass either state or conversation, not both.")
         self.model_client = model_client
         self.tools = {tool.name: tool for tool in tools}
         self.context = context or Context()
+        self.transform_context = (
+            transform_context or self.context.transform_context
+        )
+        self.convert_to_model_messages = (
+            convert_to_model_messages or self.context.convert_to_model_messages
+        )
         self.state = (
             state
             if state is not None
@@ -210,10 +218,10 @@ class Agent:
     def _generate(
         self, streaming: bool, thinking: ThinkingLevel
     ) -> Iterator[ModelEvent]:
-        prepared = self.context.transform(
+        prepared = self.transform_context(
             self.conversation.messages, self.conversation
         )
-        model_messages = self.context.to_model_messages(prepared)
+        model_messages = self.convert_to_model_messages(prepared)
         log_event(
             "core.context",
             "context_prepared",

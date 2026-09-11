@@ -1,6 +1,6 @@
-"""Convert agent conversation entries into model-visible messages."""
+"""Independent context-selection and model-message conversion stages."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 from pie_ai import ModelMessage
 
@@ -8,22 +8,32 @@ from .messages import AgentMessage
 from .state import AgentState
 
 
+TransformContext = Callable[
+    [Sequence[AgentMessage], AgentState],
+    list[AgentMessage],
+]
+ConvertToModelMessages = Callable[
+    [Sequence[AgentMessage]],
+    list[ModelMessage],
+]
+
+
 class Context:
-    """Own generic prompt preparation and model-message conversion."""
+    """Provide compatible defaults for both context-boundary stages."""
 
     def __init__(self, system_prompt: str = "") -> None:
         self.system_prompt = system_prompt.strip()
 
-    def transform(
+    def transform_context(
         self,
         messages: Sequence[AgentMessage],
         state: AgentState,
     ) -> list[AgentMessage]:
-        """Prepare in-session messages; compaction can be added here later."""
+        """Select the agent messages to expose to the conversion stage."""
         del state
         return list(messages)
 
-    def to_model_messages(
+    def convert_to_model_messages(
         self, messages: Sequence[AgentMessage]
     ) -> list[ModelMessage]:
         """Convert prepared messages without provider-specific behavior."""
@@ -49,3 +59,16 @@ class Context:
                     )
                 )
         return model_messages
+
+    # Compatibility aliases for callers using the original Context API.
+    def transform(
+        self,
+        messages: Sequence[AgentMessage],
+        state: AgentState,
+    ) -> list[AgentMessage]:
+        return self.transform_context(messages, state)
+
+    def to_model_messages(
+        self, messages: Sequence[AgentMessage]
+    ) -> list[ModelMessage]:
+        return self.convert_to_model_messages(messages)

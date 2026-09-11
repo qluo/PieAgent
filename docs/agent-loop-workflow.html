@@ -139,7 +139,7 @@
 
           <rect x="572" y="18" width="150" height="54" rx="8" class="actor core"></rect>
           <text x="647" y="43" text-anchor="middle" class="label">Context</text>
-          <text x="647" y="61" text-anchor="middle" class="small">transform() + to_model_messages()</text>
+          <text x="647" y="61" text-anchor="middle" class="small">two replaceable stages</text>
 
           <rect x="766" y="18" width="150" height="54" rx="8" class="actor ai"></rect>
           <text x="841" y="43" text-anchor="middle" class="label">ModelClient</text>
@@ -167,10 +167,10 @@
           <text x="186" y="224" text-anchor="middle" class="call-label">3. emit turn_started</text>
 
           <path d="M277 276 H647" class="message"></path>
-          <text x="462" y="268" text-anchor="middle" class="call-label">4. Context.transform(conversation.messages, conversation) → prepared AgentMessage[]</text>
+          <text x="462" y="268" text-anchor="middle" class="call-label">4. transform_context(messages, state) → AgentMessage[]</text>
 
           <path d="M647 320 H277" class="return"></path>
-          <text x="462" y="312" text-anchor="middle" class="call-label">5. Context.to_model_messages(prepared) → ModelMessage[]</text>
+          <text x="462" y="312" text-anchor="middle" class="call-label">5. convert_to_model_messages(prepared) → ModelMessage[]</text>
 
           <text x="26" y="366" class="phase">2. Ask the model</text>
           <path d="M277 398 H841" class="message"></path>
@@ -242,7 +242,7 @@
           <ul>
             <li><code>system</code>, <code>user</code>, <code>assistant</code>, and <code>tool_result</code> are provider-neutral.</li>
             <li>An assistant message may contain a requested <code>ToolCall</code>.</li>
-            <li><code>Context.to_model_messages()</code> performs the pure conversion and can omit an internal <code>agent_note</code>.</li>
+            <li><code>convert_to_model_messages()</code> performs the explicit conversion and can omit an internal <code>agent_note</code>.</li>
           </ul>
         </article>
       </div>
@@ -287,7 +287,7 @@
           <ul>
             <li><code>Agent</code> owns the sequence and repeats model calls after tools.</li>
             <li><code>AgentConversation</code> retains this conversation’s <code>AgentMessage</code> entries.</li>
-            <li><code>Context.transform()</code> selects the in-session context; <code>Context.to_model_messages()</code> creates model-visible input.</li>
+            <li><code>transform_context()</code> selects the in-session context; <code>convert_to_model_messages()</code> creates model-visible input. Applications can replace either stage independently.</li>
             <li><code>AgentTool</code> is the neutral executable contract and returns <code>AgentToolResult</code>.</li>
             <li>It has no voice confirmation, coding permissions, or other application policy.</li>
           </ul>
@@ -334,14 +334,14 @@
     streaming: bool = False,
 ) -> ModelResponse | Iterator[ModelEvent]
 
-Context.transform(
+transform_context(
     messages: list[AgentMessage],
-    conversation: AgentConversation,
-) -> list[AgentMessage]  # initially unchanged; later prune or compact
+    state: AgentState,
+) -> list[AgentMessage]
 
-Context.to_model_messages(
+convert_to_model_messages(
     messages: list[AgentMessage],
-) -> list[ModelMessage]  # pure AgentMessage → ModelMessage boundary
+) -> list[ModelMessage]  # explicit AgentMessage → ModelMessage boundary
 
 AgentTool.execute(
     arguments: dict[str, object],

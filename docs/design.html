@@ -262,14 +262,14 @@ streaming=True   -> Iterator[ModelEvent]</pre>
 
     <section>
       <h2>Message Preparation Pipeline</h2>
-      <p>The model API and the message pipeline solve different problems. <code>generate()</code> performs one model request. Before that request, the core uses <code>Context</code> to select and convert the current agent history:</p>
+      <p>The model API and the message pipeline solve different problems. <code>generate()</code> performs one model request. Before that request, the core runs two independently replaceable stages; <code>Context</code> supplies compatible defaults:</p>
       <pre>AgentConversation.messages
-  → Context.transform(messages, conversation)
+  → transform_context(messages, state)
   → prepared: AgentMessage[]
-  → Context.to_model_messages(prepared)
+  → convert_to_model_messages(prepared)
   → ModelMessage[]
   → ModelClient.generate(...)</pre>
-      <p><code>Context.transform()</code> starts with <code>AgentConversation.messages</code>. It may prune history, compact older messages, and retain useful in-session notes; initially it can return the messages unchanged. The outer application can add an <code>AgentNote</code> from its own memory or repository source before this step. <code>Context.to_model_messages()</code> is a pure boundary that removes UI-only messages and converts application-specific messages into the atomic types defined by <code>pie_ai</code>.</p>
+      <p><code>transform_context()</code> starts with <code>AgentConversation.messages</code> and selects the in-session context. The outer application can replace this callable without replacing conversion, or add an <code>AgentNote</code> from its own memory or repository source before this step. <code>convert_to_model_messages()</code> is independently replaceable and converts application messages into the atomic types defined by <code>pie_ai</code>. Existing <code>Context(system_prompt=...)</code> usage provides both default callables.</p>
     </section>
 
     <section>
