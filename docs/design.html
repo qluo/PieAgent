@@ -279,6 +279,8 @@ streaming=True   -> Iterator[ModelEvent]</pre>
   tools: list[AgentTool]
   context: Context
   conversation: AgentConversation
+  before_tool_call: BeforeToolCall | None
+  after_tool_call: AfterToolCall | None
 
 AgentConversation
   messages: list[AgentMessage]
@@ -286,8 +288,17 @@ AgentConversation
 Agent.run_turn(user_text, notes=[], streaming=False)
   → Iterator[AgentEvent | ModelEvent]
 
-AgentTool.execute(arguments) → AgentToolResult</pre>
-      <p>The core invokes a neutral <code>AgentTool</code>. Application behavior belongs in the tool implementation: <code>VoiceTool</code> can speak a confirmation, while a future <code>CodingTool</code> can enforce workspace or sandbox rules. The core contains neither policy.</p>
+Agent.run_turn_async(user_text, notes=[], streaming=False)
+  → AsyncIterator[AgentEvent | ModelEvent]
+
+before_tool_call(ToolCallContext)
+  → ToolCallDecision | Awaitable[ToolCallDecision]
+
+AgentTool.execute(effective_arguments) → AgentToolResult
+
+after_tool_call(ToolExecutionContext)
+  → AgentToolResult | Awaitable[AgentToolResult]</pre>
+      <p>The core invokes a neutral <code>AgentTool</code>. Applications inject policy through optional hooks: the pre-hook can reject a call or replace its arguments, and the post-hook observes success, rejection, or failure before returning the redacted or normalized result stored in conversation state. <code>run_turn_async()</code> awaits genuine async hooks on the caller’s event loop; <code>run_turn()</code> supports no hooks and synchronous hooks, and directs awaitable hooks to the async API. Hooks finish before the next tool call, so execution remains strictly sequential. A post-hook failure fails closed rather than exposing an unprocessed result. The core contains no voice-specific permission UI or policy.</p>
     </section>
 
     <section>

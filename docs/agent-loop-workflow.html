@@ -131,7 +131,7 @@
 
           <rect x="208" y="18" width="138" height="54" rx="8" class="actor core"></rect>
           <text x="277" y="43" text-anchor="middle" class="label">Agent</text>
-          <text x="277" y="61" text-anchor="middle" class="small">run_turn(...)</text>
+          <text x="277" y="61" text-anchor="middle" class="small">run_turn_async(...)</text>
 
           <rect x="379" y="18" width="160" height="54" rx="8" class="actor core"></rect>
           <text x="459" y="43" text-anchor="middle" class="label">AgentConversation</text>
@@ -158,7 +158,7 @@
 
           <text x="26" y="112" class="phase">1. Receive and prepare</text>
           <path d="M95 144 H277" class="message"></path>
-          <text x="186" y="136" text-anchor="middle" class="call-label">1. run_turn(user_text, notes)</text>
+          <text x="186" y="136" text-anchor="middle" class="call-label">1. async iterate run_turn_async(user_text, notes)</text>
 
           <path d="M277 188 H459" class="message"></path>
           <text x="368" y="180" text-anchor="middle" class="call-label">2. append user AgentMessage</text>
@@ -188,40 +188,40 @@
           <path d="M277 676 H95" class="event"></path>
           <text x="186" y="668" text-anchor="middle" class="call-label">9. emit tool_started</text>
 
-          <text x="667" y="704" text-anchor="middle" class="call-label">10. concrete tool validates arguments and performs its capability</text>
+          <text x="667" y="704" text-anchor="middle" class="call-label">10. await before_tool_call(context) → decision + optional arguments</text>
 
           <path d="M277 732 H1057" class="message"></path>
-          <text x="667" y="724" text-anchor="middle" class="call-label">11. AgentTool.execute(arguments)</text>
+          <text x="667" y="724" text-anchor="middle" class="call-label">11. if approved: AgentTool.execute(effective_arguments)</text>
 
           <path d="M1057 768 H277" class="return"></path>
           <text x="667" y="760" text-anchor="middle" class="call-label">12. AgentToolResult (completed, failed, or declined)</text>
 
-          <text x="667" y="796" text-anchor="middle" class="call-label">The core receives only the neutral AgentToolResult</text>
+          <text x="667" y="796" text-anchor="middle" class="call-label">13. await after_tool_call(outcome) → redacted/normalized result</text>
 
           <path d="M277 824 H459" class="message"></path>
-          <text x="368" y="816" text-anchor="middle" class="call-label">13. append tool-result message</text>
+          <text x="368" y="816" text-anchor="middle" class="call-label">14. append tool-result message</text>
 
           <path d="M277 858 H95" class="event"></path>
-          <text x="186" y="850" text-anchor="middle" class="call-label">14. emit tool_finished</text>
+          <text x="186" y="850" text-anchor="middle" class="call-label">15. emit tool_finished</text>
 
           <path d="M277 896 C450 930, 670 930, 841 896" class="message"></path>
-          <text x="560" y="938" text-anchor="middle" class="call-label">15. prepare updated context, then generate(...)</text>
+          <text x="560" y="938" text-anchor="middle" class="call-label">16. prepare updated context, then generate(...)</text>
 
           <text x="26" y="936" class="phase">4. Finish and present</text>
           <path d="M841 972 H277" class="return"></path>
-          <text x="559" y="964" text-anchor="middle" class="call-label">16. final ModelResponse</text>
+          <text x="559" y="964" text-anchor="middle" class="call-label">17. final ModelResponse</text>
 
           <path d="M277 1016 H459" class="message"></path>
-          <text x="368" y="1008" text-anchor="middle" class="call-label">17. append assistant AgentMessage</text>
+          <text x="368" y="1008" text-anchor="middle" class="call-label">18. append assistant AgentMessage</text>
 
           <path d="M277 1060 H95" class="event"></path>
-          <text x="186" y="1052" text-anchor="middle" class="call-label">18. emit turn_finished(reply)</text>
+          <text x="186" y="1052" text-anchor="middle" class="call-label">19. emit turn_finished(reply)</text>
 
           <path d="M95 1104 H277" class="return"></path>
-          <text x="186" y="1096" text-anchor="middle" class="call-label">19. speak(reply.text)</text>
+          <text x="186" y="1096" text-anchor="middle" class="call-label">20. speak(reply.text)</text>
 
           <text x="590" y="1140" text-anchor="middle" class="small">agent_started occurs when the run loop begins; agent_finished occurs when it stops.</text>
-          <text x="590" y="1165" text-anchor="middle" class="small">The direct-answer path skips steps 8–15 and continues from step 16. The core never imports voice code.</text>
+          <text x="590" y="1165" text-anchor="middle" class="small">The direct-answer path skips steps 8–16 and continues from step 17. The core never imports voice code.</text>
         </svg>
       </div>
     </section>
@@ -289,6 +289,7 @@
             <li><code>AgentConversation</code> retains this conversation’s <code>AgentMessage</code> entries.</li>
             <li><code>transform_context()</code> selects the in-session context; <code>convert_to_model_messages()</code> creates model-visible input. Applications can replace either stage independently.</li>
             <li><code>AgentTool</code> is the neutral executable contract and returns <code>AgentToolResult</code>.</li>
+            <li>Injected pre/post hooks apply application policy and result shaping without changing a tool.</li>
             <li>It has no voice confirmation, coding permissions, or other application policy.</li>
           </ul>
         </article>
@@ -296,8 +297,8 @@
           <h3>pie_voice_agent</h3>
           <ul>
             <li><code>VoiceTool</code> implements or wraps <code>AgentTool</code>.</li>
-            <li>It owns spoken status and any confirmation conversation.</li>
-            <li>It can return a declined <code>AgentToolResult</code> without running the underlying capability.</li>
+            <li>It owns spoken status and can inject a pre-hook for any confirmation conversation.</li>
+            <li>That hook can return a rejected <code>ToolCallDecision</code> without running the underlying capability.</li>
             <li>A future coding agent can use its own <code>CodingTool</code> wrapper for workspace or sandbox rules.</li>
           </ul>
         </article>
@@ -347,13 +348,24 @@ AgentTool.execute(
     arguments: dict[str, object],
 ) -> AgentToolResult
 
+before_tool_call(context: ToolCallContext)
+    -> ToolCallDecision | Awaitable[ToolCallDecision]
+
+after_tool_call(context: ToolExecutionContext)
+    -> AgentToolResult | Awaitable[AgentToolResult]
+
 AgentConversation
     messages: list[AgentMessage]
 
 Agent.run_turn(
     user_text: str,
-) -> Iterator[AgentEvent | ModelEvent]</pre>
-      <p class="note"><strong>Error handling:</strong> a provider error becomes an assistant error message. A tool error or a declined confirmation becomes an error <code>AgentToolResult</code> and a <code>tool_result</code> message, so the model can decide whether to recover, explain the result, or try another tool. Lifecycle events still end with their matching <code>*_finished</code> event.</p>
+) -> Iterator[AgentEvent | ModelEvent]
+
+Agent.run_turn_async(
+    user_text: str,
+) -> AsyncIterator[AgentEvent | ModelEvent]</pre>
+      <p class="note"><strong>Hook ordering and failures:</strong> each pre-hook, approved tool execution, and post-hook finishes before the next call starts. Rejections skip execution but still reach the post-hook. Tool and pre-hook failures become observable error outcomes. A post-hook failure fails closed and replaces the unprocessed result, preventing data that should have been redacted from reaching conversation state.</p>
+      <p class="note"><strong>Sync versus async:</strong> <code>run_turn_async()</code> awaits hooks on the caller’s event loop, including hooks that use loop-bound futures or events. <code>run_turn()</code> remains available for no hooks and synchronous hooks; if a hook returns an awaitable there, it raises <code>AsyncHookInSyncTurnError</code> with guidance to use the async API.</p>
     </section>
   </main>
 </body>
