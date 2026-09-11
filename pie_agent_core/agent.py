@@ -21,6 +21,7 @@ from .context import Context
 from .conversation import AgentConversation
 from .events import AgentEvent
 from .messages import AgentMessage, AgentNote
+from .state import AgentState
 from .tools import AgentTool, AgentToolResult
 
 
@@ -52,11 +53,22 @@ class Agent:
         conversation: AgentConversation | None = None,
         max_tool_rounds: int = 5,
         thinking_mode: str = "auto",
+        state: AgentState | None = None,
     ) -> None:
+        if state is not None and conversation is not None:
+            raise ValueError("Pass either state or conversation, not both.")
         self.model_client = model_client
         self.tools = {tool.name: tool for tool in tools}
         self.context = context or Context()
-        self.conversation = conversation or AgentConversation()
+        self.state = (
+            state
+            if state is not None
+            else conversation
+            if conversation is not None
+            else AgentConversation()
+        )
+        # Keep the original public attribute available to existing callers.
+        self.conversation = self.state
         self.max_tool_rounds = max_tool_rounds
         if thinking_mode not in {"auto", "off", "on"}:
             raise ValueError('thinking_mode must be "auto", "off", or "on".')

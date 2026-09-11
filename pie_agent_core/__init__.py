@@ -5,6 +5,7 @@ from .context import Context
 from .conversation import AgentConversation
 from .events import AgentEvent
 from .messages import AgentMessage, AgentNote
+from .state import AgentState
 from .tools import AgentTool, AgentToolResult
 
 __all__ = [
@@ -13,6 +14,7 @@ __all__ = [
     "AgentEvent",
     "AgentMessage",
     "AgentNote",
+    "AgentState",
     "AgentTool",
     "AgentToolResult",
     "Context",

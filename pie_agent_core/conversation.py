@@ -1,12 +1,9 @@
-"""The active conversation record for an agent."""
+"""Backward-compatible name for the original conversation state."""
 
-from dataclasses import dataclass, field
-
-from .messages import AgentMessage
+from .state import AgentState
 
 
-@dataclass(slots=True)
-class AgentConversation:
-    """Working conversation state, without presentation or lifecycle phase."""
+class AgentConversation(AgentState):
+    """Compatibility alias for callers that use the original class name."""
 
-    messages: list[AgentMessage] = field(default_factory=list)
+    __slots__ = ()

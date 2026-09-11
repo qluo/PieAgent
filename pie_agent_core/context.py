@@ -4,8 +4,8 @@ from collections.abc import Sequence
 
 from pie_ai import ModelMessage
 
-from .conversation import AgentConversation
 from .messages import AgentMessage
+from .state import AgentState
 
 
 class Context:
@@ -17,10 +17,10 @@ class Context:
     def transform(
         self,
         messages: Sequence[AgentMessage],
-        conversation: AgentConversation,
+        state: AgentState,
     ) -> list[AgentMessage]:
         """Prepare in-session messages; compaction can be added here later."""
-        del conversation
+        del state
         return list(messages)
 
     def to_model_messages(
