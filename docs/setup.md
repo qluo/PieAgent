@@ -44,6 +44,13 @@ The JSON from `/api/tags` should show `qwen3.5:4b` with `tools` capability. On t
 ollama run qwen3.5:4b "Reply with OK."
 ```
 
+Then exercise `pie_ai` directly, without the agent or voice layers:
+
+```bash
+uv run python -m demos.ollama_client_demo
+uv run python -m demos.ollama_client_demo --stream
+```
+
 ### 4. Install And Test Local Kokoro
 
 Download the model and voices once:

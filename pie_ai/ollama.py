@@ -87,8 +87,8 @@ class OllamaClient:
     def _stream(self, payload: dict[str, object]) -> Iterator[ModelEvent]:
         started_at = time.perf_counter()
         first_event_at: float | None = None
-        text_characters = 0
-        tool_call_count = 0
+        text_parts: list[str] = []
+        tool_calls: list[ToolCall] = []
         log_event("ai.ollama", "model_request_started", **self._request_fields(payload))
         try:
             with requests.post(
@@ -111,13 +111,20 @@ class OllamaClient:
                     data = json.loads(line)
                     message = self._model_message(data.get("message", {}))
                     if message.content:
-                        text_characters += len(message.content)
+                        text_parts.append(message.content)
                         yield ModelEvent(kind="text_delta", text=message.content)
                     for tool_call in message.tool_calls:
-                        tool_call_count += 1
+                        tool_calls.append(tool_call)
                         yield ModelEvent(kind="tool_call", tool_call=tool_call)
                     if data.get("done"):
-                        yield ModelEvent(kind="completed", message=message)
+                        yield ModelEvent(
+                            kind="completed",
+                            message=ModelMessage(
+                                role="assistant",
+                                content="".join(text_parts),
+                                tool_calls=tool_calls.copy(),
+                            ),
+                        )
         except (requests.RequestException, ValueError) as error:
             log_event(
                 "ai.ollama",
@@ -132,8 +139,8 @@ class OllamaClient:
             "model_request_finished",
             duration_ms=round((time.perf_counter() - started_at) * 1000),
             http_status=response.status_code,
-            text_characters=text_characters,
-            tool_call_count=tool_call_count,
+            text_characters=sum(len(part) for part in text_parts),
+            tool_call_count=len(tool_calls),
         )
 
     def _request_fields(self, payload: dict[str, object]) -> dict[str, object]:
